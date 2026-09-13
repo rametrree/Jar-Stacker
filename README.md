@@ -1,10 +1,16 @@
+<div align="center">
+
 # Jar Stacker (v0.6.0)
+
+<img src="image/logo.png" alt="Jar Stacker Logo" width="160"/>
 
 [![Minecraft 1.21.1](https://img.shields.io/badge/Minecraft-1.21.1-brightgreen.svg)](https://minecraft.net/)
 [![Fabric](https://img.shields.io/badge/Fabric-Loader_%3E%3D0.19.3-blue.svg)](https://fabricmc.net/)
 [![Java 21](https://img.shields.io/badge/Java-21-orange.svg)](https://adoptium.net/)
 [![Tests Passing](https://img.shields.io/badge/Tests-343%20%2F%20343%20Passing-success.svg)](#automated-test-suite)
 [![Version](https://img.shields.io/badge/Version-0.6.0-blueviolet.svg)](https://github.com/rametrree/Jar-Stacker)
+
+</div>
 
 **Jar Stacker** is an advanced, high-performance entity stacking and logical virtualization mod for **Minecraft Java Edition 1.21.1 (Fabric)**.
 
@@ -26,6 +32,10 @@ Designed to maximize server and single-player tick rates (TPS) under heavy loads
 ---
 
 ## 1. Item Stacking Architecture (v0.6.0)
+
+<p align="center">
+  <img src="image/item-stacking.gif" alt="Item Stacking Demonstration" width="800"/>
+</p>
 
 ### Latest Entity Wins Consolidation
 When compatible items are detected within the configured radius, the newest `ItemEntity` (determined deterministically by age, spawn sequence, and runtime entity ID) becomes the physical survivor:
@@ -50,6 +60,10 @@ When compatible items are detected within the configured radius, the newest `Ite
 
 ## 2. Mob Stacking & Logical Virtualization
 
+<p align="center">
+  <img src="image/mob-stacking.gif" alt="Mob Stacking Demonstration" width="800"/>
+</p>
+
 ### Logical Status Effects & Persistent Fire (v0.6.0)
 - **Individual Effect Tracking**: Every logical member in a mob stack stores its own `MobEffectInstance` states (amplifier, duration, ambient flags, particle effects).
 - **Persistent Burn Counters**: Fire ticks are counted down independently per member (`remainingFireTicks`). Fire damage ticks authoritatively every 20 ticks.
@@ -70,6 +84,10 @@ When compatible items are detected within the configured radius, the newest `Ite
 - **Per-Member Health Records**: Invariant $\text{logicalCount} == \text{healthRecordCount}$ is preserved at all times.
 - **Scope Resolution**: Attacks damage the active member (`SINGLE`), all members in sweep range (`SWEEP`), or the entire stack (`AREA` / `SHARED_ENVIRONMENT`).
 - **Multi-Death Batching**: When $K$ members die from an explosion or sweeping attack, exactly $K$ deaths are processed, generating exact loot and XP $K$ times without mass physical entity spawning.
+
+<p align="center">
+  <img src="image/mob-stacking-kill.gif" alt="Mob Stacking Combat Demonstration" width="800"/>
+</p>
 
 ### Lifecycle-Aware Animal Breeding & Growth (v0.2.3–v0.4.0)
 - **4 Lifecycle Groups**: `BABY`, `BREEDING_IN_LOVE`, `BREEDING_COOLDOWN`, and `ADULT` remain strictly separated.
