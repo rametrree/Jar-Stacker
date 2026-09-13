@@ -1,0 +1,22 @@
+{
+	"required": true,
+	"package": "com.jar.jarstacker.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"ItemEntityMixin",
+		"LivingEntityMixin",
+		"BreedGoalMixin",
+		"SheepMixin",
+		"MushroomCowAccessor",
+		"MushroomCowMixin",
+		"PlayerMixin",
+		"ServerLevelMixin",
+		"MobMixin",
+		"EnchantmentHelperMixin",
+		"ThrownPotionMixin",
+		"MobEffectInstanceAccessor"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

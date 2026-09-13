@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "jarstacker",
+	"version": "${version}",
+	"name": "Jar Stacker",
+	"description": "Reduces entity count and improves performance by stacking compatible dropped items and mobs.",
+	"authors": [
+		"Jar"
+	],
+	"contact": {},
+	"license": "CC0-1.0",
+	"icon": "assets/jarstacker/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.jar.jarstacker.JarStackerMod"
+		],
+		"client": [
+			"com.jar.jarstacker.client.JarStackerClientMod"
+		],
+		"modmenu": [
+			"com.jar.jarstacker.client.integration.JarStackerModMenu"
+		]
+	},
+	"mixins": [
+		"jarstacker.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"yet_another_config_lib_v3": "*",
+		"modmenu": "*"
+	}
+}
