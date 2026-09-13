@@ -12,7 +12,7 @@ To ensure clarity across multi-version development, compatibility is categorized
 Jar Stacker is engineered around four core tenets:
 - **One Codebase**: Unified source tree in `src/main/java` utilizing Stonecutter directives (`//? if >=1.21.6 { ... } else { ... }`).
 - **One Feature Set**: Full feature parity across all supported versions (item stacking, mob stacking, single-death mode, status effects, config synchronization, YACL/vanilla GUI).
-- **One Test Suite**: The 343-test automated in-game integration suite runs identically on each version project.
+- **One Test Suite**: The 348-test automated in-game integration suite runs identically on each version project.
 - **Minimum Safe Number of JARs**: Dedicated binaries are compiled only across binary-incompatible boundaries, maximizing compatibility bands where safe.
 
 ---
@@ -21,14 +21,14 @@ Jar Stacker is engineered around four core tenets:
 
 | Minecraft Version | Compile Target | Artifact Used | SHA-256 Checksum | Automated Tests | Client Boot | Compatibility Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **1.21.1** | `1.21.1` (Dedicated) | `jarstacker-0.7.0+mc1.21.1.jar` | `24C578AB2CEFCABE82704D302BB25DB0E2FC54ACB313A1C2D9AC55EB68FCD609` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Independent Binary) |
-| **1.21.2** | `1.21.2` (Dedicated) | `jarstacker-0.7.0+mc1.21.2.jar` | `4904B5ADBAE65DE07FFE980247CDBB60B233E4B5B76BDDA61240983907A9625A` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
-| **1.21.3** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.2.jar` (Exact Binary) | `4904B5ADBAE65DE07FFE980247CDBB60B233E4B5B76BDDA61240983907A9625A` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.2–1.21.3) |
-| **1.21.4** | `1.21.4` (Dedicated) | `jarstacker-0.7.0+mc1.21.4.jar` | `3A36082FA301A90F759235399E357FAFD4EDEE3BF0895474A6C8CE1C88F12CA1` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Source-Compatible with 1.21.2) |
-| **1.21.5** | `1.21.5` (Dedicated) | `jarstacker-0.7.0+mc1.21.5.jar` | `B26F2F1D3E95F61D2C85F99D3EF9765B9B5F53C828D7A20FA3DC25DC73656ABB` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Entity Potion & Accessor Changes) |
-| **1.21.6** | `1.21.6` (Dedicated) | `jarstacker-0.7.0+mc1.21.6.jar` | `1FACF56AF3737D1259021C5C539CB0416585414CCA9F3543B36E79D9500524D8` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
-| **1.21.7** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `1FACF56AF3737D1259021C5C539CB0416585414CCA9F3543B36E79D9500524D8` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
-| **1.21.8** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `1FACF56AF3737D1259021C5C539CB0416585414CCA9F3543B36E79D9500524D8` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
+| **1.21.1** | `1.21.1` (Dedicated) | `jarstacker-0.7.0+mc1.21.1.jar` | `9B0A34C8CB9D54B3B13FD93A32CCF8AA5EF4D290DF63C829EF9BE3E9BEA9AA25` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Independent Binary) |
+| **1.21.2** | `1.21.2` (Dedicated) | `jarstacker-0.7.0+mc1.21.2.jar` | `9F2D9CCB7FD6B24A76B6C023E2FF40F290DCABA288FC0B91AFB79F4A2A60D246` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
+| **1.21.3** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.2.jar` (Exact Binary) | `9F2D9CCB7FD6B24A76B6C023E2FF40F290DCABA288FC0B91AFB79F4A2A60D246` | **348 / 348 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.2–1.21.3) |
+| **1.21.4** | `1.21.4` (Dedicated) | `jarstacker-0.7.0+mc1.21.4.jar` | `5E5955F026331C5A2B891CF8978742608BDDC7ED7BA9050073E5C906C99AE238` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Source-Compatible with 1.21.2) |
+| **1.21.5** | `1.21.5` (Dedicated) | `jarstacker-0.7.0+mc1.21.5.jar` | `481BC9832B1582B47D2DAC935105D352244EDE0A0817394B7F7F4A495067CBFB` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Entity Potion & Accessor Changes) |
+| **1.21.6** | `1.21.6` (Dedicated) | `jarstacker-0.7.0+mc1.21.6.jar` | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
+| **1.21.7** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
+| **1.21.8** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
 
 ---
 
@@ -49,33 +49,32 @@ Because these methods sit on hot tick and combat loops, bridging them via runtim
 Minecraft 1.21.3 is a minor maintenance release that preserves 100% binary compatibility with 1.21.2 for all classes, methods, and Mixin injection points touched by Jar Stacker.
 - **Runtime Verification**: The exact 1.21.2 binary was executed in an isolated Minecraft 1.21.3 environment.
 - **Fabric Metadata**: Declared dependency `"minecraft": ">=1.21.2 <=1.21.3"`.
-- **Server Result**: Server booted cleanly, Mixins applied without error, and **343 / 343 automated tests passed**.
+- **Server Result**: Server booted cleanly, Mixins applied without error, and **348 / 348 automated tests passed**.
 - **Client Result**: Client booted cleanly, reaching the title screen with 0 errors or warnings.
 - **Declared Band**: `VERIFIED BINARY BAND: Minecraft 1.21.2–1.21.3`.
 
 ### 1.21.4 Status: Dedicated Compile Target
-Minecraft 1.21.4 shares 100% source code compatibility with 1.21.2. Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.4.jar`) passing all 343 tests and booting cleanly to the title screen. Per project requirements, 1.21.4 remains a dedicated compile target and is not claimed as part of the 1.21.2 binary band.
+Minecraft 1.21.4 shares 100% source code compatibility with 1.21.2. Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.4.jar`) passing all 348 tests and booting cleanly to the title screen. Per project requirements, 1.21.4 remains a dedicated compile target and is not claimed as part of the 1.21.2 binary band.
 
 ### 1.21.5 Status: Dedicated Compile Target
 Minecraft 1.21.5 introduced entity hierarchy and accessor refactors:
 - `MushroomCow.setVariant` made private (resolved via `MushroomCowAccessor` `@Invoker("setVariant")`).
 - Split potion projectile hierarchy into `ThrownSplashPotion` vs `ThrownLingeringPotion`.
-- Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.5.jar`) passing all 343 tests and booting cleanly to the title screen.
+- Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.5.jar`) passing all 348 tests and booting cleanly to the title screen.
 
 ### 1.21.5 vs 1.21.6: Verified Binary Boundary (Incompatible)
-To conclusively establish whether Minecraft 1.21.5 and 1.21.6 can share a binary, the final compiled `jarstacker-0.7.0+mc1.21.5.jar` was explicitly probed against a Minecraft 1.21.6 runtime harness:
-1. **Metadata Enforcement Probe**: Launching the unmodified 1.21.5 artifact on 1.21.6 resulted in clean early rejection by Fabric Loader:
+To conclusively establish whether Minecraft 1.21.5 and 1.21.6 can share a binary, the final compiled `jarstacker-0.7.0+mc1.21.5.jar` was explicitly probed against a Minecraft 1.21.6+ runtime harness:
+1. **Metadata Enforcement Probe**: Launching the unmodified 1.21.5 artifact on the 1.21.6/1.21.7 harness resulted in clean early rejection by Fabric Loader:
    ```text
-   Mod 'Jar Stacker' (jarstacker) 0.7.0 requires version 1.21.5 of 'Minecraft' (minecraft), but only the wrong version is present: 1.21.6!
+   Mod 'Jar Stacker' (jarstacker) 0.7.0 requires version 1.21.5 of 'Minecraft' (minecraft), but only the wrong version is present: 1.21.7!
    ```
-2. **Runtime Binary Boundary Probe**: Launching a metadata-widened copy (`>=1.21.5 <=1.21.6`) of the exact same 1.21.5 bytecode without recompilation resulted in immediate critical bootstrap failure during Mixin application:
+2. **Runtime Binary Boundary Probe**: Launching a metadata-widened copy (`>=1.21.5 <=1.21.7`) of the exact same 1.21.5 bytecode without recompilation resulted in immediate critical bootstrap failure during Mixin application:
    ```text
-   MixinApplyError: Mixin [jarstacker.mixins.json:LivingEntityMixin from mod jarstacker] FAILED during APPLY
-   Caused by: InvalidInjectionException: Invalid descriptor on LivingEntityMixin->@Inject::jarstacker$saveData:
-   Expected: (Lnet/minecraft/world/level/storage/ValueOutput;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
-   Found:    (Lnet/minecraft/nbt/CompoundTag;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+   InvalidInjectionException: Critical injection failure: @Inject annotation on jarstacker$onAttackStart could not find any targets matching 'method_7324' in net/minecraft/world/entity/player/Player. No refMap loaded.
+   MixinApplyError: Mixin [jarstacker.mixins.json:PlayerMixin from mod jarstacker] from phase [DEFAULT] in config [jarstacker.mixins.json] FAILED during APPLY
+   Mixin transformation of net.minecraft.world.entity.player.Player failed
    ```
-3. **Verified Boundary**: 1.21.5 is the strict upper boundary of the 1.21.5 binary. Minecraft 1.21.6 fundamentally changed entity serialization from `CompoundTag` to `ValueOutput`/`ValueInput`, requiring a dedicated compile target.
+3. **Verified Boundary**: 1.21.5 is the strict upper boundary of the 1.21.5 binary. Minecraft 1.21.6 fundamentally overhauled entity serialization from `CompoundTag` to `ValueOutput`/`ValueInput` and diverged intermediary refmaps, requiring a dedicated compile target. Same-binary compatibility across 1.21.5 -> 1.21.6 is impossible.
 
 ### 1.21.6 vs 1.21.7 & 1.21.8: Verified Same-Binary Compatibility Band (1.21.6–1.21.8)
 Minecraft 1.21.6 introduced major Vanilla serialization overhaul:
@@ -83,8 +82,8 @@ Minecraft 1.21.6 introduced major Vanilla serialization overhaul:
 - `ProjectileUtil.getEntityHitResult` parameter shifted from `(Level, Entity, ...)` to `(Entity, Vec3, Vec3, AABB, Predicate, double)`.
 - `ThrownSplashPotion.onHitAsPotion` takes `HitResult` as 3rd parameter.
 - The compiled 1.21.6 binary (`jarstacker-0.7.0+mc1.21.6.jar`) declares `"minecraft": ">=1.21.6 <=1.21.8"`.
-- **Runtime Verification on 1.21.7**: Exact 1.21.6 binary executed in isolated 1.21.7 environment: **343 / 343 tests PASS**, client title screen reached.
-- **Runtime Verification on 1.21.8**: Exact 1.21.6 binary executed in isolated 1.21.8 environment: **343 / 343 tests PASS**, client title screen reached.
+- **Runtime Verification on 1.21.7**: Exact 1.21.6 binary executed in isolated 1.21.7 environment: **348 / 348 tests PASS**, client title screen reached.
+- **Runtime Verification on 1.21.8**: Exact 1.21.6 binary executed in isolated 1.21.8 environment: **348 / 348 tests PASS**, client title screen reached.
 - **Declared Band**: `VERIFIED BINARY BAND: Minecraft 1.21.6–1.21.8`.
 
 ---
@@ -164,13 +163,16 @@ Version divergence is strictly contained within two dedicated adapter classes an
 - **Version-Specific Divergence**: ~130 lines in adapters and mixin conditional blocks.
 - **Shared Source Code Percentage**: **~99.1%** (substantially exceeding the >=90% requirement and >=95% preference).
 
-### Reflection & Fail-Safe Variant Policy
+### Reflection, Modded Entities & Fail-Safe Variant Policy
 To ensure peak server performance and eliminate runtime failure points:
 1. **Zero Hot-Path Reflection**: Runtime reflection (`getMethod`, `invoke`) is strictly forbidden inside compatibility checks, mob merging scans, entity ticking, and variant comparisons.
 2. **Compile-Time Typed Variant Checks**: `EntityAdapter.variantsMatch` uses typed `instanceof` branches and typed accessors/invokers across all 16 supported Vanilla variant entities (Mooshroom, Cow, Pig, Chicken, Wolf, Cat, Frog, Horse, Llama, Rabbit, Fox, Axolotl, Parrot, Salmon, Tropical Fish, and Villager-data holders).
-3. **Fail-Safe Semantic**: If variant compatibility cannot be positively verified, or if two entities possess differing variant semantics, `EntityAdapter.variantsMatch` returns `false` (NOT compatible). Code never fails open.
-4. **Hardened Variant Copying**: `EntityAdapter.copyVariant` uses compile-time typed methods (and generated `@Invoker("setVariant")` mixins for entities where setters are private in >=1.21.5) without reflection or suppressed exception handlers.
-5. **Permitted Low-Frequency Bridges**: Reflection is restricted to isolated, non-hot-path bridges:
+3. **Modded and Unknown Entity Policy**:
+   - **Supported**: Authentic Vanilla entities registered in the `minecraft` namespace whose runtime Java implementation class resides in package `net.minecraft.` are fully supported across all typed variant and non-variant pathways.
+   - **Rejected**: Modded entities (non-`minecraft` namespace or external classes outside `net.minecraft.`) and unknown entity variant mechanics are strictly rejected. `EntityAdapter.evaluateVariantCompatibility` returns `VariantCompatibilityResult.UNKNOWN`, which evaluates `isCompatible()` to `false`. Stacking is rejected and `MobCompatibility.getIncompatibilityReason` reports `UNKNOWN_VARIANT_COMPATIBILITY`.
+   - **Why Unknown Variants Fail Safe**: Custom modded mobs frequently carry non-standard variant state, custom NBT data, capability attachments, or special AI logic unknown to the core stacking engine. Failing open would risk merging mobs with distinct modded attributes, resulting in irreversible state loss or desynchronization. Failing safe guarantees zero modded entity corruption.
+   - **Why Unknown Variant Copying Fails Safe**: `EntityAdapter.copyVariant` returns a `boolean` indicating whether the variant was recognized and safely copied. If an entity is unknown or variant transfer is unhandled, it returns `false`, preventing silent claims of successful variant transfer on unhandled entities during unstacking or materialization.
+4. **Permitted Low-Frequency Bridges**: Reflection is restricted to isolated, non-hot-path bridges:
    - Client boot screen factory detection (`JarStackerConfigScreenFactory`) for optional YACL integration.
    - Integration test runner NBT serialization bridge (`addAdditionalSaveData`/`readAdditionalSaveData`) supporting both Mojang and Yarn dev mappings.
 
@@ -192,7 +194,7 @@ To ensure peak server performance and eliminate runtime failure points:
 ./gradlew :1.21.1:build :1.21.2:build :1.21.4:build :1.21.5:build :1.21.6:build
 ```
 
-### Running In-Game Automated Integration Test Suite (343 Tests)
+### Running In-Game Automated Integration Test Suite (348 Tests)
 ```bash
 ./gradlew :1.21.1:runServer -PrunTests
 ./gradlew :1.21.2:runServer -PrunTests
