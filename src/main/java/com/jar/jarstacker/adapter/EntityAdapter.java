@@ -364,7 +364,14 @@ public final class EntityAdapter {
 		}
 		*///?} else {
 		try {
-			java.lang.reflect.Method m = Entity.class.getDeclaredMethod("addAdditionalSaveData", CompoundTag.class);
+			java.lang.reflect.Method m = null;
+			for (String name : new String[]{"addAdditionalSaveData", "writeCustomDataToNbt", "method_5652"}) {
+				try {
+					m = Entity.class.getDeclaredMethod(name, CompoundTag.class);
+					break;
+				} catch (NoSuchMethodException ignored) {}
+			}
+			if (m == null) throw new NoSuchMethodException("addAdditionalSaveData");
 			m.setAccessible(true);
 			m.invoke(entity, tag);
 		} catch (Throwable t) {
@@ -389,7 +396,14 @@ public final class EntityAdapter {
 		}
 		*///?} else {
 		try {
-			java.lang.reflect.Method m = Entity.class.getDeclaredMethod("readAdditionalSaveData", CompoundTag.class);
+			java.lang.reflect.Method m = null;
+			for (String name : new String[]{"readAdditionalSaveData", "readCustomDataFromNbt", "method_5749"}) {
+				try {
+					m = Entity.class.getDeclaredMethod(name, CompoundTag.class);
+					break;
+				} catch (NoSuchMethodException ignored) {}
+			}
+			if (m == null) throw new NoSuchMethodException("readAdditionalSaveData");
 			m.setAccessible(true);
 			m.invoke(entity, tag);
 		} catch (Throwable t) {
