@@ -14,14 +14,14 @@ Designed to maximize server and single-player tick rates (TPS) under heavy loads
 
 ## Key Features at a Glance
 
-- **⚡ Latest Entity Wins Item Architecture (v0.6.0)**: Dropped items consolidate into the newest item with natural Vanilla physics, preserving exact position and velocity with zero survivor teleportation or visual pop.
-- **⏱️ Adaptive 2/10 Scan Cadence**: High-frequency scans (every 2 ticks) for active/newly dropped items ensure rapid consolidation during mining, with an ultra-lightweight 10-tick baseline for settled items.
-- **🧪 Per-Logical-Entity Status Effects & Persistent Burn (v0.6.0)**: All 39 Vanilla 1.21.1 status effects, fire tick timers, and event-driven death triggers are tracked independently per logical mob member.
-- **⚔️ Complete Vanilla Combat & MC-3304 Parity (v0.5.2)**: Decoupled damage attribution, Looting level evaluation, sweeping edge mechanics, and projectile kill credit matching native Minecraft 1.21.1.
-- **🛡️ Dynamic Equipment Extraction**: Mobs picking up damageable weapons or armor dynamically extract as singletons to protect equipment durability.
-- **🐑 Lifecycle-Aware Breeding & Growth**: Independent baby growth progression, single-increment sheep wool regrowth, and transactional interaction splitting.
-- **🖥️ In-Game Configuration GUI**: Rich, searchable configuration screen powered by YetAnotherConfigLib (YACL v3) and Mod Menu.
-- **✅ 100% Verified**: 343 automated regression tests passing on every build.
+- **Latest Entity Wins Item Architecture (v0.6.0)**: Dropped items consolidate into the newest item with natural Vanilla physics, preserving exact position and velocity with zero survivor teleportation or visual pop.
+- **Adaptive 2/10 Scan Cadence**: High-frequency scans (every 2 ticks) for active/newly dropped items ensure rapid consolidation during mining, with an ultra-lightweight 10-tick baseline for settled items.
+- **Per-Logical-Entity Status Effects & Persistent Burn (v0.6.0)**: All 39 Vanilla 1.21.1 status effects, fire tick timers, and event-driven death triggers are tracked independently per logical mob member.
+- **Complete Vanilla Combat & MC-3304 Parity (v0.5.2)**: Decoupled damage attribution, Looting level evaluation, sweeping edge mechanics, and projectile kill credit matching native Minecraft 1.21.1.
+- **Dynamic Equipment Extraction**: Mobs picking up damageable weapons or armor dynamically extract as singletons to protect equipment durability.
+- **Lifecycle-Aware Breeding & Growth**: Independent baby growth progression, single-increment sheep wool regrowth, and transactional interaction splitting.
+- **In-Game Configuration GUI**: Rich, searchable configuration screen powered by YetAnotherConfigLib (YACL v3) and Mod Menu.
+- **100% Verified**: 343 automated regression tests passing on every build.
 
 ---
 
