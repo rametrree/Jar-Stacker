@@ -14,7 +14,19 @@
 		"MobMixin",
 		"EnchantmentHelperMixin",
 		"ThrownPotionMixin",
-		"MobEffectInstanceAccessor"
+		"MobEffectInstanceAccessor",
+		"PigAccessor",
+		"WolfAccessor",
+		"CatAccessor",
+		"FrogAccessor",
+		"HorseAccessor",
+		"LlamaAccessor",
+		"RabbitAccessor",
+		"FoxAccessor",
+		"AxolotlAccessor",
+		"ParrotAccessor",
+		"SalmonAccessor",
+		"TropicalFishAccessor"
 	],
 	"client": [
 	],

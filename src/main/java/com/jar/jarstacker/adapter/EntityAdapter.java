@@ -106,19 +106,76 @@ public final class EntityAdapter {
 
 	public static boolean variantsMatch(Entity a, Entity b) {
 		//? if >=1.21.5 {
-		/*if (a instanceof net.minecraft.world.entity.animal.MushroomCow mcA && b instanceof net.minecraft.world.entity.animal.MushroomCow mcB) {
+		/*if (a.getClass() != b.getClass()) {
+			return false;
+		}
+		if (a instanceof net.minecraft.world.entity.animal.MushroomCow mcA && b instanceof net.minecraft.world.entity.animal.MushroomCow mcB) {
 			return java.util.Objects.equals(mcA.getVariant(), mcB.getVariant());
 		}
-		try {
-			java.lang.reflect.Method getA = a.getClass().getMethod("getVariant");
-			java.lang.reflect.Method getB = b.getClass().getMethod("getVariant");
-			return java.util.Objects.equals(getA.invoke(a), getB.invoke(b));
-		} catch (Throwable ignored) {
-			return true;
+		if (a instanceof net.minecraft.world.entity.animal.Cow cowA && b instanceof net.minecraft.world.entity.animal.Cow cowB) {
+			return java.util.Objects.equals(cowA.getVariant(), cowB.getVariant());
 		}
+		if (a instanceof net.minecraft.world.entity.animal.Pig pigA && b instanceof net.minecraft.world.entity.animal.Pig pigB) {
+			return java.util.Objects.equals(pigA.getVariant(), pigB.getVariant());
+		}
+		if (a instanceof net.minecraft.world.entity.animal.Chicken chickA && b instanceof net.minecraft.world.entity.animal.Chicken chickB) {
+			return java.util.Objects.equals(chickA.getVariant(), chickB.getVariant());
+		}
+		if (a instanceof net.minecraft.world.entity.animal.wolf.Wolf wolfA && b instanceof net.minecraft.world.entity.animal.wolf.Wolf wolfB) {
+			return java.util.Objects.equals(((com.jar.jarstacker.mixin.WolfAccessor) wolfA).jarstacker$getVariant(), ((com.jar.jarstacker.mixin.WolfAccessor) wolfB).jarstacker$getVariant());
+		}
+		if (a instanceof net.minecraft.world.entity.animal.Cat catA && b instanceof net.minecraft.world.entity.animal.Cat catB) {
+			return java.util.Objects.equals(catA.getVariant(), catB.getVariant());
+		}
+		if (a instanceof net.minecraft.world.entity.animal.frog.Frog frogA && b instanceof net.minecraft.world.entity.animal.frog.Frog frogB) {
+			return java.util.Objects.equals(frogA.getVariant(), frogB.getVariant());
+		}
+		if (a instanceof net.minecraft.world.entity.animal.horse.Horse horseA && b instanceof net.minecraft.world.entity.animal.horse.Horse horseB) {
+			return horseA.getVariant() == horseB.getVariant();
+		}
+		if (a instanceof net.minecraft.world.entity.animal.horse.Llama llamaA && b instanceof net.minecraft.world.entity.animal.horse.Llama llamaB) {
+			return llamaA.getVariant() == llamaB.getVariant();
+		}
+		if (a instanceof net.minecraft.world.entity.animal.Rabbit rabbitA && b instanceof net.minecraft.world.entity.animal.Rabbit rabbitB) {
+			return rabbitA.getVariant() == rabbitB.getVariant();
+		}
+		if (a instanceof net.minecraft.world.entity.animal.Fox foxA && b instanceof net.minecraft.world.entity.animal.Fox foxB) {
+			return foxA.getVariant() == foxB.getVariant();
+		}
+		if (a instanceof net.minecraft.world.entity.animal.axolotl.Axolotl axolA && b instanceof net.minecraft.world.entity.animal.axolotl.Axolotl axolB) {
+			return axolA.getVariant() == axolB.getVariant();
+		}
+		if (a instanceof net.minecraft.world.entity.animal.Parrot parrotA && b instanceof net.minecraft.world.entity.animal.Parrot parrotB) {
+			return parrotA.getVariant() == parrotB.getVariant();
+		}
+		if (a instanceof net.minecraft.world.entity.animal.Salmon salmonA && b instanceof net.minecraft.world.entity.animal.Salmon salmonB) {
+			return salmonA.getVariant() == salmonB.getVariant();
+		}
+		if (a instanceof net.minecraft.world.entity.animal.TropicalFish tfA && b instanceof net.minecraft.world.entity.animal.TropicalFish tfB) {
+			return tfA.getBaseColor() == tfB.getBaseColor() && tfA.getPatternColor() == tfB.getPatternColor() && tfA.getPattern() == tfB.getPattern();
+		}
+		if (a instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhA && b instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhB) {
+			return java.util.Objects.equals(vdhA.getVillagerData(), vdhB.getVillagerData());
+		}
+		return true;
 		*///?} else {
-		if (a instanceof net.minecraft.world.entity.VariantHolder<?> vA && b instanceof net.minecraft.world.entity.VariantHolder<?> vB) {
-			return vA.getVariant().equals(vB.getVariant());
+		if (a instanceof net.minecraft.world.entity.VariantHolder<?> vA) {
+			if (b instanceof net.minecraft.world.entity.VariantHolder<?> vB) {
+				return java.util.Objects.equals(vA.getVariant(), vB.getVariant());
+			}
+			return false;
+		}
+		if (b instanceof net.minecraft.world.entity.VariantHolder<?>) {
+			return false;
+		}
+		if (a instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhA) {
+			if (b instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhB) {
+				return java.util.Objects.equals(vdhA.getVillagerData(), vdhB.getVillagerData());
+			}
+			return false;
+		}
+		if (b instanceof net.minecraft.world.entity.npc.VillagerDataHolder) {
+			return false;
 		}
 		return true;
 		//?}
@@ -130,15 +187,78 @@ public final class EntityAdapter {
 			copyMooshroomVariant(mcSrc, mcDst);
 			return;
 		}
-		try {
-			java.lang.reflect.Method getM = src.getClass().getMethod("getVariant");
-			Object variant = getM.invoke(src);
-			java.lang.reflect.Method setM = dst.getClass().getMethod("setVariant", getM.getReturnType());
-			setM.invoke(dst, variant);
-		} catch (Throwable ignored) {}
+		if (src instanceof net.minecraft.world.entity.animal.Cow cowSrc && dst instanceof net.minecraft.world.entity.animal.Cow cowDst) {
+			cowDst.setVariant(cowSrc.getVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.Chicken chickSrc && dst instanceof net.minecraft.world.entity.animal.Chicken chickDst) {
+			chickDst.setVariant(chickSrc.getVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.Pig pigSrc && dst instanceof net.minecraft.world.entity.animal.Pig pigDst) {
+			((com.jar.jarstacker.mixin.PigAccessor) pigDst).jarstacker$setVariant(pigSrc.getVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.wolf.Wolf wolfSrc && dst instanceof net.minecraft.world.entity.animal.wolf.Wolf wolfDst) {
+			((com.jar.jarstacker.mixin.WolfAccessor) wolfDst).jarstacker$setVariant(((com.jar.jarstacker.mixin.WolfAccessor) wolfSrc).jarstacker$getVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.Cat catSrc && dst instanceof net.minecraft.world.entity.animal.Cat catDst) {
+			((com.jar.jarstacker.mixin.CatAccessor) catDst).jarstacker$setVariant(catSrc.getVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.frog.Frog frogSrc && dst instanceof net.minecraft.world.entity.animal.frog.Frog frogDst) {
+			((com.jar.jarstacker.mixin.FrogAccessor) frogDst).jarstacker$setVariant(frogSrc.getVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.horse.Horse horseSrc && dst instanceof net.minecraft.world.entity.animal.horse.Horse horseDst) {
+			((com.jar.jarstacker.mixin.HorseAccessor) horseDst).jarstacker$setVariant(horseSrc.getVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.horse.Llama llamaSrc && dst instanceof net.minecraft.world.entity.animal.horse.Llama llamaDst) {
+			((com.jar.jarstacker.mixin.LlamaAccessor) llamaDst).jarstacker$setVariant(llamaSrc.getVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.Rabbit rabbitSrc && dst instanceof net.minecraft.world.entity.animal.Rabbit rabbitDst) {
+			((com.jar.jarstacker.mixin.RabbitAccessor) rabbitDst).jarstacker$setVariant(rabbitSrc.getVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.Fox foxSrc && dst instanceof net.minecraft.world.entity.animal.Fox foxDst) {
+			((com.jar.jarstacker.mixin.FoxAccessor) foxDst).jarstacker$setVariant(foxSrc.getVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.axolotl.Axolotl axolSrc && dst instanceof net.minecraft.world.entity.animal.axolotl.Axolotl axolDst) {
+			((com.jar.jarstacker.mixin.AxolotlAccessor) axolDst).jarstacker$setVariant(axolSrc.getVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.Parrot parrotSrc && dst instanceof net.minecraft.world.entity.animal.Parrot parrotDst) {
+			((com.jar.jarstacker.mixin.ParrotAccessor) parrotDst).jarstacker$setVariant(parrotSrc.getVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.Salmon salmonSrc && dst instanceof net.minecraft.world.entity.animal.Salmon salmonDst) {
+			((com.jar.jarstacker.mixin.SalmonAccessor) salmonDst).jarstacker$setVariant(salmonSrc.getVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.TropicalFish tfSrc && dst instanceof net.minecraft.world.entity.animal.TropicalFish tfDst) {
+			((com.jar.jarstacker.mixin.TropicalFishAccessor) tfDst).jarstacker$setPackedVariant(((com.jar.jarstacker.mixin.TropicalFishAccessor) tfSrc).jarstacker$getPackedVariant());
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhSrc && dst instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhDst) {
+			vdhDst.setVillagerData(vdhSrc.getVillagerData());
+			return;
+		}
 		*///?} else {
+		if (src instanceof net.minecraft.world.entity.animal.MushroomCow mcSrc && dst instanceof net.minecraft.world.entity.animal.MushroomCow mcDst) {
+			copyMooshroomVariant(mcSrc, mcDst);
+			return;
+		}
 		if (src instanceof net.minecraft.world.entity.VariantHolder<?> vSrc && dst instanceof net.minecraft.world.entity.VariantHolder<?> vDst) {
 			copyVariantInternal(vSrc, vDst);
+			return;
+		}
+		if (src instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhSrc && dst instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhDst) {
+			vdhDst.setVillagerData(vdhSrc.getVillagerData());
+			return;
 		}
 		//?}
 	}
