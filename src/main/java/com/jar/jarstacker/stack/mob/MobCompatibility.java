@@ -322,7 +322,14 @@ public class MobCompatibility {
 		if (a instanceof net.minecraft.world.entity.animal.Animal aAnim && b instanceof net.minecraft.world.entity.animal.Animal bAnim) {
 			if (getStackState(aAnim) != getStackState(bAnim)) return "LIFECYCLE_STATE_MISMATCH";
 		}
-		if (!com.jar.jarstacker.adapter.EntityAdapter.variantsMatch(a, b)) return "VARIANT_MISMATCH";
+		com.jar.jarstacker.adapter.EntityAdapter.VariantCompatibilityResult variantResult =
+			com.jar.jarstacker.adapter.EntityAdapter.evaluateVariantCompatibility(a, b);
+		if (variantResult == com.jar.jarstacker.adapter.EntityAdapter.VariantCompatibilityResult.MISMATCH) {
+			return "VARIANT_MISMATCH";
+		}
+		if (variantResult == com.jar.jarstacker.adapter.EntityAdapter.VariantCompatibilityResult.UNKNOWN) {
+			return "UNKNOWN_VARIANT_COMPATIBILITY";
+		}
 		if (a instanceof net.minecraft.world.entity.animal.MushroomCow mcA && b instanceof net.minecraft.world.entity.animal.MushroomCow mcB) {
 			if (mcA.getVariant() != mcB.getVariant()) return "MOOSHROOM_VARIANT_MISMATCH";
 			net.minecraft.world.item.component.SuspiciousStewEffects stewA =

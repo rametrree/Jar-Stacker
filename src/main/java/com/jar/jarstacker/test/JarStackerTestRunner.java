@@ -11706,5 +11706,96 @@ Vec3 posH = pos.add(25, 0, 25);
 		} catch (Exception e) {
 			results.add(new TestResult("Test IM29 - Real World Mining Natural Cadence", false, e.getMessage()));
 		}
+
+		// Test VR1: Same Known Variant Compatible
+		try {
+			MushroomCow cow1 = createEntity(EntityType.MOOSHROOM, level);
+			MushroomCow cow2 = createEntity(EntityType.MOOSHROOM, level);
+			EntityAdapter.setMooshroomVariant(cow1, false);
+			EntityAdapter.setMooshroomVariant(cow2, false);
+
+			EntityAdapter.VariantCompatibilityResult res = EntityAdapter.evaluateVariantCompatibility(cow1, cow2);
+			boolean canStack = MobCompatibility.canStack(cow1, cow2, config.getMobStacking());
+
+			boolean pass = (res == EntityAdapter.VariantCompatibilityResult.MATCH) && canStack;
+			results.add(new TestResult("Test VR1 - Same Known Variant Compatible", pass,
+				"Result: " + res + ", CanStack: " + canStack));
+		} catch (Exception e) {
+			results.add(new TestResult("Test VR1 - Same Known Variant Compatible", false, e.getMessage()));
+		}
+
+		// Test VR2: Different Known Variant Incompatible
+		try {
+			MushroomCow cow1 = createEntity(EntityType.MOOSHROOM, level);
+			MushroomCow cow2 = createEntity(EntityType.MOOSHROOM, level);
+			EntityAdapter.setMooshroomVariant(cow1, false);
+			EntityAdapter.setMooshroomVariant(cow2, true);
+
+			EntityAdapter.VariantCompatibilityResult res = EntityAdapter.evaluateVariantCompatibility(cow1, cow2);
+			boolean canStack = MobCompatibility.canStack(cow1, cow2, config.getMobStacking());
+			String reason = MobCompatibility.getIncompatibilityReason(cow1, cow2, config.getMobStacking());
+
+			boolean pass = (res == EntityAdapter.VariantCompatibilityResult.MISMATCH)
+				&& !canStack
+				&& ("VARIANT_MISMATCH".equals(reason) || "MOOSHROOM_VARIANT_MISMATCH".equals(reason));
+			results.add(new TestResult("Test VR2 - Different Known Variant Incompatible", pass,
+				"Result: " + res + ", CanStack: " + canStack + ", Reason: " + reason));
+		} catch (Exception e) {
+			results.add(new TestResult("Test VR2 - Different Known Variant Incompatible", false, e.getMessage()));
+		}
+
+		// Test VR3: Known Vanilla Non-Variant Unaffected
+		try {
+			Zombie z1 = createEntity(EntityType.ZOMBIE, level);
+			Zombie z2 = createEntity(EntityType.ZOMBIE, level);
+
+			EntityAdapter.VariantCompatibilityResult res = EntityAdapter.evaluateVariantCompatibility(z1, z2);
+			boolean canStack = MobCompatibility.canStack(z1, z2, config.getMobStacking());
+
+			boolean pass = (res == EntityAdapter.VariantCompatibilityResult.NOT_APPLICABLE) && canStack;
+			results.add(new TestResult("Test VR3 - Known Vanilla Non-Variant Unaffected", pass,
+				"Result: " + res + ", CanStack: " + canStack));
+		} catch (Exception e) {
+			results.add(new TestResult("Test VR3 - Known Vanilla Non-Variant Unaffected", false, e.getMessage()));
+		}
+
+		// Test VR4: Unknown Semantics Fail-Safe
+		try {
+			Zombie moddedZombie = new Zombie(EntityType.ZOMBIE, level) {
+				@Override
+				public String toString() {
+					return "MockModdedZombie";
+				}
+			};
+			Zombie vanillaZombie = createEntity(EntityType.ZOMBIE, level);
+
+			EntityAdapter.VariantCompatibilityResult res = EntityAdapter.evaluateVariantCompatibility(moddedZombie, vanillaZombie);
+			boolean canStack = MobCompatibility.canStack(moddedZombie, vanillaZombie, config.getMobStacking());
+			String reason = MobCompatibility.getIncompatibilityReason(moddedZombie, vanillaZombie, config.getMobStacking());
+
+			boolean pass = (res == EntityAdapter.VariantCompatibilityResult.UNKNOWN)
+				&& !canStack
+				&& "UNKNOWN_VARIANT_COMPATIBILITY".equals(reason);
+			results.add(new TestResult("Test VR4 - Unknown Semantics Fail-Safe", pass,
+				"Result: " + res + ", CanStack: " + canStack + ", Reason: " + reason));
+		} catch (Exception e) {
+			results.add(new TestResult("Test VR4 - Unknown Semantics Fail-Safe", false, e.getMessage()));
+		}
+
+		// Test VR5: Variant Copy Survives Extraction
+		try {
+			MushroomCow src = createEntity(EntityType.MOOSHROOM, level);
+			MushroomCow dst = createEntity(EntityType.MOOSHROOM, level);
+			EntityAdapter.setMooshroomVariant(src, true);
+			EntityAdapter.setMooshroomVariant(dst, false);
+
+			boolean copied = EntityAdapter.copyVariant(src, dst);
+			boolean pass = copied && (dst.getVariant() == src.getVariant());
+
+			results.add(new TestResult("Test VR5 - Variant Copy Survives Extraction", pass,
+				"Copied: " + copied + ", MatchesSrc: " + (dst.getVariant() == src.getVariant())));
+		} catch (Exception e) {
+			results.add(new TestResult("Test VR5 - Variant Copy Survives Extraction", false, e.getMessage()));
+		}
 	}
 }

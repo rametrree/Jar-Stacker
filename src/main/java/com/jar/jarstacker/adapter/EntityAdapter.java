@@ -104,162 +104,215 @@ public final class EntityAdapter {
 		//?}
 	}
 
-	public static boolean variantsMatch(Entity a, Entity b) {
+	public enum VariantCompatibilityResult {
+		MATCH,
+		MISMATCH,
+		NOT_APPLICABLE,
+		UNKNOWN;
+
+		public boolean isCompatible() {
+			return this == MATCH || this == NOT_APPLICABLE;
+		}
+	}
+
+	public static VariantCompatibilityResult evaluateVariantCompatibility(Entity a, Entity b) {
+		if (a == null || b == null) {
+			return VariantCompatibilityResult.UNKNOWN;
+		}
+		if (a.getType() != b.getType()) {
+			return VariantCompatibilityResult.MISMATCH;
+		}
+		net.minecraft.resources.ResourceLocation key = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(a.getType());
+		boolean isVanillaNamespace = (key != null && "minecraft".equals(key.getNamespace()));
+		boolean isVanillaPackage = a.getClass().getName().startsWith("net.minecraft.");
+		if (!isVanillaNamespace || !isVanillaPackage) {
+			return VariantCompatibilityResult.UNKNOWN;
+		}
 		//? if >=1.21.5 {
 		/*if (a.getClass() != b.getClass()) {
-			return false;
+			return VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.MushroomCow mcA && b instanceof net.minecraft.world.entity.animal.MushroomCow mcB) {
-			return java.util.Objects.equals(mcA.getVariant(), mcB.getVariant());
+			return java.util.Objects.equals(mcA.getVariant(), mcB.getVariant()) ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.Cow cowA && b instanceof net.minecraft.world.entity.animal.Cow cowB) {
-			return java.util.Objects.equals(cowA.getVariant(), cowB.getVariant());
+			return java.util.Objects.equals(cowA.getVariant(), cowB.getVariant()) ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.Pig pigA && b instanceof net.minecraft.world.entity.animal.Pig pigB) {
-			return java.util.Objects.equals(pigA.getVariant(), pigB.getVariant());
+			return java.util.Objects.equals(pigA.getVariant(), pigB.getVariant()) ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.Chicken chickA && b instanceof net.minecraft.world.entity.animal.Chicken chickB) {
-			return java.util.Objects.equals(chickA.getVariant(), chickB.getVariant());
+			return java.util.Objects.equals(chickA.getVariant(), chickB.getVariant()) ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.wolf.Wolf wolfA && b instanceof net.minecraft.world.entity.animal.wolf.Wolf wolfB) {
-			return java.util.Objects.equals(((com.jar.jarstacker.mixin.WolfAccessor) wolfA).jarstacker$getVariant(), ((com.jar.jarstacker.mixin.WolfAccessor) wolfB).jarstacker$getVariant());
+			return java.util.Objects.equals(((com.jar.jarstacker.mixin.WolfAccessor) wolfA).jarstacker$getVariant(), ((com.jar.jarstacker.mixin.WolfAccessor) wolfB).jarstacker$getVariant()) ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.Cat catA && b instanceof net.minecraft.world.entity.animal.Cat catB) {
-			return java.util.Objects.equals(catA.getVariant(), catB.getVariant());
+			return java.util.Objects.equals(catA.getVariant(), catB.getVariant()) ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.frog.Frog frogA && b instanceof net.minecraft.world.entity.animal.frog.Frog frogB) {
-			return java.util.Objects.equals(frogA.getVariant(), frogB.getVariant());
+			return java.util.Objects.equals(frogA.getVariant(), frogB.getVariant()) ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.horse.Horse horseA && b instanceof net.minecraft.world.entity.animal.horse.Horse horseB) {
-			return horseA.getVariant() == horseB.getVariant();
+			return horseA.getVariant() == horseB.getVariant() ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.horse.Llama llamaA && b instanceof net.minecraft.world.entity.animal.horse.Llama llamaB) {
-			return llamaA.getVariant() == llamaB.getVariant();
+			return llamaA.getVariant() == llamaB.getVariant() ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.Rabbit rabbitA && b instanceof net.minecraft.world.entity.animal.Rabbit rabbitB) {
-			return rabbitA.getVariant() == rabbitB.getVariant();
+			return rabbitA.getVariant() == rabbitB.getVariant() ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.Fox foxA && b instanceof net.minecraft.world.entity.animal.Fox foxB) {
-			return foxA.getVariant() == foxB.getVariant();
+			return foxA.getVariant() == foxB.getVariant() ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.axolotl.Axolotl axolA && b instanceof net.minecraft.world.entity.animal.axolotl.Axolotl axolB) {
-			return axolA.getVariant() == axolB.getVariant();
+			return axolA.getVariant() == axolB.getVariant() ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.Parrot parrotA && b instanceof net.minecraft.world.entity.animal.Parrot parrotB) {
-			return parrotA.getVariant() == parrotB.getVariant();
+			return parrotA.getVariant() == parrotB.getVariant() ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.Salmon salmonA && b instanceof net.minecraft.world.entity.animal.Salmon salmonB) {
-			return salmonA.getVariant() == salmonB.getVariant();
+			return salmonA.getVariant() == salmonB.getVariant() ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.animal.TropicalFish tfA && b instanceof net.minecraft.world.entity.animal.TropicalFish tfB) {
-			return tfA.getBaseColor() == tfB.getBaseColor() && tfA.getPatternColor() == tfB.getPatternColor() && tfA.getPattern() == tfB.getPattern();
+			return (tfA.getBaseColor() == tfB.getBaseColor() && tfA.getPatternColor() == tfB.getPatternColor() && tfA.getPattern() == tfB.getPattern()) ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhA && b instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhB) {
-			return java.util.Objects.equals(vdhA.getVillagerData(), vdhB.getVillagerData());
+			return java.util.Objects.equals(vdhA.getVillagerData(), vdhB.getVillagerData()) ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 		}
-		return true;
+		return VariantCompatibilityResult.NOT_APPLICABLE;
 		*///?} else {
+		if (a.getClass() != b.getClass()) {
+			return VariantCompatibilityResult.MISMATCH;
+		}
+		if (a instanceof net.minecraft.world.entity.animal.MushroomCow mcA && b instanceof net.minecraft.world.entity.animal.MushroomCow mcB) {
+			return java.util.Objects.equals(mcA.getVariant(), mcB.getVariant()) ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
+		}
 		if (a instanceof net.minecraft.world.entity.VariantHolder<?> vA) {
 			if (b instanceof net.minecraft.world.entity.VariantHolder<?> vB) {
-				return java.util.Objects.equals(vA.getVariant(), vB.getVariant());
+				return java.util.Objects.equals(vA.getVariant(), vB.getVariant()) ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 			}
-			return false;
+			return VariantCompatibilityResult.MISMATCH;
 		}
 		if (b instanceof net.minecraft.world.entity.VariantHolder<?>) {
-			return false;
+			return VariantCompatibilityResult.MISMATCH;
 		}
 		if (a instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhA) {
 			if (b instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhB) {
-				return java.util.Objects.equals(vdhA.getVillagerData(), vdhB.getVillagerData());
+				return java.util.Objects.equals(vdhA.getVillagerData(), vdhB.getVillagerData()) ? VariantCompatibilityResult.MATCH : VariantCompatibilityResult.MISMATCH;
 			}
-			return false;
+			return VariantCompatibilityResult.MISMATCH;
 		}
 		if (b instanceof net.minecraft.world.entity.npc.VillagerDataHolder) {
-			return false;
+			return VariantCompatibilityResult.MISMATCH;
 		}
-		return true;
+		return VariantCompatibilityResult.NOT_APPLICABLE;
 		//?}
 	}
 
-	public static void copyVariant(Entity src, Entity dst) {
+	public static boolean variantsMatch(Entity a, Entity b) {
+		return evaluateVariantCompatibility(a, b).isCompatible();
+	}
+
+	public static boolean copyVariant(Entity src, Entity dst) {
+		if (src == null || dst == null) {
+			return false;
+		}
+		if (src.getType() != dst.getType()) {
+			return false;
+		}
+		net.minecraft.resources.ResourceLocation key = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(src.getType());
+		boolean isVanillaNamespace = (key != null && "minecraft".equals(key.getNamespace()));
+		boolean isVanillaPackage = src.getClass().getName().startsWith("net.minecraft.");
+		if (!isVanillaNamespace || !isVanillaPackage) {
+			return false;
+		}
 		//? if >=1.21.5 {
 		/*if (src instanceof net.minecraft.world.entity.animal.MushroomCow mcSrc && dst instanceof net.minecraft.world.entity.animal.MushroomCow mcDst) {
 			copyMooshroomVariant(mcSrc, mcDst);
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.animal.Cow cowSrc && dst instanceof net.minecraft.world.entity.animal.Cow cowDst) {
 			cowDst.setVariant(cowSrc.getVariant());
-			return;
-		}
-		if (src instanceof net.minecraft.world.entity.animal.Chicken chickSrc && dst instanceof net.minecraft.world.entity.animal.Chicken chickDst) {
-			chickDst.setVariant(chickSrc.getVariant());
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.animal.Pig pigSrc && dst instanceof net.minecraft.world.entity.animal.Pig pigDst) {
 			((com.jar.jarstacker.mixin.PigAccessor) pigDst).jarstacker$setVariant(pigSrc.getVariant());
-			return;
+			return true;
+		}
+		if (src instanceof net.minecraft.world.entity.animal.Chicken chickSrc && dst instanceof net.minecraft.world.entity.animal.Chicken chickDst) {
+			chickDst.setVariant(chickSrc.getVariant());
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.animal.wolf.Wolf wolfSrc && dst instanceof net.minecraft.world.entity.animal.wolf.Wolf wolfDst) {
 			((com.jar.jarstacker.mixin.WolfAccessor) wolfDst).jarstacker$setVariant(((com.jar.jarstacker.mixin.WolfAccessor) wolfSrc).jarstacker$getVariant());
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.animal.Cat catSrc && dst instanceof net.minecraft.world.entity.animal.Cat catDst) {
 			((com.jar.jarstacker.mixin.CatAccessor) catDst).jarstacker$setVariant(catSrc.getVariant());
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.animal.frog.Frog frogSrc && dst instanceof net.minecraft.world.entity.animal.frog.Frog frogDst) {
 			((com.jar.jarstacker.mixin.FrogAccessor) frogDst).jarstacker$setVariant(frogSrc.getVariant());
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.animal.horse.Horse horseSrc && dst instanceof net.minecraft.world.entity.animal.horse.Horse horseDst) {
 			((com.jar.jarstacker.mixin.HorseAccessor) horseDst).jarstacker$setVariant(horseSrc.getVariant());
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.animal.horse.Llama llamaSrc && dst instanceof net.minecraft.world.entity.animal.horse.Llama llamaDst) {
 			((com.jar.jarstacker.mixin.LlamaAccessor) llamaDst).jarstacker$setVariant(llamaSrc.getVariant());
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.animal.Rabbit rabbitSrc && dst instanceof net.minecraft.world.entity.animal.Rabbit rabbitDst) {
 			((com.jar.jarstacker.mixin.RabbitAccessor) rabbitDst).jarstacker$setVariant(rabbitSrc.getVariant());
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.animal.Fox foxSrc && dst instanceof net.minecraft.world.entity.animal.Fox foxDst) {
 			((com.jar.jarstacker.mixin.FoxAccessor) foxDst).jarstacker$setVariant(foxSrc.getVariant());
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.animal.axolotl.Axolotl axolSrc && dst instanceof net.minecraft.world.entity.animal.axolotl.Axolotl axolDst) {
 			((com.jar.jarstacker.mixin.AxolotlAccessor) axolDst).jarstacker$setVariant(axolSrc.getVariant());
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.animal.Parrot parrotSrc && dst instanceof net.minecraft.world.entity.animal.Parrot parrotDst) {
 			((com.jar.jarstacker.mixin.ParrotAccessor) parrotDst).jarstacker$setVariant(parrotSrc.getVariant());
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.animal.Salmon salmonSrc && dst instanceof net.minecraft.world.entity.animal.Salmon salmonDst) {
 			((com.jar.jarstacker.mixin.SalmonAccessor) salmonDst).jarstacker$setVariant(salmonSrc.getVariant());
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.animal.TropicalFish tfSrc && dst instanceof net.minecraft.world.entity.animal.TropicalFish tfDst) {
 			((com.jar.jarstacker.mixin.TropicalFishAccessor) tfDst).jarstacker$setPackedVariant(((com.jar.jarstacker.mixin.TropicalFishAccessor) tfSrc).jarstacker$getPackedVariant());
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhSrc && dst instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhDst) {
 			vdhDst.setVillagerData(vdhSrc.getVillagerData());
-			return;
+			return true;
 		}
+		return true;
 		*///?} else {
 		if (src instanceof net.minecraft.world.entity.animal.MushroomCow mcSrc && dst instanceof net.minecraft.world.entity.animal.MushroomCow mcDst) {
 			copyMooshroomVariant(mcSrc, mcDst);
-			return;
+			return true;
 		}
 		if (src instanceof net.minecraft.world.entity.VariantHolder<?> vSrc && dst instanceof net.minecraft.world.entity.VariantHolder<?> vDst) {
 			copyVariantInternal(vSrc, vDst);
-			return;
+			return true;
+		}
+		if (src instanceof net.minecraft.world.entity.VariantHolder<?> || dst instanceof net.minecraft.world.entity.VariantHolder<?>) {
+			return false;
 		}
 		if (src instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhSrc && dst instanceof net.minecraft.world.entity.npc.VillagerDataHolder vdhDst) {
 			vdhDst.setVillagerData(vdhSrc.getVillagerData());
-			return;
+			return true;
 		}
+		if (src instanceof net.minecraft.world.entity.npc.VillagerDataHolder || dst instanceof net.minecraft.world.entity.npc.VillagerDataHolder) {
+			return false;
+		}
+		return true;
 		//?}
 	}
 
