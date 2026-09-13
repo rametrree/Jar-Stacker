@@ -53,7 +53,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = (project.findProperty("java_version") ?: 21) as Integer
 }
 
 tasks.matching { it.name.startsWith("run") }.configureEach {
