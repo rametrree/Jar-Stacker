@@ -99,6 +99,24 @@ public abstract class ItemEntityMixin extends Entity implements StackableEntity 
 		this.age = age;
 	}
 
+	//? if >=1.21.6 {
+	/*@Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
+	private void jarstacker$saveData(net.minecraft.world.level.storage.ValueOutput output, CallbackInfo ci) {
+		if (this.jarstacker$stackCount > 0) {
+			output.putInt("JarStackerCount", this.jarstacker$stackCount);
+		}
+	}
+
+	@Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
+	private void jarstacker$loadData(net.minecraft.world.level.storage.ValueInput input, CallbackInfo ci) {
+		int count = input.getIntOr("JarStackerCount", 0);
+		if (count > 0) {
+			this.jarstacker$stackCount = count;
+			ItemEntity self = (ItemEntity) (Object) this;
+			ItemStackingManager.updateLabel(self, this.jarstacker$stackCount, ModConfig.getInstance().getItemStacking().isShowLabel());
+		}
+	}
+	*///?} else {
 	@Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
 	private void jarstacker$saveData(CompoundTag tag, CallbackInfo ci) {
 		if (this.jarstacker$stackCount > 0) {
@@ -114,6 +132,7 @@ public abstract class ItemEntityMixin extends Entity implements StackableEntity 
 			ItemStackingManager.updateLabel(self, this.jarstacker$stackCount, ModConfig.getInstance().getItemStacking().isShowLabel());
 		}
 	}
+	//?}
 
 	@Inject(method = "mergeWithNeighbours", at = @At("HEAD"), cancellable = true)
 	private void jarstacker$cancelVanillaMerge(CallbackInfo ci) {

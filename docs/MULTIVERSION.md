@@ -5,12 +5,12 @@
 To ensure clarity across multi-version development, compatibility is categorized into four distinct concepts:
 
 - **Source Compatibility**: The shared Java source code compiles against the target Minecraft and Fabric API mappings without modification or syntax/type errors.
-- **Compile Target**: A dedicated Gradle/Stonecutter subproject (e.g., `1.21.1`, `1.21.2`, `1.21.4`) that compiles against a specific Minecraft version, producing a tailored JAR artifact.
+- **Compile Target**: A dedicated Gradle/Stonecutter subproject (e.g., `1.21.1`, `1.21.2`, `1.21.4`, `1.21.5`, `1.21.6`) that compiles against a specific Minecraft version, producing a tailored JAR artifact.
 - **Binary Compatibility**: Compiled bytecode and Mixins compiled for one Minecraft release execute correctly on another release at runtime without `NoSuchMethodError`, `NoSuchFieldError`, or `MixinApplyError`.
-- **Verified Compatibility Band**: A contiguous range of Minecraft versions (e.g., `1.21.2–1.21.3`) proven through automated integration testing and client title screen verification to run flawlessly on the exact same binary artifact without recompilation.
+- **Verified Compatibility Band**: A contiguous range of Minecraft versions (e.g., `1.21.2–1.21.3`, `1.21.6–1.21.8`) proven through automated integration testing and client title screen verification to run flawlessly on the exact same binary artifact without recompilation.
 
 Jar Stacker is engineered around four core tenets:
-- **One Codebase**: Unified source tree in `src/main/java` utilizing Stonecutter directives (`//? if >=1.21.2 { ... } else { ... }`).
+- **One Codebase**: Unified source tree in `src/main/java` utilizing Stonecutter directives (`//? if >=1.21.6 { ... } else { ... }`).
 - **One Feature Set**: Full feature parity across all supported versions (item stacking, mob stacking, single-death mode, status effects, config synchronization, YACL/vanilla GUI).
 - **One Test Suite**: The 343-test automated in-game integration suite runs identically on each version project.
 - **Minimum Safe Number of JARs**: Dedicated binaries are compiled only across binary-incompatible boundaries, maximizing compatibility bands where safe.
@@ -21,10 +21,14 @@ Jar Stacker is engineered around four core tenets:
 
 | Minecraft Version | Compile Target | Artifact Used | SHA-256 Checksum | Automated Tests | Client Boot | Compatibility Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **1.21.1** | `1.21.1` (Dedicated) | `jarstacker-0.7.0+mc1.21.1.jar` | `DDE87A3B74F8B0F93C88A23399265FA8AFEDAEC0DA06877A5F9EEF2A55F4CD7F` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Independent Binary) |
-| **1.21.2** | `1.21.2` (Dedicated) | `jarstacker-0.7.0+mc1.21.2.jar` | `2840D3DC6B772343CBD5B3531C2F836EAE5E2522A34A0F81EA467B6035E0FAA3` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
-| **1.21.3** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.2.jar` (Exact Binary) | `2840D3DC6B772343CBD5B3531C2F836EAE5E2522A34A0F81EA467B6035E0FAA3` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.2–1.21.3) |
-| **1.21.4** | `1.21.4` (Dedicated) | `jarstacker-0.7.0+mc1.21.4.jar` | `86014C2DEBF964EA075AC2C46A472AF177D7F903A1746931767CA363835564C9` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Source-Compatible with 1.21.2) |
+| **1.21.1** | `1.21.1` (Dedicated) | `jarstacker-0.7.0+mc1.21.1.jar` | `569ADCC06DB8ED1A6D539DC5677F64DEF9F32F682399C7335C2F79F1F6D1C11C` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Independent Binary) |
+| **1.21.2** | `1.21.2` (Dedicated) | `jarstacker-0.7.0+mc1.21.2.jar` | `1D14D0DEB7175DB575400577CED3E35F70DB927E2E1262287E24D4642766FB5D` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
+| **1.21.3** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.2.jar` (Exact Binary) | `1D14D0DEB7175DB575400577CED3E35F70DB927E2E1262287E24D4642766FB5D` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.2–1.21.3) |
+| **1.21.4** | `1.21.4` (Dedicated) | `jarstacker-0.7.0+mc1.21.4.jar` | `294DE7C5A40FC0A1A07742C43440EFB420617B4784969F0AE03CAFF04446D93A` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Source-Compatible with 1.21.2) |
+| **1.21.5** | `1.21.5` (Dedicated) | `jarstacker-0.7.0+mc1.21.5.jar` | `C5EBD42CF2C17A840B6A5B1DE552906BCDD54167DC01D7B0A0E222E7694BF276` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Entity Potion & Accessor Changes) |
+| **1.21.6** | `1.21.6` (Dedicated) | `jarstacker-0.7.0+mc1.21.6.jar` | `6A2B32BFF24364ECEB91539FCF6FABD135BCC8ED85D6470AFCAF053B47ADDD61` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
+| **1.21.7** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `6A2B32BFF24364ECEB91539FCF6FABD135BCC8ED85D6470AFCAF053B47ADDD61` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
+| **1.21.8** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `6A2B32BFF24364ECEB91539FCF6FABD135BCC8ED85D6470AFCAF053B47ADDD61` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
 
 ---
 
@@ -43,8 +47,8 @@ Because these methods sit on hot tick and combat loops, bridging them via runtim
 
 ### 1.21.2 vs 1.21.3: Verified Same-Binary Compatibility Band (1.21.2–1.21.3)
 Minecraft 1.21.3 is a minor maintenance release that preserves 100% binary compatibility with 1.21.2 for all classes, methods, and Mixin injection points touched by Jar Stacker.
-- **Runtime Verification**: The exact 1.21.2 binary (`SHA-256: 2840D3DC6B772343CBD5B3531C2F836EAE5E2522A34A0F81EA467B6035E0FAA3`) was executed in an isolated Minecraft 1.21.3 environment.
-- **Fabric Metadata**: The dependency `"minecraft": "~1.21.2"` was accepted by Fabric Loader on 1.21.3 without metadata modification.
+- **Runtime Verification**: The exact 1.21.2 binary was executed in an isolated Minecraft 1.21.3 environment.
+- **Fabric Metadata**: Declared dependency `"minecraft": ">=1.21.2 <=1.21.3"`.
 - **Server Result**: Server booted cleanly, Mixins applied without error, and **343 / 343 automated tests passed**.
 - **Client Result**: Client booted cleanly, reaching the title screen with 0 errors or warnings.
 - **Declared Band**: `VERIFIED BINARY BAND: Minecraft 1.21.2–1.21.3`.
@@ -52,31 +56,42 @@ Minecraft 1.21.3 is a minor maintenance release that preserves 100% binary compa
 ### 1.21.4 Status: Dedicated Compile Target
 Minecraft 1.21.4 shares 100% source code compatibility with 1.21.2. Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.4.jar`) passing all 343 tests and booting cleanly to the title screen. Per project requirements, 1.21.4 remains a dedicated compile target and is not claimed as part of the 1.21.2 binary band.
 
+### 1.21.5 Status: Dedicated Compile Target
+Minecraft 1.21.5 introduced entity hierarchy and accessor refactors:
+- `MushroomCow.setVariant` made private (resolved via `MushroomCowAccessor`).
+- Split potion projectile hierarchy into `ThrownSplashPotion` vs `ThrownLingeringPotion`.
+- Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.5.jar`) passing all 343 tests and booting cleanly to the title screen.
+
+### 1.21.6 vs 1.21.7 & 1.21.8: Verified Same-Binary Compatibility Band (1.21.6–1.21.8)
+Minecraft 1.21.6 introduced major Vanilla serialization overhaul:
+- Entity NBT persistence moved from `CompoundTag` to `ValueOutput` / `ValueInput`.
+- `ProjectileUtil.getEntityHitResult` parameter shifted from `(Level, Entity, ...)` to `(Entity, Vec3, Vec3, AABB, Predicate, double)`.
+- `ThrownSplashPotion.onHitAsPotion` takes `HitResult` as 3rd parameter.
+- The compiled 1.21.6 binary (`jarstacker-0.7.0+mc1.21.6.jar`) declares `"minecraft": ">=1.21.6 <=1.21.8"`.
+- **Runtime Verification on 1.21.7**: Exact 1.21.6 binary executed in isolated 1.21.7 environment: **343 / 343 tests PASS**, client title screen reached.
+- **Runtime Verification on 1.21.8**: Exact 1.21.6 binary executed in isolated 1.21.8 environment: **343 / 343 tests PASS**, client title screen reached.
+- **Declared Band**: `VERIFIED BINARY BAND: Minecraft 1.21.6–1.21.8`.
+
 ---
 
 ## 4. Full Mixin Audit
 
 Jar Stacker declares 12 mixins and accessors in `jarstacker.mixins.json` with `injectors.defaultRequire: 1`. Every mixin has been evaluated for target class stability, method signatures, and porting risks.
 
-| Mixin | Target Class | Hook / Accessor | Semantic Purpose | 1.21.1 Status | 1.21.2 Status | 1.21.4 Status | Risk | Notes |
+| Mixin | Target Class | Hook / Accessor | Semantic Purpose | <=1.21.4 Status | 1.21.5 Status | >=1.21.6 Status | Risk | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `ItemEntityMixin` | `ItemEntity` | `addAdditionalSaveData`<br>`readAdditionalSaveData`<br>`mergeWithNeighbours`<br>`playerTouch` | Persists logical stack counts, disables vanilla merging when mod is enabled, and executes lossless player pickup for stacks up to 4096. | Identical | Identical | Identical | **HIGH** | Critical for item count conservation and inventory pickup without loss. Stable across 1.21.x. |
-| `LivingEntityMixin` | `LivingEntity` | `tick`<br>`doPush`<br>`addAdditionalSaveData`<br>`readAdditionalSaveData`<br>`actuallyHurt`<br>`die`<br>`tickEffects`<br>`addEffect`<br>`hasEffect`<br>`getEffect`<br>`getActiveEffects`<br>`getActiveEffectsMap` | Core mob stacking engine: state persistence, death interception for single-death drops/XP, logical status effect ticking, combat damage batching. | `actuallyHurt(DamageSource, float)`<br>`dropFromLootTable(DamageSource, boolean)` | `actuallyHurt(ServerLevel, DamageSource, float)`<br>`dropFromLootTable(ServerLevel, DamageSource, boolean)` | `actuallyHurt(ServerLevel, DamageSource, float)`<br>`dropFromLootTable(ServerLevel, DamageSource, boolean)` | **HIGH** | Foundation of mob stacking, single-death loot/XP, and logical effects. Stonecutter conditional blocks handle the `ServerLevel` parameter shift. |
-| `EnchantmentHelperMixin` | `EnchantmentHelper` | `getEnchantmentLevel` (HEAD, RETURN) | Captures and overrides looting enchantment levels during combat death attribution for stacked mobs. | Identical | Identical | Identical | **HIGH** | Critical for single-death looting parity. Method retained across 1.21.1–1.21.4; future versions (1.21.5+) may move toward data component queries. |
-| `MushroomCowMixin` | `MushroomCow` | `shear` (`@ModifyArg`) | Intercepts Mooshroom shearing to record transformation to standard Cow in `LogicalEntityTransformer`. | `@ModifyArg` on `Level.addFreshEntity` | `@ModifyArg` on `MushroomCow.convertTo` | `@ModifyArg` on `MushroomCow.convertTo` | **MEDIUM** | Handles Mooshroom shearing conversion without entity count loss. Stonecutter conditional cleanly isolates the 1.21.2 Mojang conversion API overhaul. |
+| `ItemEntityMixin` | `ItemEntity` | `addAdditionalSaveData`<br>`readAdditionalSaveData`<br>`mergeWithNeighbours`<br>`playerTouch` | Persists logical stack counts, disables vanilla merging when mod is enabled, and executes lossless player pickup for stacks up to 4096. | `CompoundTag` | `CompoundTag` | `ValueOutput` / `ValueInput` | **HIGH** | Switched from `CompoundTag` to `ValueOutput`/`ValueInput` in 1.21.6 via Stonecutter. |
+| `LivingEntityMixin` | `LivingEntity` | `tick`<br>`doPush`<br>`addAdditionalSaveData`<br>`readAdditionalSaveData`<br>`actuallyHurt`<br>`die`<br>`tickEffects`<br>`addEffect`<br>`hasEffect`<br>`getEffect`<br>`getActiveEffects`<br>`getActiveEffectsMap` | Core mob stacking engine: state persistence, death interception for single-death drops/XP, logical status effect ticking, combat damage batching. | `CompoundTag` persistence | `CompoundTag` persistence | `ValueOutput` / `ValueInput` storing `JarStackerData` compound | **HIGH** | Foundation of mob stacking, single-death loot/XP, and logical effects. |
+| `EnchantmentHelperMixin` | `EnchantmentHelper` | `getEnchantmentLevel` (HEAD, RETURN) | Captures and overrides looting enchantment levels during combat death attribution for stacked mobs. | Identical | Identical | Identical | **HIGH** | Critical for single-death looting parity. Method retained across 1.21.1–1.21.8. |
+| `MushroomCowMixin` | `MushroomCow` | `shear` (`@ModifyArg`) | Intercepts Mooshroom shearing to record transformation to standard Cow in `LogicalEntityTransformer`. | `convertTo` (>=1.21.2) | `convertTo` | `convertTo` | **MEDIUM** | Handles Mooshroom shearing conversion without entity count loss. |
 | `PlayerMixin` | `Player` | `attack` (HEAD, sweep invoke, sweep end, RETURN) | Tracks combat context for sweeping attacks, attributing sweep damage to stacked entities correctly. | Identical | Identical | Identical | **MEDIUM** | Essential for combat balance and sweep kill attribution. Bytecode injection points are stable across 1.21.x. |
-| `ThrownPotionMixin` | `ThrownPotion` | `applySplash` (HEAD, RETURN) | Sets splash potion scope during potion impact so stacked mobs receive correct area status effects. | `applySplash(Iterable, Entity)` | `applySplash(ServerLevel, Iterable, Entity)` | `applySplash(ServerLevel, Iterable, Entity)` | **MEDIUM** | Area effect distribution across stacked entities. Stonecutter conditional isolates `ServerLevel` parameter. |
+| `ThrownPotionMixin` | `ThrownPotion` / `ThrownSplashPotion` | `applySplash` / `onHitAsPotion` | Sets splash potion scope during potion impact so stacked mobs receive correct area status effects. | `applySplash(ServerLevel, ...)` | `applySplash(ServerLevel, ...)` | `onHitAsPotion(ServerLevel, ItemStack, HitResult)` | **MEDIUM** | Targeted method shifted to `onHitAsPotion` in 1.21.6 with `HitResult` parameter. |
 | `BreedGoalMixin` | `BreedGoal` | `canUse`<br>`breed` | Allows a stacked animal to breed with another virtual member of its own stack, clearing breeding lock ticks. | Identical | Identical | Identical | **MEDIUM** | Essential for animal farm automation and parity. Method logic unchanged across 1.21.x. |
 | `SheepMixin` | `Sheep` | `ate` (HEAD, TAIL) | Regrows wool for one sheep in a stack when grazing grass. | Identical | Identical | Identical | **LOW** | Sheep wool regrowth timer. Hook unchanged across 1.21.x. |
 | `MobMixin` | `Mob` | `setItemSlot` (TAIL) | Handles mob picking up equipment at runtime and splitting stack if necessary. | Identical | Identical | Identical | **LOW** | Equipment integrity when mobs pick up items. Hook unchanged across 1.21.x. |
 | `ServerLevelMixin` | `ServerLevel` | `addFreshEntity` (HEAD) | Notifies `LogicalEntityTransformer` when a fresh entity is added during world operations. | Identical | Identical | Identical | **LOW** | Transformation detection (lightning strikes, etc.). Hook unchanged across 1.21.x. |
-| `MushroomCowAccessor` | `MushroomCow` | `@Accessor("stewEffects")` | Preserves suspicious stew effects across stacked Mooshroom interactions. | Identical | Identical | Identical | **LOW** | Accessor field unchanged across 1.21.x. |
+| `MushroomCowAccessor` | `MushroomCow` | `@Accessor("stewEffects")`<br>`@Accessor("variant")` | Preserves suspicious stew effects and mutates variant on 1.21.5+. | `stewEffects` | `stewEffects` + `variant` | `stewEffects` + `variant` | **LOW** | Accessor utilities for Mooshroom properties. |
 | `MobEffectInstanceAccessor` | `MobEffectInstance` | `@Accessor("duration")`<br>`@Invoker("tickDownDuration")` | Ticks down duration and mutates remaining duration during logical effect distribution. | Identical | Identical | Identical | **LOW** | Status effect duration management. Hooks unchanged across 1.21.x. |
-
-### Mixin Risk Summary:
-- **HIGH Risk**: 3 (`ItemEntityMixin`, `LivingEntityMixin`, `EnchantmentHelperMixin`) - Core gameplay, item conservation, and combat looting.
-- **MEDIUM Risk**: 4 (`MushroomCowMixin`, `PlayerMixin`, `ThrownPotionMixin`, `BreedGoalMixin`) - Mob transformations, combat sweeps, splash potions, and breeding.
-- **LOW Risk**: 5 (`SheepMixin`, `MobMixin`, `ServerLevelMixin`, `MushroomCowAccessor`, `MobEffectInstanceAccessor`) - Lifecycle events, equipment pickup, and accessor utilities.
 
 ---
 
@@ -84,28 +99,23 @@ Jar Stacker declares 12 mixins and accessors in `jarstacker.mixins.json` with `i
 
 | API / Subsystem | Primary Classes | Classification | Divergence Across 1.21.x | Future Migration Risk |
 | :--- | :--- | :--- | :--- | :--- |
-| **EntityType** | `net.minecraft.world.entity.EntityType` | **Adapter** | `EntityType.create(Level)` on 1.21.1 vs `EntityType.create(Level, EntitySpawnReason)` on >=1.21.2. Encapsulated in `EntityAdapter.create()`. | **Low**: Fully isolated inside `EntityAdapter`. |
-| **ItemEntity** | `net.minecraft.world.entity.item.ItemEntity` | **Shared** | None. Signatures and lifecycle are identical across 1.21.1–1.21.4. | **Low**: Core entity class. |
-| **LivingEntity** | `net.minecraft.world.entity.LivingEntity` | **Version-specific Mixin / Conditional** | `actuallyHurt` and `dropFromLootTable` added `ServerLevel` parameter in 1.21.2+. Handled via Stonecutter conditional blocks in `LivingEntityMixin`. | **Medium**: Combat and death pipelines occasionally receive internal refactors. |
-| **Mob** | `net.minecraft.world.entity.Mob` | **Shared** | None. `setItemSlot` is identical across 1.21.1–1.21.4. | **Low**: Stable entity hierarchy. |
-| **DamageSource** | `net.minecraft.world.damagesource.DamageSource` | **Shared** | None. Registry-based damage types are stable across 1.21.1–1.21.4. | **Low**: Stable since 1.20. |
-| **EnchantmentHelper** | `net.minecraft.world.item.enchantment.EnchantmentHelper` | **Shared / Future Risk** | `getEnchantmentLevel(Holder, LivingEntity)` is preserved across 1.21.1–1.21.4. | **High**: Future Mojang updates are migrating enchantment evaluation to data-driven component queries. |
-| **MobEffect** | `net.minecraft.world.effect.MobEffect` | **Adapter** | `applyEffectTick`, `onMobHurt`, and `onMobRemoved` added `ServerLevel` parameter in 1.21.2+. Encapsulated in `EffectAdapter`. | **Low**: Fully isolated inside `EffectAdapter`. |
-| **MobEffectInstance** | `net.minecraft.world.effect.MobEffectInstance` | **Shared** | None. Accessor fields and invokers are identical across 1.21.1–1.21.4. | **Low**: Stable effect container. |
-| **ThrownPotion** | `net.minecraft.world.entity.projectile.ThrownPotion` | **Adapter / Conditional Mixin** | `applySplash` added `ServerLevel` parameter in 1.21.2+. Constructor abstracted in `EntityAdapter.createThrownPotion()`. | **Low**: Fully abstracted. |
-| **BreedGoal** | `net.minecraft.world.entity.ai.goal.BreedGoal` | **Shared** | None. `canUse()` and `breed()` signatures and logic are identical across 1.21.1–1.21.4. | **Low**: Stable AI goal. |
-| **Sheep** | `net.minecraft.world.entity.animal.Sheep` | **Shared** | None. `ate()` signature is identical across 1.21.1–1.21.4. | **Low**: Standard animal logic. |
-| **MushroomCow** | `net.minecraft.world.entity.animal.MushroomCow` | **Adapter / Conditional Mixin** | Variant enum changed (`MushroomType` on 1.21.1 vs `Variant` on >=1.21.2). Shearing converted to `convertTo`. Handled in `EntityAdapter` and `MushroomCowMixin`. | **Low**: Fully isolated. |
-| **Player** | `net.minecraft.world.entity.player.Player` | **Shared** | None. `attack(Entity)` and sweeping attack bytecodes are identical across 1.21.1–1.21.4. | **Medium**: Player combat overhaul could adjust sweep bytecode in future releases. |
-| **ServerLevel** | `net.minecraft.server.level.ServerLevel` | **Shared** | None. `addFreshEntity(Entity)` is identical across 1.21.1–1.21.4. | **Low**: Core world method. |
-| **ItemStack / Components** | `net.minecraft.world.item.ItemStack` | **Shared** | Data components (`DataComponentMap`, `DataComponents`) introduced in 1.20.5 are stable across 1.21.1–1.21.4. | **Low**: Modern component system is stable. |
-| **Registries** | `net.minecraft.core.registries.BuiltInRegistries` | **Shared** | Direct iteration of `BuiltInRegistries.MOB_EFFECT` used across all targets. | **Low**: Registry access pattern is standard. |
-| **Commands** | `com.mojang.brigadier.CommandDispatcher` | **Shared** | Brigadier command registration is identical across 1.21.1–1.21.4. | **Low**: Standard command API. |
-| **Networking** | `net.fabricmc.fabric.api.networking.v1` | **Shared** | `PayloadTypeRegistry` and `CustomPacketPayload` APIs are identical across 1.21.1–1.21.4. | **Low**: Standard Fabric networking API. |
-| **Config GUI (Vanilla)** | `net.minecraft.client.gui.screens.Screen` | **Shared** | Fallback config screen uses standard widgets (`Button`, `Checkbox`, `EditBox`) identical across 1.21.1–1.21.4. | **Medium**: Vanilla screen widget APIs occasionally receive constructor shifts. |
-| **YACL** | `dev.isxander.yacl3.api` | **Shared (Per-version coords)** | YACL 3.8.1 API is identical across 1.21.1–1.21.4; version-specific dependencies configured in `gradle.properties`. | **Medium**: External library dependency. |
-| **Mod Menu** | `com.terraformersmc.modmenu.api.ModMenuApi` | **Shared (Per-version coords)** | `ModMenuApi` implementation is identical across 1.21.1–1.21.4; dependencies configured in `gradle.properties`. | **Low**: Stable API. |
-| **NBT / Persistence** | `net.minecraft.nbt.CompoundTag` | **Shared** | `CompoundTag` reading and writing methods are identical across 1.21.1–1.21.4. | **Low**: Core serialization API. |
+| **EntityType** | `net.minecraft.world.entity.EntityType` | **Adapter** | `EntityType.create(Level)` on 1.21.1 vs `create(Level, EntitySpawnReason)` on >=1.21.2. Encapsulated in `EntityAdapter.create()`. | **Low**: Fully isolated inside `EntityAdapter`. |
+| **ItemEntity** | `net.minecraft.world.entity.item.ItemEntity` | **Shared / Conditional Mixin** | Persistence signature change in 1.21.6 (`ValueOutput`/`ValueInput`). Handled via Mixin conditionals. | **Low**: Core entity class. |
+| **LivingEntity** | `net.minecraft.world.entity.LivingEntity` | **Version-specific Mixin / Conditional** | `actuallyHurt` added `ServerLevel` in 1.21.2. Persistence changed in 1.21.6. Handled via `LivingEntityMixin`. | **Medium**: Combat and death pipelines. |
+| **Mob** | `net.minecraft.world.entity.Mob` | **Shared** | None. `setItemSlot` is identical across 1.21.1–1.21.8. | **Low**: Stable entity hierarchy. |
+| **DamageSource** | `net.minecraft.world.damagesource.DamageSource` | **Shared** | None. Registry-based damage types are stable across 1.21.1–1.21.8. | **Low**: Stable since 1.20. |
+| **EnchantmentHelper** | `net.minecraft.world.item.enchantment.EnchantmentHelper` | **Shared** | `getEnchantmentLevel(Holder, LivingEntity)` is preserved across 1.21.1–1.21.8. | **Medium**: Mojang slowly transitioning to component lookups. |
+| **MobEffect** | `net.minecraft.world.effect.MobEffect` | **Adapter** | `applyEffectTick`, `onMobHurt`, `onMobRemoved` added `ServerLevel` in 1.21.2. Encapsulated in `EffectAdapter`. | **Low**: Fully isolated inside `EffectAdapter`. |
+| **MobEffectInstance** | `net.minecraft.world.effect.MobEffectInstance` | **Shared** | None. Accessor fields and invokers are identical across 1.21.1–1.21.8. | **Low**: Stable effect container. |
+| **ThrownPotion** | `net.minecraft.world.entity.projectile.ThrownPotion` / `ThrownSplashPotion` | **Adapter / Conditional Mixin** | Abstracted via `EntityAdapter.createThrownPotion` and `ThrownPotionMixin`. | **Low**: Fully abstracted. |
+| **BreedGoal** | `net.minecraft.world.entity.ai.goal.BreedGoal` | **Shared** | None. `canUse()` and `breed()` signatures and logic are identical across 1.21.1–1.21.8. | **Low**: Stable AI goal. |
+| **Sheep** | `net.minecraft.world.entity.animal.Sheep` | **Shared** | None. `ate()` signature is identical across 1.21.1–1.21.8. | **Low**: Standard animal logic. |
+| **MushroomCow** | `net.minecraft.world.entity.animal.MushroomCow` | **Adapter / Conditional Mixin** | Variant handling encapsulated via `EntityAdapter` and `MushroomCowAccessor`. | **Low**: Fully isolated. |
+| **Player** | `net.minecraft.world.entity.player.Player` | **Shared** | None. `attack(Entity)` and sweeping attack bytecodes are identical across 1.21.1–1.21.8. | **Medium**: Stable across 1.21.x. |
+| **ServerLevel** | `net.minecraft.server.level.ServerLevel` | **Shared** | None. `addFreshEntity(Entity)` is identical across 1.21.1–1.21.8. | **Low**: Core world method. |
+| **ItemStack / Components** | `net.minecraft.world.item.ItemStack` | **Shared** | Modern data components stable across 1.21.1–1.21.8. | **Low**: Modern component system. |
+| **Persistence / Codecs** | `net.minecraft.world.level.storage.ValueOutput` | **Adapter / Conditional Mixin** | 1.21.6+ adopts `ValueOutput` / `ValueInput`. Encapsulated in `EntityAdapter` with automatic `JarStackerData` packing and unpacking. | **Low**: Isolated in adapter and mixin layers. |
+| **ProjectileUtil** | `net.minecraft.world.entity.projectile.ProjectileUtil` | **Adapter** | `getEntityHitResult` signature changed in 1.21.6. Abstracted in `EntityAdapter.getEntityHitResult`. | **Low**: Isolated in adapter. |
 
 ---
 
@@ -114,82 +124,45 @@ Jar Stacker declares 12 mixins and accessors in `jarstacker.mixins.json` with `i
 ### Adapter Design
 Version divergence is strictly contained within two dedicated adapter classes and targeted Stonecutter preprocessor blocks:
 1. `com.jar.jarstacker.adapter.EntityAdapter`:
-   - `create(EntityType<T>, Level)`: Delegates to `EntityType.create(Level)` on 1.21.1 and `EntityType.create(Level, EntitySpawnReason.TRIGGERED)` on >=1.21.2.
-   - `setMooshroomVariant(MushroomCow, boolean)`: Encapsulates `MushroomType` on 1.21.1 and `Variant` on >=1.21.2.
-   - `createThrownPotion(Level, double, double, double)`: Creates and positions `ThrownPotion` using `EntityType.POTION`.
+   - `create(EntityType<T>, Level)`: Handles `EntitySpawnReason` shift.
+   - `copyMooshroomVariant(MushroomCow, MushroomCow)`: Encapsulates variant access.
+   - `createThrownPotion(Level, double, double, double)`: Creates splash potion across version hierarchies.
+   - `getEntityHitResult(Player, Vec3, Vec3, AABB, Predicate)`: Bridges projectile raycast parameter shift.
+   - `saveWithoutId`, `load`, `addAdditionalSaveData`, `readAdditionalSaveData`: Bridges NBT compound and `ValueOutput`/`ValueInput` serialization with bidirectional `JarStackerData` translation.
 2. `com.jar.jarstacker.adapter.EffectAdapter`:
-   - Encapsulates addition of `ServerLevel` in `applyEffectTick`, `onMobHurt`, and `onMobRemoved`.
-3. Stonecutter Preprocessor Directives:
-   - Limited strictly to method signature shifts in `LivingEntityMixin`, `MushroomCowMixin`, and `ThrownPotionMixin`.
+   - Encapsulates addition of `ServerLevel` in effect ticks and event callbacks.
 
 ### Source Reuse Quantification
 - **Total Shared Java Source**: ~14,000 lines across core stacking, combat attribution, logical health, status effects, and test suite.
-- **Version-Specific Divergence**: ~70 lines in adapters and mixin conditional blocks.
-- **Shared Source Code Percentage**: **~99.5%** (substantially exceeding the >=90% requirement and >=95% preference).
+- **Version-Specific Divergence**: ~110 lines in adapters and mixin conditional blocks.
+- **Shared Source Code Percentage**: **~99.2%** (substantially exceeding the >=90% requirement and >=95% preference).
 
 ---
 
-## 7. Java 25 Readiness Assessment
-
-### Current Build Configuration
-- `settings.gradle`: Stonecutter central script management.
-- `build.gradle`: Common Loom configuration, dependencies, and compilation tasks. Currently configured with `options.release = 21`.
-- `versions/<mc_version>/gradle.properties`: Per-version properties specifying Minecraft, Loader, Fabric API, YACL, and Mod Menu versions.
-
-### Future Minecraft 26.x / Java 25 Evaluation
-- **Verdict**: **MINOR BUILD CHANGE REQUIRED**.
-- **Assessment**:
-  Adding a future Minecraft 26.x target utilizing Java 25 requires **no architectural changes** and **no project restructuring**.
-  Because Stonecutter operates on independent version subprojects with their own `gradle.properties`, a future target can declare:
-  ```properties
-  java_version=25
-  ```
-  The root `build.gradle` can dynamically adapt compiler settings per subproject:
-  ```groovy
-  tasks.withType(JavaCompile).configureEach {
-      it.options.release = (project.findProperty("java_version") ?: 21) as Integer
-  }
-  ```
-  Similarly, `processResources` can expand the Java dependency range in `fabric.mod.json` (`"java": ">=${java_version}"`).
-  All existing 1.21.x targets remain strictly on Java 21, with 343 / 343 tests passing.
-
----
-
-## 8. Developer Workflow Reference
+## 7. Developer Workflow Reference
 
 ### Switching Active Project in IDE
 ```bash
-# Switch active editing target to 1.21.1
-./gradlew stonecutterSwitchTo1.21.1
-
-# Switch active editing target to 1.21.2
-./gradlew stonecutterSwitchTo1.21.2
-
-# Switch active editing target to 1.21.4
-./gradlew stonecutterSwitchTo1.21.4
+./gradlew "Set active project to 1.21.1"
+./gradlew "Set active project to 1.21.2"
+./gradlew "Set active project to 1.21.4"
+./gradlew "Set active project to 1.21.5"
+./gradlew "Set active project to 1.21.6"
 ```
 
-### Compiling and Building
+### Compiling and Building All Artifacts
 ```bash
-# Compile specific target
-./gradlew :1.21.1:compileJava
-./gradlew :1.21.2:compileJava
-./gradlew :1.21.4:compileJava
-
-# Build all version JARs
-./gradlew :1.21.1:build
-./gradlew :1.21.2:build
-./gradlew :1.21.4:build
+./gradlew :1.21.1:build :1.21.2:build :1.21.4:build :1.21.5:build :1.21.6:build
 ```
 
-### Running In-Game Automated Tests
+### Running In-Game Automated Integration Test Suite (343 Tests)
 ```bash
-# Run full 343-test suite on 1.21.1
 ./gradlew :1.21.1:runServer -PrunTests
-
-# Run full 343-test suite on 1.21.2
 ./gradlew :1.21.2:runServer -PrunTests
-
-# Run full 343-test suite on 1.21.4
+./gradlew :runtime-test-1.21.3:runServer -PrunTests
 ./gradlew :1.21.4:runServer -PrunTests
+./gradlew :1.21.5:runServer -PrunTests
+./gradlew :1.21.6:runServer -PrunTests
+./gradlew :runtime-test-1.21.7:runServer -PrunTests
+./gradlew :runtime-test-1.21.8:runServer -PrunTests
 ```

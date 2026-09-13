@@ -195,4 +195,86 @@ public final class EntityAdapter {
 		return false;
 		//?}
 	}
+
+	public static net.minecraft.world.phys.EntityHitResult getEntityHitResult(net.minecraft.server.level.ServerPlayer player, net.minecraft.world.phys.Vec3 eyePos, net.minecraft.world.phys.Vec3 endPos, net.minecraft.world.phys.AABB aabb, java.util.function.Predicate<Entity> filter) {
+		//? if >=1.21.6 {
+		/*return net.minecraft.world.entity.projectile.ProjectileUtil.getEntityHitResult(player, eyePos, endPos, aabb, filter, 0.0);
+		*///?} else {
+		return net.minecraft.world.entity.projectile.ProjectileUtil.getEntityHitResult(player.level(), player, eyePos, endPos, aabb, filter);
+		//?}
+	}
+
+	public static void saveWithoutId(Entity entity, CompoundTag tag) {
+		//? if >=1.21.6 {
+		/*net.minecraft.world.level.storage.TagValueOutput out = net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING, entity.registryAccess());
+		entity.saveWithoutId(out);
+		CompoundTag res = out.buildResult();
+		res.getCompound("JarStackerData").ifPresent(res::merge);
+		tag.merge(res);
+		*///?} else {
+		entity.saveWithoutId(tag);
+		//?}
+	}
+
+	public static void load(Entity entity, CompoundTag tag) {
+		//? if >=1.21.6 {
+		/*CompoundTag preparedTag = tag.copy();
+		if (!preparedTag.contains("JarStackerData")) {
+			preparedTag.put("JarStackerData", tag.copy());
+		}
+		net.minecraft.world.level.storage.ValueInput in = net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING, entity.registryAccess(), preparedTag);
+		entity.load(in);
+		*///?} else {
+		entity.load(tag);
+		//?}
+	}
+
+	public static void addAdditionalSaveData(Entity entity, CompoundTag tag) {
+		//? if >=1.21.6 {
+		/*try {
+			net.minecraft.world.level.storage.TagValueOutput out = net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING, entity.registryAccess());
+			java.lang.reflect.Method m = Entity.class.getDeclaredMethod("addAdditionalSaveData", net.minecraft.world.level.storage.ValueOutput.class);
+			m.setAccessible(true);
+			m.invoke(entity, out);
+			CompoundTag res = out.buildResult();
+			res.getCompound("JarStackerData").ifPresent(res::merge);
+			tag.merge(res);
+		} catch (Throwable t) {
+			throw new RuntimeException(t);
+		}
+		*///?} else {
+		try {
+			java.lang.reflect.Method m = Entity.class.getDeclaredMethod("addAdditionalSaveData", CompoundTag.class);
+			m.setAccessible(true);
+			m.invoke(entity, tag);
+		} catch (Throwable t) {
+			throw new RuntimeException(t);
+		}
+		//?}
+	}
+
+	public static void readAdditionalSaveData(Entity entity, CompoundTag tag) {
+		//? if >=1.21.6 {
+		/*try {
+			CompoundTag preparedTag = tag.copy();
+			if (!preparedTag.contains("JarStackerData")) {
+				preparedTag.put("JarStackerData", tag.copy());
+			}
+			net.minecraft.world.level.storage.ValueInput in = net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING, entity.registryAccess(), preparedTag);
+			java.lang.reflect.Method m = Entity.class.getDeclaredMethod("readAdditionalSaveData", net.minecraft.world.level.storage.ValueInput.class);
+			m.setAccessible(true);
+			m.invoke(entity, in);
+		} catch (Throwable t) {
+			throw new RuntimeException(t);
+		}
+		*///?} else {
+		try {
+			java.lang.reflect.Method m = Entity.class.getDeclaredMethod("readAdditionalSaveData", CompoundTag.class);
+			m.setAccessible(true);
+			m.invoke(entity, tag);
+		} catch (Throwable t) {
+			throw new RuntimeException(t);
+		}
+		//?}
+	}
 }

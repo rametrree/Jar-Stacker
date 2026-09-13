@@ -11,6 +11,21 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+//? if >=1.21.6 {
+/*@Mixin(net.minecraft.world.entity.projectile.ThrownSplashPotion.class)
+public abstract class ThrownPotionMixin {
+
+	@Inject(method = "onHitAsPotion", at = @At("HEAD"))
+	private void jarstacker$onApplySplashHead(net.minecraft.server.level.ServerLevel level, net.minecraft.world.item.ItemStack item, net.minecraft.world.phys.HitResult hitResult, CallbackInfo ci) {
+		LogicalEffectScopeResolver.beginSplash(1.0);
+	}
+
+	@Inject(method = "onHitAsPotion", at = @At("RETURN"))
+	private void jarstacker$onApplySplashReturn(net.minecraft.server.level.ServerLevel level, net.minecraft.world.item.ItemStack item, net.minecraft.world.phys.HitResult hitResult, CallbackInfo ci) {
+		LogicalEffectScopeResolver.endSplash();
+	}
+}
+*///?} else {
 //? if >=1.21.5 {
 /*@Mixin(net.minecraft.world.entity.projectile.ThrownSplashPotion.class)
 public abstract class ThrownPotionMixin {
@@ -54,5 +69,6 @@ public abstract class ThrownPotionMixin {
 		LogicalEffectScopeResolver.endSplash();
 	}
 }
+//?}
 //?}
 //?}

@@ -339,8 +339,8 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 		}
 	}
 
-	@Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
-	private void jarstacker$saveData(CompoundTag tag, CallbackInfo ci) {
+	@Unique
+	private void jarstacker$saveDataInternal(CompoundTag tag) {
 		if (this.jarstacker$stackCount > 1) {
 			tag.putInt("JarStackerCount", this.jarstacker$stackCount);
 		}
@@ -370,8 +370,8 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 		}
 	}
 
-	@Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
-	private void jarstacker$loadData(CompoundTag tag, CallbackInfo ci) {
+	@Unique
+	private void jarstacker$loadDataInternal(CompoundTag tag) {
 		if (tag.contains("JarStackerCount")) {
 			this.jarstacker$stackCount = com.jar.jarstacker.adapter.NbtAdapter.getInt(tag, "JarStackerCount");
 			if ((Object) this instanceof Mob mob) {
@@ -449,6 +449,37 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 			com.jar.jarstacker.stack.mob.logical.LogicalStateValidator.repairLogicalState(living);
 		}
 	}
+
+	//? if >=1.21.6 {
+	/*@Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
+	private void jarstacker$saveData(net.minecraft.world.level.storage.ValueOutput output, CallbackInfo ci) {
+		CompoundTag tag = new CompoundTag();
+		jarstacker$saveDataInternal(tag);
+		output.store("JarStackerData", CompoundTag.CODEC, tag);
+	}
+
+	@Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
+	private void jarstacker$loadData(net.minecraft.world.level.storage.ValueInput input, CallbackInfo ci) {
+		java.util.Optional<CompoundTag> opt = input.read("JarStackerData", CompoundTag.CODEC);
+		if (opt.isPresent()) {
+			jarstacker$loadDataInternal(opt.get());
+		} else {
+			CompoundTag legacyTag = new CompoundTag();
+			input.getInt("JarStackerCount").ifPresent(c -> legacyTag.putInt("JarStackerCount", c));
+			jarstacker$loadDataInternal(legacyTag);
+		}
+	}
+	*///?} else {
+	@Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
+	private void jarstacker$saveData(CompoundTag tag, CallbackInfo ci) {
+		jarstacker$saveDataInternal(tag);
+	}
+
+	@Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
+	private void jarstacker$loadData(CompoundTag tag, CallbackInfo ci) {
+		jarstacker$loadDataInternal(tag);
+	}
+	//?}
 
 	@Unique private com.jar.jarstacker.stack.mob.death.CombatDeathContext.Scope jarstacker$dieScope = null;
 

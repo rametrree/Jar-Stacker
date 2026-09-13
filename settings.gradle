@@ -18,9 +18,11 @@ stonecutter {
 	kotlinController = false
 
 	create(rootProject) {
-		versions("1.21.1", "1.21.2", "1.21.4", "1.21.5")
+		versions("1.21.1", "1.21.2", "1.21.4", "1.21.5", "1.21.6")
 	}
 }
 
 rootProject.name = 'jarstacker'
 include 'runtime-test-1.21.3'
+include 'runtime-test-1.21.7'
+include 'runtime-test-1.21.8'

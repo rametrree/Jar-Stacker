@@ -132,7 +132,7 @@ public class JarStackerCommands {
 		Vec3 endPos = eyePos.add(viewVec.scale(6.0));
 		AABB aabb = player.getBoundingBox().expandTowards(viewVec.scale(6.0)).inflate(1.0);
 
-		EntityHitResult hit = ProjectileUtil.getEntityHitResult(player.level(), player, eyePos, endPos, aabb, e -> !e.isSpectator() && e.isPickable());
+		EntityHitResult hit = com.jar.jarstacker.adapter.EntityAdapter.getEntityHitResult(player, eyePos, endPos, aabb, e -> !e.isSpectator() && e.isPickable());
 		if (hit == null || hit.getEntity() == null) {
 			source.sendFailure(Component.literal("No entity in line of sight (range: 6 blocks)."));
 			return 0;
@@ -319,7 +319,7 @@ public class JarStackerCommands {
 		Vec3 viewVec = player.getViewVector(1.0f);
 		Vec3 endPos = eyePos.add(viewVec.scale(6.0));
 		AABB aabb = player.getBoundingBox().expandTowards(viewVec.scale(6.0)).inflate(1.0);
-		EntityHitResult hit = ProjectileUtil.getEntityHitResult(player.level(), player, eyePos, endPos, aabb, entity -> !entity.isSpectator());
+		EntityHitResult hit = com.jar.jarstacker.adapter.EntityAdapter.getEntityHitResult(player, eyePos, endPos, aabb, entity -> !entity.isSpectator());
 
 		if (hit == null || !(hit.getEntity() instanceof LivingEntity living)) {
 			source.sendFailure(Component.literal("No living entity in line of sight (within 6 blocks)."));

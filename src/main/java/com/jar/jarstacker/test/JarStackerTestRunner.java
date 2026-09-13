@@ -1,6 +1,7 @@
 package com.jar.jarstacker.test;
 
 import com.jar.jarstacker.JarStackerMod;
+import com.jar.jarstacker.adapter.EntityAdapter;
 import com.jar.jarstacker.config.ModConfig;
 import com.jar.jarstacker.stack.StackableEntity;
 import com.jar.jarstacker.stack.item.ItemCompatibility;
@@ -249,9 +250,9 @@ public class JarStackerTestRunner {
 			ItemEntity item = new ItemEntity(level, pos.x, pos.y, pos.z, new ItemStack(Items.DIAMOND, 64));
 			((StackableEntity) item).jarstacker$setStackCount(500);
 			CompoundTag tag = new CompoundTag();
-			item.addAdditionalSaveData(tag);
+			EntityAdapter.addAdditionalSaveData(item, tag);
 			ItemEntity reloaded = new ItemEntity(level, pos.x, pos.y, pos.z, new ItemStack(Items.DIAMOND, 64));
-			reloaded.readAdditionalSaveData(tag);
+			EntityAdapter.readAdditionalSaveData(reloaded, tag);
 			int loadedCount = ((StackableEntity) reloaded).jarstacker$getStackCount();
 			boolean pass = loadedCount == 500;
 			results.add(new TestResult("Item Test 7 - Item persistence NBT", pass, "Saved: 500, Loaded: " + loadedCount));
@@ -397,10 +398,10 @@ public class JarStackerTestRunner {
 			z.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) z).jarstacker$setStackCount(75);
 			CompoundTag tag = new CompoundTag();
-			z.addAdditionalSaveData(tag);
+			EntityAdapter.addAdditionalSaveData(z, tag);
 
 			Zombie reloaded = createEntity(EntityType.ZOMBIE, level);
-			reloaded.readAdditionalSaveData(tag);
+			EntityAdapter.readAdditionalSaveData(reloaded, tag);
 			int loadedCount = ((StackableEntity) reloaded).jarstacker$getStackCount();
 			boolean pass = loadedCount == 75;
 			results.add(new TestResult("Mob Test 7 - Mob persistence NBT", pass, "Saved: 75, Loaded: " + loadedCount));
@@ -906,10 +907,10 @@ public class JarStackerTestRunner {
 			tagSingleton.putInt("JarStackerCount", 1);
 
 			Cow cRem = createEntity(EntityType.COW, level);
-			cRem.readAdditionalSaveData(tagRemainder);
+			EntityAdapter.readAdditionalSaveData(cRem, tagRemainder);
 
 			Cow cSingle = createEntity(EntityType.COW, level);
-			cSingle.readAdditionalSaveData(tagSingleton);
+			EntityAdapter.readAdditionalSaveData(cSingle, tagSingleton);
 
 			int remLoaded = ((StackableEntity) cRem).jarstacker$getStackCount();
 			int singleLoaded = ((StackableEntity) cSingle).jarstacker$getStackCount();
@@ -1246,13 +1247,13 @@ public class JarStackerTestRunner {
 			tagCooldown.putInt("Age", 5000);
 
 			Cow cAdult = createEntity(EntityType.COW, level);
-			cAdult.readAdditionalSaveData(tagAdult);
+			EntityAdapter.readAdditionalSaveData(cAdult, tagAdult);
 
 			Cow cBaby = createEntity(EntityType.COW, level);
-			cBaby.readAdditionalSaveData(tagBaby);
+			EntityAdapter.readAdditionalSaveData(cBaby, tagBaby);
 
 			Cow cCooldown = createEntity(EntityType.COW, level);
-			cCooldown.readAdditionalSaveData(tagCooldown);
+			EntityAdapter.readAdditionalSaveData(cCooldown, tagCooldown);
 
 			int adultCnt = ((StackableEntity) cAdult).jarstacker$getStackCount();
 			int babyCnt = ((StackableEntity) cBaby).jarstacker$getStackCount();
@@ -3098,10 +3099,10 @@ public class JarStackerTestRunner {
 			((StackableEntity) cow).jarstacker$setInteractionLockTicks(250);
 
 			CompoundTag tag = new CompoundTag();
-			cow.saveWithoutId(tag);
+			EntityAdapter.saveWithoutId(cow, tag);
 
 			Cow loaded = createEntity(EntityType.COW, level);
-			loaded.load(tag);
+			EntityAdapter.load(loaded, tag);
 
 			int loadedCount = ((StackableEntity) loaded).jarstacker$getStackCount();
 			int loadedLock = ((StackableEntity) loaded).jarstacker$getInteractionLockTicks();
@@ -3403,10 +3404,10 @@ public class JarStackerTestRunner {
 			((StackableEntity) cow).jarstacker$setBabyGrowthState(state);
 
 			CompoundTag tag = new CompoundTag();
-			cow.saveWithoutId(tag);
+			EntityAdapter.saveWithoutId(cow, tag);
 
 			Cow loaded = createEntity(EntityType.COW, level);
-			loaded.load(tag);
+			EntityAdapter.load(loaded, tag);
 
 			int loadedCount = ((StackableEntity) loaded).jarstacker$getStackCount();
 			com.jar.jarstacker.stack.mob.baby.BabyGrowthState loadedState = ((StackableEntity) loaded).jarstacker$getBabyGrowthState();
@@ -3677,16 +3678,16 @@ public class JarStackerTestRunner {
 			((StackableEntity) unshearedSheep).jarstacker$setStackCount(1);
 
 			CompoundTag tag1 = new CompoundTag();
-			shearedSheep.saveWithoutId(tag1);
+			EntityAdapter.saveWithoutId(shearedSheep, tag1);
 
 			CompoundTag tag2 = new CompoundTag();
-			unshearedSheep.saveWithoutId(tag2);
+			EntityAdapter.saveWithoutId(unshearedSheep, tag2);
 
 			Sheep l1 = createEntity(EntityType.SHEEP, level);
-			l1.load(tag1);
+			EntityAdapter.load(l1, tag1);
 
 			Sheep l2 = createEntity(EntityType.SHEEP, level);
-			l2.load(tag2);
+			EntityAdapter.load(l2, tag2);
 
 			boolean pass = (((StackableEntity) l1).jarstacker$getStackCount() == 4) && (l1.isSheared())
 				&& (((StackableEntity) l2).jarstacker$getStackCount() == 1) && (!l2.isSheared());
@@ -4040,10 +4041,10 @@ public class JarStackerTestRunner {
 			((StackableEntity) cow).jarstacker$setBabyGrowthState(state);
 
 			CompoundTag tag = new CompoundTag();
-			cow.saveWithoutId(tag);
+			EntityAdapter.saveWithoutId(cow, tag);
 
 			Cow loaded = createEntity(EntityType.COW, level);
-			loaded.load(tag);
+			EntityAdapter.load(loaded, tag);
 
 			int loadedCount = ((StackableEntity) loaded).jarstacker$getStackCount();
 			com.jar.jarstacker.stack.mob.baby.BabyGrowthState loadedState = ((StackableEntity) loaded).jarstacker$getBabyGrowthState();
@@ -4073,15 +4074,15 @@ public class JarStackerTestRunner {
 			((StackableEntity) cow).jarstacker$setBabyGrowthState(state);
 
 			CompoundTag tag1 = new CompoundTag();
-			cow.saveWithoutId(tag1);
+			EntityAdapter.saveWithoutId(cow, tag1);
 
 			Cow r1 = createEntity(EntityType.COW, level);
-			r1.load(tag1);
+			EntityAdapter.load(r1, tag1);
 			CompoundTag tag2 = new CompoundTag();
-			r1.saveWithoutId(tag2);
+			EntityAdapter.saveWithoutId(r1, tag2);
 
 			Cow r2 = createEntity(EntityType.COW, level);
-			r2.load(tag2);
+			EntityAdapter.load(r2, tag2);
 
 			int count2 = ((StackableEntity) r2).jarstacker$getStackCount();
 			com.jar.jarstacker.stack.mob.baby.BabyGrowthState state2 = ((StackableEntity) r2).jarstacker$getBabyGrowthState();
@@ -4402,10 +4403,10 @@ public class JarStackerTestRunner {
 			}
 
 			CompoundTag tag = new CompoundTag();
-			babyCow.saveWithoutId(tag);
+			EntityAdapter.saveWithoutId(babyCow, tag);
 
 			Cow loaded = createEntity(EntityType.COW, level);
-			loaded.load(tag);
+			EntityAdapter.load(loaded, tag);
 
 			com.jar.jarstacker.stack.mob.logical.LogicalStateValidator.ValidationReport rep =
 				com.jar.jarstacker.stack.mob.logical.LogicalStateValidator.validateLogicalState(loaded);
@@ -6597,10 +6598,10 @@ Vec3 posH = pos.add(25, 0, 25);
 			original.setHealth(3.0f);
 
 			net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
-			original.saveWithoutId(tag);
+			EntityAdapter.saveWithoutId(original, tag);
 
 			Zombie reloaded = createEntity(EntityType.ZOMBIE, level);
-			reloaded.load(tag);
+			EntityAdapter.load(reloaded, tag);
 
 			int reloadedCount = ((StackableEntity) reloaded).jarstacker$getStackCount();
 			LogicalHealthState relState = ((StackableEntity) reloaded).jarstacker$getLogicalHealthState();
@@ -6889,16 +6890,16 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			net.minecraft.nbt.CompoundTag legacyTag = new net.minecraft.nbt.CompoundTag();
 			legacyTag.putInt("JarStackerCount", 4);
-			legacyZombie.load(legacyTag);
+			EntityAdapter.load(legacyZombie, legacyTag);
 
 			LogicalHealthState state1 = ((StackableEntity) legacyZombie).jarstacker$getLogicalHealthState();
 			int count1 = ((StackableEntity) legacyZombie).jarstacker$getStackCount();
 
 			net.minecraft.nbt.CompoundTag savedTag = new net.minecraft.nbt.CompoundTag();
-			legacyZombie.saveWithoutId(savedTag);
+			EntityAdapter.saveWithoutId(legacyZombie, savedTag);
 
 			Zombie reloadedZombie = createEntity(EntityType.ZOMBIE, level);
-			reloadedZombie.load(savedTag);
+			EntityAdapter.load(reloadedZombie, savedTag);
 
 			LogicalHealthState state2 = ((StackableEntity) reloadedZombie).jarstacker$getLogicalHealthState();
 			int count2 = ((StackableEntity) reloadedZombie).jarstacker$getStackCount();
@@ -7090,7 +7091,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			legacyTag.putFloat("Health", 4.0f);
 			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posM.x, posM.y, posM.z);
-			zombie.load(legacyTag);
+			EntityAdapter.load(zombie, legacyTag);
 			LogicalHealthState state = ((StackableEntity) zombie).jarstacker$getLogicalHealthState();
 
 			boolean allFour = state != null && state.size() == 10;
@@ -7122,12 +7123,12 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			// Save to NBT
 			CompoundTag tag = new CompoundTag();
-			zombie.saveWithoutId(tag);
+			EntityAdapter.saveWithoutId(zombie, tag);
 
 			// Repeatedly load into a new entity
 			Zombie reloaded = createEntity(EntityType.ZOMBIE, level);
 			for (int loadCycle = 0; loadCycle < 3; loadCycle++) {
-				reloaded.load(tag);
+				EntityAdapter.load(reloaded, tag);
 			}
 
 			LogicalHealthState reloadedState = ((StackableEntity) reloaded).jarstacker$getLogicalHealthState();
@@ -7157,7 +7158,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			legacyTag.putFloat("Health", 20.0f);
 			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posM.x, posM.y, posM.z);
-			zombie.load(legacyTag);
+			EntityAdapter.load(zombie, legacyTag);
 			LogicalHealthState state = ((StackableEntity) zombie).jarstacker$getLogicalHealthState();
 
 			boolean allTwenty = state != null && state.size() == 10;
@@ -7472,7 +7473,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			List<ExperienceOrb> orbsD = getEntitiesInArea(level, ExperienceOrb.class, cleanAreaD);
 			int totalXp = orbsD.stream().mapToInt(orb -> {
 				CompoundTag tag = new CompoundTag();
-				orb.addAdditionalSaveData(tag);
+				EntityAdapter.addAdditionalSaveData(orb, tag);
 				int count = Math.max(1, com.jar.jarstacker.adapter.NbtAdapter.getInt(tag, "Count"));
 				return orb.getValue() * count;
 			}).sum();
@@ -8954,7 +8955,7 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
 			tag.putInt("JarStackerCount", 4);
-			zombie.readAdditionalSaveData(tag);
+			EntityAdapter.readAdditionalSaveData(zombie, tag);
 
 			LogicalStatusEffectState state = LogicalStatusEffectManager.getOrCreateStatusState(zombie);
 			boolean pass = state.size() == 4
@@ -10592,11 +10593,11 @@ Vec3 posH = pos.add(25, 0, 25);
 			sState.get(3).addEffect(new MobEffectInstance(MobEffects.WIND_CHARGED, 160, 2), stacked);
 
 			net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
-			stacked.addAdditionalSaveData(tag);
+			EntityAdapter.addAdditionalSaveData(stacked, tag);
 
 			Zombie loaded = createEntity(EntityType.ZOMBIE, level);
 			((StackableEntity) loaded).jarstacker$setStackCount(4);
-			loaded.readAdditionalSaveData(tag);
+			EntityAdapter.readAdditionalSaveData(loaded, tag);
 
 			LogicalStatusEffectState loadedState = ((StackableEntity) loaded).jarstacker$getLogicalStatusEffectState();
 			boolean pass = loadedState != null && loadedState.size() == 4
@@ -10921,10 +10922,10 @@ Vec3 posH = pos.add(25, 0, 25);
 			ItemEntity item = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 64));
 			((StackableEntity) item).jarstacker$setStackCount(100);
 			net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
-			item.addAdditionalSaveData(tag);
+			EntityAdapter.addAdditionalSaveData(item, tag);
 
 			ItemEntity reloaded = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 64));
-			reloaded.readAdditionalSaveData(tag);
+			EntityAdapter.readAdditionalSaveData(reloaded, tag);
 			reloaded.setPickUpDelay(100);
 			((StackableEntity) reloaded).jarstacker$setAge(20);
 			level.addFreshEntity(reloaded);
