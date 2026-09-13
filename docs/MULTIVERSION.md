@@ -19,12 +19,12 @@ Jar Stacker is engineered around four core tenets:
 
 ## 2. Version Support Matrix
 
-| Minecraft Version | Compile Target | Artifact Used | Automated Tests | Client Boot | Compatibility Status |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **1.21.1** | `1.21.1` (Dedicated) | `jarstacker-0.7.0+mc1.21.1.jar` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Independent Binary) |
-| **1.21.2** | `1.21.2` (Dedicated) | `jarstacker-0.7.0+mc1.21.2.jar` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
-| **1.21.3** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.2.jar` (Exact Binary) | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.2–1.21.3) |
-| **1.21.4** | `1.21.4` (Dedicated) | `jarstacker-0.7.0+mc1.21.4.jar` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Source-Compatible with 1.21.2) |
+| Minecraft Version | Compile Target | Artifact Used | SHA-256 Checksum | Automated Tests | Client Boot | Compatibility Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **1.21.1** | `1.21.1` (Dedicated) | `jarstacker-0.7.0+mc1.21.1.jar` | `DDE87A3B74F8B0F93C88A23399265FA8AFEDAEC0DA06877A5F9EEF2A55F4CD7F` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Independent Binary) |
+| **1.21.2** | `1.21.2` (Dedicated) | `jarstacker-0.7.0+mc1.21.2.jar` | `2840D3DC6B772343CBD5B3531C2F836EAE5E2522A34A0F81EA467B6035E0FAA3` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
+| **1.21.3** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.2.jar` (Exact Binary) | `2840D3DC6B772343CBD5B3531C2F836EAE5E2522A34A0F81EA467B6035E0FAA3` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.2–1.21.3) |
+| **1.21.4** | `1.21.4` (Dedicated) | `jarstacker-0.7.0+mc1.21.4.jar` | `86014C2DEBF964EA075AC2C46A472AF177D7F903A1746931767CA363835564C9` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Source-Compatible with 1.21.2) |
 
 ---
 
