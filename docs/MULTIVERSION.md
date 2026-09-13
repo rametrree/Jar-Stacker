@@ -63,14 +63,14 @@ Minecraft 1.21.5 introduced entity hierarchy and accessor refactors:
 - Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.5.jar`) passing all 348 tests and booting cleanly to the title screen.
 
 ### 1.21.5 vs 1.21.6: Verified Binary Boundary (Incompatible)
-To conclusively establish whether Minecraft 1.21.5 and 1.21.6 can share a binary, the final compiled `jarstacker-0.7.0+mc1.21.5.jar` was explicitly probed against a Minecraft 1.21.6+ runtime harness:
-1. **Metadata Enforcement Probe**: Launching the unmodified 1.21.5 artifact on the 1.21.6/1.21.7 harness resulted in clean early rejection by Fabric Loader:
+To conclusively establish whether Minecraft 1.21.5 and 1.21.6 can share a binary, the final compiled `jarstacker-0.7.0+mc1.21.5.jar` was explicitly probed against a Minecraft 1.21.6 runtime harness:
+1. **Metadata Enforcement Probe**: Launching the unmodified 1.21.5 artifact on the 1.21.6 harness resulted in clean early rejection by Fabric Loader:
    ```text
-   Mod 'Jar Stacker' (jarstacker) 0.7.0 requires version 1.21.5 of 'Minecraft' (minecraft), but only the wrong version is present: 1.21.7!
+   Mod 'Jar Stacker' (jarstacker) 0.7.0 requires version 1.21.5 of 'Minecraft' (minecraft), but only the wrong version is present: 1.21.6!
    ```
-2. **Runtime Binary Boundary Probe**: Launching a metadata-widened copy (`>=1.21.5 <=1.21.7`) of the exact same 1.21.5 bytecode without recompilation resulted in immediate critical bootstrap failure during Mixin application:
+2. **Runtime Binary Boundary Probe**: Launching a metadata-widened copy (`>=1.21.5 <=1.21.6`) of the exact same 1.21.5 bytecode without recompilation resulted in immediate critical bootstrap failure during Mixin application on 1.21.6:
    ```text
-   InvalidInjectionException: Critical injection failure: @Inject annotation on jarstacker$onAttackStart could not find any targets matching 'method_7324' in net/minecraft/world/entity/player/Player. No refMap loaded.
+   InvalidInjectionException: Critical injection failure: @Inject annotation on jarstacker$onAttackStart could not find any targets matching 'method_7324' in net/minecraft/world/entity/player/Player. No refMap loaded. [INJECT_PREPARE Applicator Phase -> jarstacker.mixins.json:PlayerMixin from mod jarstacker -> Prepare Injections -> handler$zgj000$jarstacker$onAttackStart(Lnet/minecraft/world/entity/Entity;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V -> Parse ->  -> Validate Targets]
    MixinApplyError: Mixin [jarstacker.mixins.json:PlayerMixin from mod jarstacker] from phase [DEFAULT] in config [jarstacker.mixins.json] FAILED during APPLY
    Mixin transformation of net.minecraft.world.entity.player.Player failed
    ```
