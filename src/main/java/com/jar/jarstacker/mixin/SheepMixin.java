@@ -1,7 +1,11 @@
 package com.jar.jarstacker.mixin;
 
 import com.jar.jarstacker.stack.mob.sheep.SheepWoolManager;
+//? if >=1.21.5 {
+/*import net.minecraft.world.entity.animal.sheep.Sheep;
+*///?} else {
 import net.minecraft.world.entity.animal.Sheep;
+//?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;

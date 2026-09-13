@@ -109,7 +109,7 @@ public abstract class ItemEntityMixin extends Entity implements StackableEntity 
 	@Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
 	private void jarstacker$loadData(CompoundTag tag, CallbackInfo ci) {
 		if (tag.contains("JarStackerCount")) {
-			this.jarstacker$stackCount = tag.getInt("JarStackerCount");
+			this.jarstacker$stackCount = com.jar.jarstacker.adapter.NbtAdapter.getInt(tag, "JarStackerCount");
 			ItemEntity self = (ItemEntity) (Object) this;
 			ItemStackingManager.updateLabel(self, this.jarstacker$stackCount, ModConfig.getInstance().getItemStacking().isShowLabel());
 		}

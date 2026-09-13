@@ -210,9 +210,9 @@ public class JarStackerCommands {
 			if (interactionLock > 0) {
 				sb.append("Interaction Lock: ").append(interactionLock).append(" ticks\n");
 			}
-			if (mob instanceof net.minecraft.world.entity.animal.Sheep sheep) {
-				sb.append("Color: ").append(sheep.getColor().getName().toUpperCase()).append("\n");
-				sb.append("Sheared: ").append(sheep.isSheared() ? "YES" : "NO").append("\n");
+			if (com.jar.jarstacker.adapter.EntityAdapter.isSheep(mob)) {
+				sb.append("Color: ").append(com.jar.jarstacker.adapter.EntityAdapter.getSheepColorName(mob)).append("\n");
+				sb.append("Sheared: ").append(com.jar.jarstacker.adapter.EntityAdapter.isSheepSheared(mob) ? "YES" : "NO").append("\n");
 			}
 			if (mob instanceof net.minecraft.world.entity.animal.MushroomCow mc) {
 				sb.append("Variant: ").append(mc.getVariant().name()).append("\n");
@@ -226,12 +226,11 @@ public class JarStackerCommands {
 			if (mob instanceof net.minecraft.world.entity.animal.SnowGolem snowGolem) {
 				sb.append("Pumpkin: ").append(snowGolem.hasPumpkin() ? "YES" : "NO").append("\n");
 			}
-			if (mob instanceof net.minecraft.world.entity.Saddleable saddleable) {
-				sb.append("Saddled: ").append(saddleable.isSaddled() ? "YES" : "NO").append("\n");
-			}
+			sb.append("Saddled: ").append(com.jar.jarstacker.adapter.EntityAdapter.isSaddled(mob) ? "YES" : "NO").append("\n");
 			if (mob instanceof net.minecraft.world.entity.TamableAnimal tamable) {
 				sb.append("Tamed: ").append(tamable.isTame() ? "YES" : "NO").append("\n");
-				sb.append("Owner: ").append(tamable.getOwnerUUID() != null ? tamable.getOwnerUUID().toString() : "none").append("\n");
+				java.util.UUID ownerUuid = com.jar.jarstacker.adapter.EntityAdapter.getOwnerUUID(tamable);
+				sb.append("Owner: ").append(ownerUuid != null ? ownerUuid.toString() : "none").append("\n");
 			}
 			sb.append("Stacked: ").append(isStacked ? "Yes" : "No").append("\n");
 			com.jar.jarstacker.stack.mob.health.LogicalHealthState healthState = ((StackableEntity) mob).jarstacker$getLogicalHealthState();

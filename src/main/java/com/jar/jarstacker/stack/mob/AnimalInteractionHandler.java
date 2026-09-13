@@ -10,9 +10,12 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.VariantHolder;
 import net.minecraft.world.entity.animal.Animal;
+//? if >=1.21.5 {
+/*import net.minecraft.world.entity.animal.sheep.Sheep;
+*///?} else {
 import net.minecraft.world.entity.animal.Sheep;
+//?}
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -46,7 +49,8 @@ public class AnimalInteractionHandler {
 			Vec3 safePos = SplitPlacementResolver.findSafeSplitPosition(level, clickedAnimal, remainder, reserved);
 			MovementDiagnostics.logMovementEvent("SPLIT_POSITION_SELECTED", remainder, null, "target=" + safePos);
 
-			remainder.moveTo(
+			com.jar.jarstacker.adapter.EntityAdapter.moveTo(
+				remainder,
 				safePos.x,
 				safePos.y,
 				safePos.z,
@@ -62,9 +66,7 @@ public class AnimalInteractionHandler {
 				remainder.setItemSlot(slot, clickedAnimal.getItemBySlot(slot).copy());
 			}
 
-			if (clickedAnimal instanceof VariantHolder<?> vSrc && remainder instanceof VariantHolder<?> vRem) {
-				copyVariant(vSrc, vRem);
-			}
+			com.jar.jarstacker.adapter.EntityAdapter.copyVariant(clickedAnimal, remainder);
 			if (clickedAnimal instanceof Sheep sSrc && remainder instanceof Sheep sRem) {
 				sRem.setColor(sSrc.getColor());
 				sRem.setSheared(sSrc.isSheared());
@@ -76,15 +78,12 @@ public class AnimalInteractionHandler {
 			level.addFreshEntity(remainder);
 			MovementDiagnostics.logMovementEvent("ENTITY_ADDED_TO_WORLD", remainder, null, "role=remainder");
 			BreedingDiagnostics.logEvent("SPLIT_COMPLETE", remainder, "source=" + clickedAnimal.getUUID());
+			BreedingDiagnostics.logEvent("SPLIT_REMAINDER_SPAWNED", remainder, "remainderCount=" + remainderCount);
+
 			return remainder;
 		}
 
 		return null;
-	}
-
-	@SuppressWarnings("unchecked")
-	private static <T> void copyVariant(VariantHolder<T> src, VariantHolder<?> dst) {
-		((VariantHolder<T>) dst).setVariant(src.getVariant());
 	}
 
 	public static Animal extractBreedingPartner(ServerLevel level, Animal parentA, int currentCount) {
@@ -111,7 +110,8 @@ public class AnimalInteractionHandler {
 		Vec3 posB = SplitPlacementResolver.findSafeSplitPosition(level, parentA, parentB, reserved);
 		MovementDiagnostics.logMovementEvent("SPLIT_POSITION_SELECTED", parentB, null, "target=" + posB);
 
-		parentB.moveTo(
+		com.jar.jarstacker.adapter.EntityAdapter.moveTo(
+			parentB,
 			posB.x,
 			posB.y,
 			posB.z,
@@ -122,15 +122,11 @@ public class AnimalInteractionHandler {
 		reserved.add(parentB.getBoundingBox());
 
 		parentB.setHealth(parentA.getHealth());
-		parentB.setAge(parentA.getAge());
-		parentB.setInLove(null);
 
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			parentB.setItemSlot(slot, parentA.getItemBySlot(slot).copy());
 		}
-		if (parentA instanceof VariantHolder<?> vSrc && parentB instanceof VariantHolder<?> vDst) {
-			copyVariant(vSrc, vDst);
-		}
+		com.jar.jarstacker.adapter.EntityAdapter.copyVariant(parentA, parentB);
 		if (parentA instanceof Sheep sSrc && parentB instanceof Sheep sDst) {
 			sDst.setColor(sSrc.getColor());
 			sDst.setSheared(sSrc.isSheared());
@@ -140,6 +136,8 @@ public class AnimalInteractionHandler {
 		((StackableEntity) parentB).jarstacker$setBreedingLockTicks(300);
 		MobStackingManager.updateLabel(parentB, 1, ModConfig.getInstance().getMobStacking().isShowLabel());
 		level.addFreshEntity(parentB);
+		parentB.setAge(parentA.getAge());
+		parentB.setInLove(null);
 		MovementDiagnostics.logMovementEvent("ENTITY_ADDED_TO_WORLD", parentB, null, "role=parentB");
 
 		// 3. If currentCount > 2, spawn remainder stack with count = currentCount - 2, in love
@@ -152,7 +150,8 @@ public class AnimalInteractionHandler {
 				Vec3 posRem = SplitPlacementResolver.findSafeSplitPosition(level, parentA, remainder, reserved);
 				MovementDiagnostics.logMovementEvent("SPLIT_POSITION_SELECTED", remainder, null, "target=" + posRem);
 
-				remainder.moveTo(
+				com.jar.jarstacker.adapter.EntityAdapter.moveTo(
+					remainder,
 					posRem.x,
 					posRem.y,
 					posRem.z,
@@ -162,15 +161,11 @@ public class AnimalInteractionHandler {
 				remainder.setDeltaMovement(Vec3.ZERO);
 
 				remainder.setHealth(parentA.getHealth());
-				remainder.setAge(parentA.getAge());
-				remainder.setInLove(null);
 
 				for (EquipmentSlot slot : EquipmentSlot.values()) {
 					remainder.setItemSlot(slot, parentA.getItemBySlot(slot).copy());
 				}
-				if (parentA instanceof VariantHolder<?> vSrc && remainder instanceof VariantHolder<?> vDst) {
-					copyVariant(vSrc, vDst);
-				}
+				com.jar.jarstacker.adapter.EntityAdapter.copyVariant(parentA, remainder);
 				if (parentA instanceof Sheep sSrc && remainder instanceof Sheep sDst) {
 					sDst.setColor(sSrc.getColor());
 					sDst.setSheared(sSrc.isSheared());
@@ -179,6 +174,8 @@ public class AnimalInteractionHandler {
 				((StackableEntity) remainder).jarstacker$setStackCount(remainderCount);
 				MobStackingManager.updateLabel(remainder, remainderCount, ModConfig.getInstance().getMobStacking().isShowLabel());
 				level.addFreshEntity(remainder);
+				remainder.setAge(parentA.getAge());
+				remainder.setInLove(null);
 				MovementDiagnostics.logMovementEvent("ENTITY_ADDED_TO_WORLD", remainder, null, "role=remainder");
 				BreedingDiagnostics.logEvent("PAIR_EXTRACTION_REMAINDER", remainder, "remainderCount=" + remainderCount);
 			}

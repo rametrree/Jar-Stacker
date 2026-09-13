@@ -109,7 +109,7 @@ public class LogicalStatusRecord {
 
 		ListTag effectsList = new ListTag();
 		for (MobEffectInstance instance : this.activeEffects.values()) {
-			Tag effectTag = instance.save();
+			Tag effectTag = com.jar.jarstacker.adapter.EffectAdapter.saveMobEffectInstance(instance);
 			if (effectTag != null) {
 				effectsList.add(effectTag);
 			}
@@ -124,15 +124,15 @@ public class LogicalStatusRecord {
 			return record;
 		}
 
-		if (tag.contains("Absorption", Tag.TAG_FLOAT)) {
-			record.absorptionAmount = tag.getFloat("Absorption");
+		if (com.jar.jarstacker.adapter.NbtAdapter.contains(tag, "Absorption", Tag.TAG_FLOAT)) {
+			record.absorptionAmount = com.jar.jarstacker.adapter.NbtAdapter.getFloat(tag, "Absorption");
 		}
 
-		if (tag.contains("Effects", Tag.TAG_LIST)) {
-			ListTag effectsList = tag.getList("Effects", Tag.TAG_COMPOUND);
+		if (com.jar.jarstacker.adapter.NbtAdapter.contains(tag, "Effects", Tag.TAG_LIST)) {
+			ListTag effectsList = com.jar.jarstacker.adapter.NbtAdapter.getList(tag, "Effects", Tag.TAG_COMPOUND);
 			for (int i = 0; i < effectsList.size(); i++) {
-				CompoundTag effectCompound = effectsList.getCompound(i);
-				MobEffectInstance instance = MobEffectInstance.load(effectCompound);
+				CompoundTag effectCompound = com.jar.jarstacker.adapter.NbtAdapter.getCompound(effectsList, i);
+				MobEffectInstance instance = com.jar.jarstacker.adapter.EffectAdapter.loadMobEffectInstance(effectCompound);
 				if (instance != null) {
 					record.activeEffects.put(instance.getEffect(), instance);
 				}

@@ -161,13 +161,13 @@ public class LogicalHealthState {
 	}
 
 	public static LogicalHealthState loadFromNbt(CompoundTag tag) {
-		if (!tag.contains(NBT_KEY, Tag.TAG_LIST)) {
+		if (!com.jar.jarstacker.adapter.NbtAdapter.contains(tag, NBT_KEY, Tag.TAG_LIST)) {
 			return null;
 		}
-		ListTag listTag = tag.getList(NBT_KEY, Tag.TAG_FLOAT);
+		ListTag listTag = com.jar.jarstacker.adapter.NbtAdapter.getList(tag, NBT_KEY, Tag.TAG_FLOAT);
 		LogicalHealthState state = new LogicalHealthState();
 		for (int i = 0; i < listTag.size(); i++) {
-			state.add(listTag.getFloat(i));
+			state.add(com.jar.jarstacker.adapter.NbtAdapter.getFloat(listTag, i));
 		}
 		return state;
 	}

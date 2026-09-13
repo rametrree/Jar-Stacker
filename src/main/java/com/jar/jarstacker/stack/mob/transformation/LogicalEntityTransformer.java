@@ -15,7 +15,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.VariantHolder;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.MushroomCow;
 import net.minecraft.world.entity.player.Player;
@@ -431,18 +430,16 @@ public class LogicalEntityTransformer {
 
 		Vec3 safePos = SplitPlacementResolver.findSafeSplitPosition(level, sourceMob, extracted,
 			Collections.singleton(sourceMob.getBoundingBox()), player);
-		extracted.moveTo(safePos.x, safePos.y, safePos.z, sourceMob.getYRot(), sourceMob.getXRot());
+		com.jar.jarstacker.adapter.EntityAdapter.moveTo(extracted, safePos.x, safePos.y, safePos.z, sourceMob.getYRot(), sourceMob.getXRot());
 		extracted.setDeltaMovement(Vec3.ZERO);
 		extracted.setHealth(sourceMob.getHealth());
 
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			extracted.setItemSlot(slot, sourceMob.getItemBySlot(slot).copy());
 		}
-		if (sourceMob instanceof VariantHolder<?> vSrc && extracted instanceof VariantHolder<?> vDst) {
-			copyVariant(vSrc, vDst);
-		}
+		com.jar.jarstacker.adapter.EntityAdapter.copyVariant(sourceMob, extracted);
 		if (sourceMob instanceof MushroomCow mcSrc && extracted instanceof MushroomCow mcDst) {
-			mcDst.setVariant(mcSrc.getVariant());
+			com.jar.jarstacker.adapter.EntityAdapter.copyMooshroomVariant(mcSrc, mcDst);
 			net.minecraft.world.item.component.SuspiciousStewEffects effects =
 				((MushroomCowAccessor) mcSrc).jarstacker$getStewEffects();
 			if (effects != null) {
@@ -594,10 +591,5 @@ public class LogicalEntityTransformer {
 
 		MobStackingManager.updateLabel(transformedMob, 1, mobConfig.isShowLabel());
 		return false;
-	}
-
-	@SuppressWarnings("unchecked")
-	private static <T> void copyVariant(VariantHolder<T> src, VariantHolder<?> dst) {
-		((VariantHolder<T>) dst).setVariant(src.getVariant());
 	}
 }

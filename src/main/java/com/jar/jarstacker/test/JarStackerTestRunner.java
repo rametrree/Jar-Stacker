@@ -27,10 +27,15 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.MushroomCow;
-import net.minecraft.world.entity.animal.Pig;
+//? if >=1.21.5 {
+/*import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.entity.animal.wolf.Wolf;
+*///?} else {
 import net.minecraft.world.entity.animal.Sheep;
-import net.minecraft.world.entity.animal.SnowGolem;
 import net.minecraft.world.entity.animal.Wolf;
+//?}
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.SnowGolem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.monster.Strider;
@@ -59,7 +64,7 @@ import com.jar.jarstacker.stack.mob.death.CombatDeathContext;
 import com.jar.jarstacker.stack.mob.health.CombatContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.entity.EntityTypeTest;
-import net.minecraft.world.entity.projectile.ThrownPotion;
+import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
@@ -1325,7 +1330,7 @@ public class JarStackerTestRunner {
 
 			boolean pass = (partner != null) && (countA == 1) && (countB == 1) && lockA && lockB && loveB;
 			results.add(new TestResult("Test P1 - Pair Extraction 2", pass,
-				"ParentA: " + countA + " (lock=" + lockA + "), ParentB: " + countB + " (lock=" + lockB + ", love=" + loveB + ")"));
+				"ParentA: " + countA + " (lock=" + lockA + "), ParentB: " + countB + " (lock=" + lockB + ", love=" + loveB + ", inLoveTime=" + (partner != null ? partner.getInLoveTime() : -1) + ", age=" + (partner != null ? partner.getAge() : -999) + ")"));
 
 			inLoveStack.discard();
 			if (partner != null) partner.discard();
@@ -4549,7 +4554,7 @@ public class JarStackerTestRunner {
 			InteractionResult res = simulateInteract(player, level, mooshroom);
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaA);
 
 			int mooshCount = mooshrooms.isEmpty() ? 0 : ((StackableEntity) mooshrooms.get(0)).jarstacker$getStackCount();
@@ -4600,7 +4605,7 @@ public class JarStackerTestRunner {
 			InteractionResult res = simulateInteract(player, level, mooshroom);
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 
 			int mooshCount = mooshrooms.isEmpty() ? 0 : ((StackableEntity) mooshrooms.get(0)).jarstacker$getStackCount();
 			int cowCount = 0;
@@ -4640,7 +4645,7 @@ public class JarStackerTestRunner {
 			InteractionResult res = simulateInteract(player, level, babyMoosh);
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			int mooshCount = mooshrooms.isEmpty() ? 0 : ((StackableEntity) mooshrooms.get(0)).jarstacker$getStackCount();
 
 			boolean pass = !res.consumesAction()
@@ -4681,7 +4686,7 @@ public class JarStackerTestRunner {
 
 			int redCount = ((StackableEntity) redMoosh).jarstacker$getStackCount();
 			int brownCount = ((StackableEntity) brownMoosh).jarstacker$getStackCount();
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 
 			boolean pass = (redCount == 4) && (brownCount == 5) && (cows.size() == 1);
 			results.add(new TestResult("Test M6 - Mooshroom Variant Isolation", pass,
@@ -4711,7 +4716,7 @@ public class JarStackerTestRunner {
 			}
 
 			List<MushroomCow> remainingMoosh = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			int totalCows = 0;
 			for (Cow c : cows) totalCows += ((StackableEntity) c).jarstacker$getStackCount();
 
@@ -4922,7 +4927,7 @@ public class JarStackerTestRunner {
 
 			Pig pig = createEntity(EntityType.PIG, level);
 			pig.setPos(posA.x, posA.y, posA.z);
-			pig.equipSaddle(new ItemStack(Items.SADDLE), net.minecraft.sounds.SoundSource.NEUTRAL);
+			com.jar.jarstacker.adapter.EntityAdapter.equipSaddle(pig, new ItemStack(Items.SADDLE));
 			((StackableEntity) pig).jarstacker$setStackCount(1);
 			level.addFreshEntity(pig);
 
@@ -5048,7 +5053,7 @@ public class JarStackerTestRunner {
 			LogicalEntityTransformer.simulateTransformationFailure = false;
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			int mooshCount = mooshrooms.isEmpty() ? 0 : ((StackableEntity) mooshrooms.get(0)).jarstacker$getStackCount();
 
 			boolean pass = !res.consumesAction()
@@ -5316,7 +5321,7 @@ public class JarStackerTestRunner {
 			LogicalEntityTransformer.simulatePreCommitFailure = false;
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaA);
 			int mooshCount = mooshrooms.isEmpty() ? 0 : ((StackableEntity) mooshrooms.get(0)).jarstacker$getStackCount();
 
@@ -5355,7 +5360,7 @@ public class JarStackerTestRunner {
 			LogicalEntityTransformer.simulatePostCommitFailure = false;
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaA);
 			int mooshCount = mooshrooms.isEmpty() ? 0 : ((StackableEntity) mooshrooms.get(0)).jarstacker$getStackCount();
 			int cowCount = 0;
@@ -5397,7 +5402,7 @@ public class JarStackerTestRunner {
 			LogicalEntityTransformer.simulateDestinationMergeFailure = false;
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			int mooshCount = mooshrooms.isEmpty() ? 0 : ((StackableEntity) mooshrooms.get(0)).jarstacker$getStackCount();
 			int cowCount = 0;
 			for (Cow c : cows) cowCount += ((StackableEntity) c).jarstacker$getStackCount();
@@ -5439,7 +5444,7 @@ public class JarStackerTestRunner {
 			InteractionResult res = simulateInteract(player, level, moosh);
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			int mooshCount = mooshrooms.isEmpty() ? 0 : ((StackableEntity) mooshrooms.get(0)).jarstacker$getStackCount();
 			int cowCount = 0;
 			for (Cow c : cows) cowCount += ((StackableEntity) c).jarstacker$getStackCount();
@@ -5549,7 +5554,7 @@ public class JarStackerTestRunner {
 			simulateInteract(player, level, moosh);
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			int shearsDamage = shears.getDamageValue();
 
 			// 1 shear operation -> exactly 1 durability consumed, exactly 1 cow created, remainder count 1
@@ -5585,7 +5590,7 @@ public class JarStackerTestRunner {
 
 			simulateInteract(player, level, moosh);
 
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			java.util.UUID destUUID = cows.isEmpty() ? null : cows.get(0).getUUID();
 
 			boolean pass = (destUUID != null) && !destUUID.equals(sourceUUID);
@@ -5617,7 +5622,7 @@ public class JarStackerTestRunner {
 			}
 
 			List<MushroomCow> remainingMoosh = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			int totalCows = 0;
 			for (Cow c : cows) totalCows += ((StackableEntity) c).jarstacker$getStackCount();
 			int remainingCount = remainingMoosh.isEmpty() ? 0 : ((StackableEntity) remainingMoosh.get(0)).jarstacker$getStackCount();
@@ -5653,7 +5658,7 @@ public class JarStackerTestRunner {
 			InteractionResult res = simulateInteract(player, level, moosh);
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 
 			boolean hasMooshLabel = false;
 			String cowLabel = "none";
@@ -5692,7 +5697,7 @@ public class JarStackerTestRunner {
 
 			InteractionResult res = simulateInteract(player, level, moosh);
 
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			boolean pass = res.consumesAction()
 				&& cows.size() == 1
 				&& ((StackableEntity) cows.get(0)).jarstacker$getStackCount() == 1
@@ -5730,7 +5735,7 @@ public class JarStackerTestRunner {
 			InteractionResult res = simulateInteract(player, level, moosh);
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			int cowCount = cows.isEmpty() ? 0 : ((StackableEntity) cows.get(0)).jarstacker$getStackCount();
 
 			boolean pass = res.consumesAction() && mooshrooms.isEmpty() && cows.size() == 1 && cowCount == 21;
@@ -5766,7 +5771,7 @@ public class JarStackerTestRunner {
 			InteractionResult res = simulateInteract(player, level, moosh);
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			int mooshCount = mooshrooms.isEmpty() ? 0 : ((StackableEntity) mooshrooms.get(0)).jarstacker$getStackCount();
 			int cowCount = cows.isEmpty() ? 0 : ((StackableEntity) cows.get(0)).jarstacker$getStackCount();
 
@@ -5806,7 +5811,7 @@ public class JarStackerTestRunner {
 			simulateInteract(player, level, moosh);
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			int cowCount = cows.isEmpty() ? 0 : ((StackableEntity) cows.get(0)).jarstacker$getStackCount();
 
 			boolean pass = mooshrooms.isEmpty() && cows.size() == 1 && cowCount == 22;
@@ -5837,7 +5842,7 @@ public class JarStackerTestRunner {
 
 			InteractionResult res = simulateInteract(player, level, moosh);
 
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			boolean hasMushie = false;
 			String name = "none";
 			if (!cows.isEmpty()) {
@@ -5914,7 +5919,7 @@ public class JarStackerTestRunner {
 			LogicalEntityTransformer.onPreShearSpawnHook = null;
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			int mooshCount = mooshrooms.isEmpty() ? 0 : ((StackableEntity) mooshrooms.get(0)).jarstacker$getStackCount();
 			int totalCowCount = 0;
 			for (Cow c : cows) totalCowCount += ((StackableEntity) c).jarstacker$getStackCount();
@@ -5951,7 +5956,7 @@ public class JarStackerTestRunner {
 			LogicalEntityTransformer.simulateMissedCapture = false;
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			int mooshCount = mooshrooms.isEmpty() ? 0 : ((StackableEntity) mooshrooms.get(0)).jarstacker$getStackCount();
 			int cowCount = cows.isEmpty() ? 0 : ((StackableEntity) cows.get(0)).jarstacker$getStackCount();
 
@@ -6038,7 +6043,7 @@ public class JarStackerTestRunner {
 			LogicalEntityTransformer.simulateNormalizationFailure = false;
 
 			List<MushroomCow> mooshrooms = level.getEntitiesOfClass(MushroomCow.class, cleanAreaA);
-			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c instanceof MushroomCow));
+			List<Cow> cows = level.getEntitiesOfClass(Cow.class, cleanAreaA, c -> !(c.getType() == EntityType.MOOSHROOM));
 			int mooshCount = mooshrooms.isEmpty() ? 0 : ((StackableEntity) mooshrooms.get(0)).jarstacker$getStackCount();
 
 			boolean pass = res.consumesAction() && mooshCount == 9 && cows.size() == 1;
@@ -7286,7 +7291,8 @@ Vec3 posH = pos.add(25, 0, 25);
 				"Handled: " + handled + ", Survivors: " + survivors + ", CommittedDeaths: " + (batch != null ? batch.getCommittedDeaths() : -1)));
 			cleanPen(level, cleanAreaD);
 		} catch (Exception e) {
-			results.add(new TestResult("Test D1 - Partial Kill", false, e.getMessage()));
+			com.jar.jarstacker.JarStackerMod.LOGGER.error("Test D1 failed", e);
+			results.add(new TestResult("Test D1 - Partial Kill", false, e.toString()));
 		}
 
 		// Test D2 - Whole Stack Kill
@@ -7467,7 +7473,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			int totalXp = orbsD.stream().mapToInt(orb -> {
 				CompoundTag tag = new CompoundTag();
 				orb.addAdditionalSaveData(tag);
-				int count = Math.max(1, tag.getInt("Count"));
+				int count = Math.max(1, com.jar.jarstacker.adapter.NbtAdapter.getInt(tag, "Count"));
 				return orb.getValue() * count;
 			}).sum();
 
@@ -8500,7 +8506,8 @@ Vec3 posH = pos.add(25, 0, 25);
 			level.addFreshEntity(zombie);
 
 			LogicalStatusEffectState sState = LogicalStatusEffectManager.getOrCreateStatusState(zombie);
-			sState.get(0).addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 200, 1), zombie); // 40% reduction
+			sState.get(0).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getResistance(), 200, 1), zombie); // 40% reduction
+			sState.get(0).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getResistance(), 200, 1), zombie); // 40% reduction
 
 			LogicalHealthManager.onDamageApplied(zombie, level.damageSources().generic(), 10.0f);
 			float hp0 = LogicalHealthManager.getOrCreateState(zombie).getActiveHealth();
@@ -8522,7 +8529,8 @@ Vec3 posH = pos.add(25, 0, 25);
 			level.addFreshEntity(zombie);
 
 			LogicalStatusEffectState sState = LogicalStatusEffectManager.getOrCreateStatusState(zombie);
-			sState.get(0).addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 200, 1), zombie); // 40% reduction
+			sState.get(0).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getResistance(), 200, 1), zombie); // 40% reduction
+			sState.get(0).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getResistance(), 200, 1), zombie); // 40% reduction
 
 			LogicalHealthManager.onDamageApplied(zombie, level.damageSources().explosion(null), 10.0f);
 			LogicalHealthState hState = LogicalHealthManager.getOrCreateState(zombie);
@@ -8546,7 +8554,8 @@ Vec3 posH = pos.add(25, 0, 25);
 			level.addFreshEntity(zombie);
 
 			LogicalStatusEffectState sState = LogicalStatusEffectManager.getOrCreateStatusState(zombie);
-			sState.get(0).addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 200, 0), zombie);
+			sState.get(0).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getStrength(), 200, 0), zombie);
+			sState.get(0).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getStrength(), 200, 0), zombie);
 			LogicalStatusEffectManager.projectActiveMember(zombie);
 
 			double attackDmg = zombie.getAttributeValue(Attributes.ATTACK_DAMAGE);
@@ -8568,7 +8577,8 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			double baseSpeed = zombie.getAttributeValue(Attributes.MOVEMENT_SPEED);
 			LogicalStatusEffectState sState = LogicalStatusEffectManager.getOrCreateStatusState(zombie);
-			sState.get(0).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 200, 0), zombie);
+			sState.get(0).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 200, 0), zombie);
+			sState.get(0).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 200, 0), zombie);
 			LogicalStatusEffectManager.projectActiveMember(zombie);
 			double boostedSpeed = zombie.getAttributeValue(Attributes.MOVEMENT_SPEED);
 
@@ -8592,22 +8602,22 @@ Vec3 posH = pos.add(25, 0, 25);
 			level.addFreshEntity(zombie);
 
 			LogicalStatusEffectState sState = LogicalStatusEffectManager.getOrCreateStatusState(zombie);
-			sState.get(0).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 10, 0), zombie);
-			sState.get(1).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, 0), zombie);
-			sState.get(2).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 100, 0), zombie);
+			sState.get(0).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 10, 0), zombie);
+			sState.get(1).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 40, 0), zombie);
+			sState.get(2).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 100, 0), zombie);
 
 			for (int t = 0; t < 15; t++) {
 				LogicalStatusEffectManager.tick(zombie);
 			}
 
-			boolean pass = !sState.get(0).hasEffect(MobEffects.MOVEMENT_SPEED)
-				&& sState.get(1).getEffect(MobEffects.MOVEMENT_SPEED).getDuration() == 25
-				&& sState.get(2).getEffect(MobEffects.MOVEMENT_SPEED).getDuration() == 85;
+			boolean pass = !sState.get(0).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())
+				&& sState.get(1).getEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed()).getDuration() == 25
+				&& sState.get(2).getEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed()).getDuration() == 85;
 
 			results.add(new TestResult("Test S10 - Effect Expiration", pass,
-				"#0 Expired: " + !sState.get(0).hasEffect(MobEffects.MOVEMENT_SPEED)
-				+ ", #1 Duration: " + (sState.get(1).hasEffect(MobEffects.MOVEMENT_SPEED) ? sState.get(1).getEffect(MobEffects.MOVEMENT_SPEED).getDuration() : 0)
-				+ ", #2 Duration: " + (sState.get(2).hasEffect(MobEffects.MOVEMENT_SPEED) ? sState.get(2).getEffect(MobEffects.MOVEMENT_SPEED).getDuration() : 0)));
+				"#0 Expired: " + !sState.get(0).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())
+				+ ", #1 Duration: " + (sState.get(1).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed()) ? sState.get(1).getEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed()).getDuration() : 0)
+				+ ", #2 Duration: " + (sState.get(2).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed()) ? sState.get(2).getEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed()).getDuration() : 0)));
 			cleanPen(level, cleanAreaS);
 		} catch (Exception e) {
 			results.add(new TestResult("Test S10 - Effect Expiration", false, e.getMessage()));
@@ -8713,15 +8723,15 @@ Vec3 posH = pos.add(25, 0, 25);
 			level.addFreshEntity(zombie);
 
 			net.minecraft.world.entity.AreaEffectCloud cloud = new net.minecraft.world.entity.AreaEffectCloud(level, posS.x, posS.y, posS.z);
-			cloud.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 100, 0));
+			cloud.addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 100, 0));
 			level.addFreshEntity(cloud);
 
-			LogicalStatusEffectManager.applyEffect(zombie, new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 100, 0), cloud);
+			LogicalStatusEffectManager.applyEffect(zombie, new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 100, 0), cloud);
 			LogicalStatusEffectState sState = LogicalStatusEffectManager.getOrCreateStatusState(zombie);
 
-			boolean allSpeed = sState.get(0).hasEffect(MobEffects.MOVEMENT_SPEED)
-				&& sState.get(1).hasEffect(MobEffects.MOVEMENT_SPEED)
-				&& sState.get(2).hasEffect(MobEffects.MOVEMENT_SPEED);
+			boolean allSpeed = sState.get(0).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())
+				&& sState.get(1).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())
+				&& sState.get(2).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed());
 
 			results.add(new TestResult("Test S14 - Lingering Cloud", allSpeed,
 				"All 3 members received cloud effect: " + allSpeed));
@@ -8741,7 +8751,7 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			LogicalHealthState hState = LogicalHealthManager.getOrCreateState(pig);
 			Arrow arrow = new Arrow(level, posS.x, posS.y + 2, posS.z, new ItemStack(Items.ARROW), new ItemStack(Items.BOW));
-			LogicalStatusEffectManager.applyEffect(pig, new MobEffectInstance(MobEffects.HARM, 1, 0), arrow);
+			LogicalStatusEffectManager.applyEffect(pig, new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getInstantDamage(), 1, 0), arrow);
 
 			float hp0 = hState.get(0);
 			float hp1 = hState.get(1);
@@ -8766,7 +8776,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			LogicalHealthState hState = LogicalHealthManager.getOrCreateState(pig);
 			LogicalEffectScopeResolver.beginSplash(1.0);
 			try {
-				LogicalStatusEffectManager.applyEffect(pig, new MobEffectInstance(MobEffects.HARM, 1, 0), null);
+				LogicalStatusEffectManager.applyEffect(pig, new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getInstantDamage(), 1, 0), null);
 			} finally {
 				LogicalEffectScopeResolver.endSplash();
 			}
@@ -8790,7 +8800,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			LogicalHealthState hState = LogicalHealthManager.getOrCreateState(zombie);
 			LogicalEffectScopeResolver.beginSplash(1.0);
 			try {
-				LogicalStatusEffectManager.applyEffect(zombie, new MobEffectInstance(MobEffects.HEAL, 1, 0), null);
+				LogicalStatusEffectManager.applyEffect(zombie, new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getInstantHealth(), 1, 0), null);
 			} finally {
 				LogicalEffectScopeResolver.endSplash();
 			}
@@ -8822,7 +8832,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			z3.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) z3).jarstacker$setStackCount(1);
 			level.addFreshEntity(z3);
-			LogicalStatusEffectManager.getOrCreateStatusState(z3).get(0).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 100, 0), z3);
+			LogicalStatusEffectManager.getOrCreateStatusState(z3).get(0).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 100, 0), z3);
 
 			LogicalHealthManager.mergeHealthStates(z1, z2, 1);
 			((StackableEntity) z1).jarstacker$setStackCount(2);
@@ -8833,12 +8843,12 @@ Vec3 posH = pos.add(25, 0, 25);
 			LogicalStatusEffectState state = LogicalStatusEffectManager.getOrCreateStatusState(z1);
 			boolean pass = state.size() == 3
 				&& state.get(0).hasEffect(MobEffects.POISON)
-				&& !state.get(1).hasEffect(MobEffects.POISON) && !state.get(1).hasEffect(MobEffects.MOVEMENT_SPEED)
-				&& state.get(2).hasEffect(MobEffects.MOVEMENT_SPEED);
+				&& !state.get(1).hasEffect(MobEffects.POISON) && !state.get(1).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())
+				&& state.get(2).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed());
 
 			results.add(new TestResult("Test S18 - Merge Divergent Effects", pass,
 				"Size: " + state.size() + ", #0 Poison: " + state.get(0).hasEffect(MobEffects.POISON)
-				+ ", #2 Speed: " + state.get(2).hasEffect(MobEffects.MOVEMENT_SPEED)));
+				+ ", #2 Speed: " + state.get(2).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())));
 			cleanPen(level, cleanAreaS);
 			z2.discard();
 			z3.discard();
@@ -8856,7 +8866,7 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			LogicalStatusEffectState sState = LogicalStatusEffectManager.getOrCreateStatusState(source);
 			sState.get(0).addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0), source);
-			sState.get(2).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 100, 0), source);
+			sState.get(2).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 100, 0), source);
 
 			Zombie extracted = createEntity(EntityType.ZOMBIE, level);
 			LogicalHealthManager.extractHealthState(source, extracted);
@@ -8867,7 +8877,7 @@ Vec3 posH = pos.add(25, 0, 25);
 				&& extractedState.get(0).hasEffect(MobEffects.POISON)
 				&& sState.size() == 2
 				&& !sState.get(0).hasEffect(MobEffects.POISON)
-				&& sState.get(1).hasEffect(MobEffects.MOVEMENT_SPEED);
+				&& sState.get(1).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed());
 
 			results.add(new TestResult("Test S19 - Split Effect Owner", pass,
 				"Extracted Poison: " + extractedState.get(0).hasEffect(MobEffects.POISON)
@@ -8914,7 +8924,7 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			LogicalStatusEffectState sState = LogicalStatusEffectManager.getOrCreateStatusState(zombie);
 			sState.get(0).addEffect(new MobEffectInstance(MobEffects.POISON, 80, 1), zombie);
-			sState.get(1).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 150, 0), zombie);
+			sState.get(1).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 150, 0), zombie);
 
 			net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
 			tag.put(LogicalStatusEffectState.NBT_KEY, sState.saveToNbt());
@@ -8923,8 +8933,8 @@ Vec3 posH = pos.add(25, 0, 25);
 			boolean pass = loaded != null && loaded.size() == 2
 				&& loaded.get(0).hasEffect(MobEffects.POISON)
 				&& loaded.get(0).getEffect(MobEffects.POISON).getDuration() == 80
-				&& loaded.get(1).hasEffect(MobEffects.MOVEMENT_SPEED)
-				&& loaded.get(1).getEffect(MobEffects.MOVEMENT_SPEED).getDuration() == 150;
+				&& loaded.get(1).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())
+				&& loaded.get(1).getEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed()).getDuration() == 150;
 
 			results.add(new TestResult("Test S21 - Save / Reload", pass,
 				"LoadedSize: " + (loaded != null ? loaded.size() : 0) + ", Preserved: " + pass));
@@ -9259,7 +9269,7 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			double baseSpeed = zombie.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
 			LogicalStatusEffectState state = LogicalStatusEffectManager.getOrCreateStatusState(zombie);
-			state.get(0).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 200, 1), zombie);
+			state.get(0).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 200, 1), zombie);
 			LogicalStatusEffectManager.projectActiveMember(zombie);
 
 			// Member 0 dies, switch to clean member 1
@@ -9291,14 +9301,14 @@ Vec3 posH = pos.add(25, 0, 25);
 			LogicalStatusEffectState sB = LogicalStatusEffectManager.getOrCreateStatusState(zombieB);
 
 			sA.get(0).addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0), zombieA);
-			sB.get(0).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 100, 0), zombieB);
+			sB.get(0).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 100, 0), zombieB);
 
-			boolean pass = sA.get(0).hasEffect(MobEffects.POISON) && !sA.get(0).hasEffect(MobEffects.MOVEMENT_SPEED)
-				&& sB.get(0).hasEffect(MobEffects.MOVEMENT_SPEED) && !sB.get(0).hasEffect(MobEffects.POISON);
+			boolean pass = sA.get(0).hasEffect(MobEffects.POISON) && !sA.get(0).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())
+				&& sB.get(0).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed()) && !sB.get(0).hasEffect(MobEffects.POISON);
 
 			results.add(new TestResult("Test P5 - Context Isolation", pass,
 				"ZA has Poison only: " + sA.get(0).hasEffect(MobEffects.POISON)
-				+ ", ZB has Speed only: " + sB.get(0).hasEffect(MobEffects.MOVEMENT_SPEED)));
+				+ ", ZB has Speed only: " + sB.get(0).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())));
 			cleanPen(level, cleanAreaP);
 		} catch (Exception e) {
 			results.add(new TestResult("Test P5 - Context Isolation", false, e.getMessage()));
@@ -9379,9 +9389,9 @@ Vec3 posH = pos.add(25, 0, 25);
 				if (i < 250) {
 					sState.get(i).addEffect(new MobEffectInstance(MobEffects.POISON, 200, 0), zombie);
 				} else if (i < 500) {
-					sState.get(i).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 200, 0), zombie);
+					sState.get(i).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 200, 0), zombie);
 				} else if (i < 750) {
-					sState.get(i).addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 200, 0), zombie);
+					sState.get(i).addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getResistance(), 200, 0), zombie);
 				}
 			}
 
@@ -9439,7 +9449,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			Zombie baseline = createEntity(EntityType.ZOMBIE, level);
 			baseline.setPos(posGE.x + 2, posGE.y, posGE.z);
 			level.addFreshEntity(baseline);
-			baseline.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 200, 1));
+			baseline.addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 200, 1));
 			double vanillaSpeed = baseline.getAttributeValue(Attributes.MOVEMENT_SPEED);
 			double baseSpeed = baseline.getAttributeBaseValue(Attributes.MOVEMENT_SPEED);
 
@@ -9447,7 +9457,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			stacked.setPos(posGE.x, posGE.y, posGE.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
-			LogicalStatusEffectManager.applyEffect(stacked, new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 200, 1), null);
+			LogicalStatusEffectManager.applyEffect(stacked, new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 200, 1), null);
 
 			double stackSpeed = stacked.getAttributeValue(Attributes.MOVEMENT_SPEED);
 			boolean speedMatchesVanilla = Math.abs(vanillaSpeed - stackSpeed) < 0.0001;
@@ -9513,12 +9523,12 @@ Vec3 posH = pos.add(25, 0, 25);
 			stacked.setHealth(10.0f);
 
 			// Instant Damage (heals undead) - Scope SINGLE
-			LogicalStatusEffectManager.applyInstantEffect(stacked, MobEffects.HARM, 0, 1.0, LogicalEffectScopeResolver.Scope.SINGLE);
+			LogicalStatusEffectManager.applyInstantEffect(stacked, com.jar.jarstacker.adapter.EffectAdapter.getInstantDamage(), 0, 1.0, LogicalEffectScopeResolver.Scope.SINGLE);
 			float member0Hp = hState.get(0);
 			float member1Hp = hState.get(1);
 
 			// Instant Health (harms undead) - Scope AREA
-			LogicalStatusEffectManager.applyInstantEffect(stacked, MobEffects.HEAL, 0, 1.0, LogicalEffectScopeResolver.Scope.AREA);
+			LogicalStatusEffectManager.applyInstantEffect(stacked, com.jar.jarstacker.adapter.EffectAdapter.getInstantHealth(), 0, 1.0, LogicalEffectScopeResolver.Scope.AREA);
 			float postHarm0 = hState.get(0);
 			float postHarm1 = hState.get(1);
 
@@ -9611,17 +9621,17 @@ Vec3 posH = pos.add(25, 0, 25);
 			level.addFreshEntity(stacked);
 
 			Arrow arrow = new Arrow(level, posRI.x, posRI.y + 1, posRI.z - 2, new ItemStack(Items.ARROW), new ItemStack(Items.BOW));
-			arrow.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 0));
+			arrow.addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSlowness(), 200, 0));
 			level.addFreshEntity(arrow);
 
-			LogicalStatusEffectManager.applyEffect(stacked, new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 0), arrow);
+			LogicalStatusEffectManager.applyEffect(stacked, new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSlowness(), 200, 0), arrow);
 
 			LogicalStatusEffectState state = LogicalStatusEffectManager.getOrCreateStatusState(stacked);
-			boolean m0HasSlowness = state.get(0).hasEffect(MobEffects.MOVEMENT_SLOWDOWN);
-			boolean m1Clean = !state.get(1).hasEffect(MobEffects.MOVEMENT_SLOWDOWN);
-			boolean m2Clean = !state.get(2).hasEffect(MobEffects.MOVEMENT_SLOWDOWN);
-			boolean m3Clean = !state.get(3).hasEffect(MobEffects.MOVEMENT_SLOWDOWN);
-			boolean m4Clean = !state.get(4).hasEffect(MobEffects.MOVEMENT_SLOWDOWN);
+			boolean m0HasSlowness = state.get(0).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSlowness());
+			boolean m1Clean = !state.get(1).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSlowness());
+			boolean m2Clean = !state.get(2).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSlowness());
+			boolean m3Clean = !state.get(3).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSlowness());
+			boolean m4Clean = !state.get(4).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSlowness());
 
 			boolean pass = m0HasSlowness && m1Clean && m2Clean && m3Clean && m4Clean;
 			results.add(new TestResult("Test RI1 - Real Tipped Arrow Projectile Collision", pass,
@@ -9640,7 +9650,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			((StackableEntity) stacked).jarstacker$setStackCount(3);
 			level.addFreshEntity(stacked);
 
-			ThrownPotion potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posRI.x, posRI.y + 1, posRI.z);
+			ThrowableItemProjectile potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posRI.x, posRI.y + 1, posRI.z);
 			ItemStack potionStack = PotionContents.createItemStack(Items.SPLASH_POTION, Potions.WEAKNESS);
 			potion.setItem(potionStack);
 			level.addFreshEntity(potion);
@@ -9672,15 +9682,15 @@ Vec3 posH = pos.add(25, 0, 25);
 			AreaEffectCloud cloud = new AreaEffectCloud(level, posRI.x, posRI.y, posRI.z);
 			cloud.setRadius(3.0f);
 			cloud.setDuration(200);
-			cloud.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 0));
+			cloud.addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSlowness(), 100, 0));
 			level.addFreshEntity(cloud);
 
-			LogicalStatusEffectManager.applyEffect(stacked, new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 0), cloud);
+			LogicalStatusEffectManager.applyEffect(stacked, new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSlowness(), 100, 0), cloud);
 
 			LogicalStatusEffectState state = LogicalStatusEffectManager.getOrCreateStatusState(stacked);
-			boolean allHaveSlowness = state.get(0).hasEffect(MobEffects.MOVEMENT_SLOWDOWN)
-				&& state.get(1).hasEffect(MobEffects.MOVEMENT_SLOWDOWN)
-				&& state.get(2).hasEffect(MobEffects.MOVEMENT_SLOWDOWN);
+			boolean allHaveSlowness = state.get(0).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSlowness())
+				&& state.get(1).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSlowness())
+				&& state.get(2).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSlowness());
 
 			boolean pass = allHaveSlowness;
 			results.add(new TestResult("Test RI3 - Real AreaEffectCloud Lifecycle", pass,
@@ -9702,17 +9712,17 @@ Vec3 posH = pos.add(25, 0, 25);
 			AreaEffectCloud cloud = new AreaEffectCloud(level, posRI.x, posRI.y, posRI.z);
 			cloud.setRadius(3.0f);
 			cloud.setDuration(200);
-			cloud.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 0));
+			cloud.addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSlowness(), 100, 0));
 			level.addFreshEntity(cloud);
 
-			LogicalStatusEffectManager.applyEffect(stacked, new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 0), cloud);
+			LogicalStatusEffectManager.applyEffect(stacked, new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSlowness(), 100, 0), cloud);
 			LogicalStatusEffectState state = LogicalStatusEffectManager.getOrCreateStatusState(stacked);
 
 			for (int t = 0; t < 5; t++) {
 				LogicalStatusEffectManager.tick(stacked);
 			}
 
-			int durationAfter5Ticks = state.get(0).getEffect(MobEffects.MOVEMENT_SLOWDOWN).getDuration();
+			int durationAfter5Ticks = state.get(0).getEffect(com.jar.jarstacker.adapter.EffectAdapter.getSlowness()).getDuration();
 			boolean pass = durationAfter5Ticks <= 95 && durationAfter5Ticks > 0;
 			results.add(new TestResult("Test RI4 - Cloud Reapplication Delay", pass,
 				"DurationAfter5Ticks=" + durationAfter5Ticks));
@@ -9733,16 +9743,16 @@ Vec3 posH = pos.add(25, 0, 25);
 			AreaEffectCloud cloud = new AreaEffectCloud(level, posRI.x, posRI.y, posRI.z);
 			cloud.setRadius(3.0f);
 			cloud.setDuration(200);
-			cloud.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 0));
+			cloud.addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSlowness(), 100, 0));
 			level.addFreshEntity(cloud);
 
 			boolean inCloud = cloud.getBoundingBox().intersects(stacked.getBoundingBox());
 			if (inCloud) {
-				LogicalStatusEffectManager.applyEffect(stacked, new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 0), cloud);
+				LogicalStatusEffectManager.applyEffect(stacked, new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSlowness(), 100, 0), cloud);
 			}
 
 			LogicalStatusEffectState state = LogicalStatusEffectManager.getOrCreateStatusState(stacked);
-			boolean clean = !state.get(0).hasEffect(MobEffects.MOVEMENT_SLOWDOWN);
+			boolean clean = !state.get(0).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSlowness());
 
 			boolean pass = !inCloud && clean;
 			results.add(new TestResult("Test RI5 - Cloud Exit Isolation", pass,
@@ -9769,23 +9779,23 @@ Vec3 posH = pos.add(25, 0, 25);
 			AreaEffectCloud cloud = new AreaEffectCloud(level, posRI.x, posRI.y, posRI.z);
 			cloud.setRadius(3.0f);
 			cloud.setDuration(200);
-			cloud.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 100, 0));
+			cloud.addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 100, 0));
 			level.addFreshEntity(cloud);
 
-			LogicalStatusEffectManager.applyEffect(stackA, new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 100, 0), cloud);
-			LogicalStatusEffectManager.applyEffect(stackB, new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 100, 0), cloud);
+			LogicalStatusEffectManager.applyEffect(stackA, new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 100, 0), cloud);
+			LogicalStatusEffectManager.applyEffect(stackB, new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getSpeed(), 100, 0), cloud);
 
 			LogicalStatusEffectState stateA = LogicalStatusEffectManager.getOrCreateStatusState(stackA);
 			LogicalStatusEffectState stateB = LogicalStatusEffectManager.getOrCreateStatusState(stackB);
 
-			boolean pass = stateA.get(0).hasEffect(MobEffects.MOVEMENT_SPEED)
-				&& stateA.get(1).hasEffect(MobEffects.MOVEMENT_SPEED)
-				&& stateB.get(0).hasEffect(MobEffects.MOVEMENT_SPEED)
-				&& stateB.get(1).hasEffect(MobEffects.MOVEMENT_SPEED)
-				&& stateB.get(2).hasEffect(MobEffects.MOVEMENT_SPEED);
+			boolean pass = stateA.get(0).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())
+				&& stateA.get(1).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())
+				&& stateB.get(0).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())
+				&& stateB.get(1).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())
+				&& stateB.get(2).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed());
 
 			results.add(new TestResult("Test RI6 - Cloud Multi-Stack Behavior", pass,
-				"StackA_0=" + stateA.get(0).hasEffect(MobEffects.MOVEMENT_SPEED) + ", StackB_0=" + stateB.get(0).hasEffect(MobEffects.MOVEMENT_SPEED)));
+				"StackA_0=" + stateA.get(0).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed()) + ", StackB_0=" + stateB.get(0).hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getSpeed())));
 			cleanPen(level, cleanAreaRI);
 			cloud.discard();
 		} catch (Exception e) {
@@ -10015,17 +10025,17 @@ Vec3 posH = pos.add(25, 0, 25);
 			Zombie baseline = createEntity(EntityType.ZOMBIE, level);
 			baseline.setPos(posPS.x + 2, posPS.y, posPS.z);
 			level.addFreshEntity(baseline);
-			baseline.addEffect(new MobEffectInstance(MobEffects.JUMP, 200, 1));
-			float baselineJumpBoost = 0.1f * (float) (baseline.getEffect(MobEffects.JUMP).getAmplifier() + 1);
+			baseline.addEffect(new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getJumpBoost(), 200, 1));
+			float baselineJumpBoost = 0.1f * (float) (baseline.getEffect(com.jar.jarstacker.adapter.EffectAdapter.getJumpBoost()).getAmplifier() + 1);
 
 			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posPS.x, posPS.y, posPS.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
 
-			LogicalStatusEffectManager.applyEffect(stacked, new MobEffectInstance(MobEffects.JUMP, 200, 1), null);
-			boolean hasJump = stacked.hasEffect(MobEffects.JUMP);
-			MobEffectInstance jumpEff = stacked.getEffect(MobEffects.JUMP);
+			LogicalStatusEffectManager.applyEffect(stacked, new MobEffectInstance(com.jar.jarstacker.adapter.EffectAdapter.getJumpBoost(), 200, 1), null);
+			boolean hasJump = stacked.hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getJumpBoost());
+			MobEffectInstance jumpEff = stacked.getEffect(com.jar.jarstacker.adapter.EffectAdapter.getJumpBoost());
 			float stackJumpBoost = 0.1f * (float) (jumpEff != null ? jumpEff.getAmplifier() + 1 : 0);
 
 			boolean pass = hasJump && jumpEff != null && Math.abs(baselineJumpBoost - stackJumpBoost) < 0.001 && stackJumpBoost == 0.2f;
@@ -10142,7 +10152,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			((StackableEntity) stacked).jarstacker$setStackCount(100);
 			level.addFreshEntity(stacked);
 
-			ThrownPotion potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posUA.x, posUA.y + 1, posUA.z);
+			ThrowableItemProjectile potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posUA.x, posUA.y + 1, posUA.z);
 			MobEffectInstance oozing = new MobEffectInstance(MobEffects.OOZING, 200, 0);
 			MobEffectInstance modded = new MobEffectInstance(MODDED_UNSUPPORTED, 200, 0);
 
@@ -10227,7 +10237,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			((StackableEntity) stackLarge).jarstacker$setStackCount(50);
 			level.addFreshEntity(stackLarge);
 
-			ThrownPotion potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posUA.x, posUA.y + 1, posUA.z);
+			ThrowableItemProjectile potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posUA.x, posUA.y + 1, posUA.z);
 			MobEffectInstance weaving = new MobEffectInstance(MobEffects.WEAVING, 200, 0);
 			LogicalStatusEffectManager.applyEffect(stackLarge, weaving, potion);
 			MobEffectInstance modded = new MobEffectInstance(MODDED_UNSUPPORTED, 200, 0);
@@ -10266,7 +10276,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			LogicalBurnState bs = LogicalStatusEffectManager.getOrCreateBurnState(stacked);
 
 			RuntimeCombatStateTransitionHandler.failNextExtractionForTesting = true;
-			ThrownPotion potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posUA.x, posUA.y + 1, posUA.z);
+			ThrowableItemProjectile potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posUA.x, posUA.y + 1, posUA.z);
 			MobEffectInstance modded = new MobEffectInstance(MODDED_UNSUPPORTED, 200, 0);
 
 			boolean success = LogicalStatusEffectManager.applyEffect(stacked, modded, potion);
@@ -10297,7 +10307,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			((StackableEntity) stacked).jarstacker$setStackCount(100);
 			level.addFreshEntity(stacked);
 
-			ThrownPotion potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posVA.x, posVA.y + 1, posVA.z);
+			ThrowableItemProjectile potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posVA.x, posVA.y + 1, posVA.z);
 			MobEffectInstance oozing = new MobEffectInstance(MobEffects.OOZING, 200, 0);
 
 			boolean success = LogicalStatusEffectManager.applyEffect(stacked, oozing, potion);
@@ -10332,7 +10342,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			((StackableEntity) stacked).jarstacker$setStackCount(100);
 			level.addFreshEntity(stacked);
 
-			ThrownPotion potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posVA.x, posVA.y + 1, posVA.z);
+			ThrowableItemProjectile potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posVA.x, posVA.y + 1, posVA.z);
 			MobEffectInstance wind = new MobEffectInstance(MobEffects.WIND_CHARGED, 200, 0);
 
 			boolean success = LogicalStatusEffectManager.applyEffect(stacked, wind, potion);

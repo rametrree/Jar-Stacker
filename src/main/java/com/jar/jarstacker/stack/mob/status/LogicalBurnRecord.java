@@ -65,8 +65,8 @@ public class LogicalBurnRecord {
 		if (tag == null) {
 			return new LogicalBurnRecord();
 		}
-		int ticks = tag.getInt("FireTicks");
-		boolean shared = tag.getBoolean("Shared");
+		int ticks = com.jar.jarstacker.adapter.NbtAdapter.getInt(tag, "FireTicks");
+		boolean shared = com.jar.jarstacker.adapter.NbtAdapter.getBoolean(tag, "Shared");
 		return new LogicalBurnRecord(ticks, shared);
 	}
 }

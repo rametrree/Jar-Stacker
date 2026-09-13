@@ -8,8 +8,13 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Cow;
+//? if >=1.21.5 {
+/*import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.entity.animal.wolf.Wolf;
+*///?} else {
 import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.entity.animal.Wolf;
+//?}
 import net.minecraft.world.entity.animal.camel.Camel;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.animal.horse.Llama;
@@ -115,7 +120,7 @@ public class MobInteractionResolver {
 		// Pig Saddling (EXTRACT_ONE)
 		if (mob instanceof net.minecraft.world.entity.animal.Pig pig) {
 			if (heldItem.is(Items.SADDLE)) {
-				if (pig.isSaddleable() && !pig.isSaddled()) {
+				if (com.jar.jarstacker.adapter.EntityAdapter.isSaddleable(pig) && !com.jar.jarstacker.adapter.EntityAdapter.isSaddled(pig)) {
 					return StackInteractionDecision.extractOne("Pig saddling", 0);
 				} else {
 					return new StackInteractionDecision(StackInteractionMode.PASS_THROUGH, "Pig cannot be saddled", 0);
@@ -126,7 +131,7 @@ public class MobInteractionResolver {
 		// Strider Saddling (EXTRACT_ONE)
 		if (mob instanceof net.minecraft.world.entity.monster.Strider strider) {
 			if (heldItem.is(Items.SADDLE)) {
-				if (strider.isSaddleable() && !strider.isSaddled()) {
+				if (com.jar.jarstacker.adapter.EntityAdapter.isSaddleable(strider) && !com.jar.jarstacker.adapter.EntityAdapter.isSaddled(strider)) {
 					return StackInteractionDecision.extractOne("Strider saddling", 0);
 				} else {
 					return new StackInteractionDecision(StackInteractionMode.PASS_THROUGH, "Strider cannot be saddled", 0);

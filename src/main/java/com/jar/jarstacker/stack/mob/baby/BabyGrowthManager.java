@@ -15,9 +15,12 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.VariantHolder;
 import net.minecraft.world.entity.animal.Animal;
+//? if >=1.21.5 {
+/*import net.minecraft.world.entity.animal.sheep.Sheep;
+*///?} else {
 import net.minecraft.world.entity.animal.Sheep;
+//?}
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -115,12 +118,10 @@ public class BabyGrowthManager {
 				&& !MobCompatibility.isExcluded(adultTarget)
 				&& !((StackableEntity) adultTarget).jarstacker$isInteractionLocked();
 
-			if (canMergeInto && animal instanceof net.minecraft.world.entity.VariantHolder<?> vSrc && adultTarget instanceof net.minecraft.world.entity.VariantHolder<?> vDst) {
-				if (!java.util.Objects.equals(vSrc.getVariant(), vDst.getVariant())) {
-					canMergeInto = false;
-				}
+			if (canMergeInto && !com.jar.jarstacker.adapter.EntityAdapter.variantsMatch(animal, adultTarget)) {
+				canMergeInto = false;
 			}
-			if (canMergeInto && animal instanceof net.minecraft.world.entity.animal.Sheep sSrc && adultTarget instanceof net.minecraft.world.entity.animal.Sheep sDst) {
+			if (canMergeInto && animal instanceof Sheep sSrc && adultTarget instanceof Sheep sDst) {
 				if (sSrc.getColor() != sDst.getColor() || sDst.isSheared()) {
 					canMergeInto = false;
 				}
@@ -170,7 +171,7 @@ public class BabyGrowthManager {
 			}
 		} else {
 			Vec3 safePos = SplitPlacementResolver.findSafeSplitPosition(level, animal, adultRep, Collections.singleton(animal.getBoundingBox()));
-			adultRep.moveTo(safePos.x, safePos.y, safePos.z, animal.getYRot(), animal.getXRot());
+			com.jar.jarstacker.adapter.EntityAdapter.moveTo(adultRep, safePos.x, safePos.y, safePos.z, animal.getYRot(), animal.getXRot());
 			adultRep.setBaby(false);
 			adultRep.setAge(0);
 			adultRep.setHealth(adultRep.getMaxHealth());
@@ -178,9 +179,7 @@ public class BabyGrowthManager {
 			for (EquipmentSlot slot : EquipmentSlot.values()) {
 				adultRep.setItemSlot(slot, animal.getItemBySlot(slot).copy());
 			}
-			if (animal instanceof VariantHolder<?> vSrc && adultRep instanceof VariantHolder<?> vDst) {
-				copyVariant(vSrc, vDst);
-			}
+			com.jar.jarstacker.adapter.EntityAdapter.copyVariant(animal, adultRep);
 			if (animal instanceof Sheep sSrc && adultRep instanceof Sheep sDst) {
 				sDst.setColor(sSrc.getColor());
 				sDst.setSheared(false);
@@ -249,7 +248,9 @@ public class BabyGrowthManager {
 		}
 
 		Vec3 safePos = SplitPlacementResolver.findSafeSplitPosition(level, animal, extracted, Collections.singleton(animal.getBoundingBox()), player);
-		extracted.moveTo(safePos.x, safePos.y, safePos.z, animal.getYRot(), animal.getXRot());
+		com.jar.jarstacker.adapter.EntityAdapter.moveTo(extracted, safePos.x, safePos.y, safePos.z, animal.getYRot(), animal.getXRot());
+		((StackableEntity) extracted).jarstacker$setStackCount(1);
+		level.addFreshEntity(extracted);
 		extracted.setDeltaMovement(Vec3.ZERO);
 		extracted.setHealth(animal.getHealth());
 		extracted.setBaby(true);
@@ -258,16 +259,11 @@ public class BabyGrowthManager {
 		for (EquipmentSlot slot : EquipmentSlot.values()) {
 			extracted.setItemSlot(slot, animal.getItemBySlot(slot).copy());
 		}
-		if (animal instanceof VariantHolder<?> vSrc && extracted instanceof VariantHolder<?> vDst) {
-			copyVariant(vSrc, vDst);
-		}
+		com.jar.jarstacker.adapter.EntityAdapter.copyVariant(animal, extracted);
 		if (animal instanceof Sheep sSrc && extracted instanceof Sheep sDst) {
 			sDst.setColor(sSrc.getColor());
 			sDst.setSheared(sSrc.isSheared());
 		}
-
-		((StackableEntity) extracted).jarstacker$setStackCount(1);
-		level.addFreshEntity(extracted);
 
 		// Temporarily decrement anchor stack count
 		int remainderCount = count - 1;
@@ -385,10 +381,5 @@ public class BabyGrowthManager {
 		if (earliestSource != Long.MAX_VALUE) {
 			aSource.setAge((int) Math.min(-1, -(earliestSource - level.getGameTime())));
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private static <T> void copyVariant(VariantHolder<T> src, VariantHolder<?> dst) {
-		((VariantHolder<T>) dst).setVariant(src.getVariant());
 	}
 }

@@ -282,7 +282,7 @@ public class LogicalStatusEffectManager {
 		}
 
 		boolean isInverted = entity.isInvertedHealAndHarm();
-		boolean isInstantHealth = effect.is(MobEffects.HEAL);
+		boolean isInstantHealth = effect.is(com.jar.jarstacker.adapter.EffectAdapter.getInstantHealth());
 		boolean harms = isInstantHealth ? isInverted : !isInverted;
 
 		float baseAmount = isInstantHealth ? (float) Math.max(4 << amplifier, 0) : (float) (6 << amplifier);

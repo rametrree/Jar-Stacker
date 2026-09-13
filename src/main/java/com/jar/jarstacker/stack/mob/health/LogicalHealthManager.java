@@ -548,8 +548,8 @@ public class LogicalHealthManager {
 
 		// 2. Resistance
 		if (damage > 0.0f && !damageSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_RESISTANCE)) {
-			if (record.hasEffect(net.minecraft.world.effect.MobEffects.DAMAGE_RESISTANCE)) {
-				int amp = record.getEffect(net.minecraft.world.effect.MobEffects.DAMAGE_RESISTANCE).getAmplifier();
+			if (record.hasEffect(com.jar.jarstacker.adapter.EffectAdapter.getResistance())) {
+				int amp = record.getEffect(com.jar.jarstacker.adapter.EffectAdapter.getResistance()).getAmplifier();
 				int reduction = Math.min(25, (amp + 1) * 5);
 				damage = Math.max(0.0f, damage * (25 - reduction) / 25.0f);
 			}

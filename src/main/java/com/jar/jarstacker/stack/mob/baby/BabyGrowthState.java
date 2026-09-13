@@ -213,8 +213,8 @@ public class BabyGrowthState {
 	}
 
 	public static BabyGrowthState loadFromNbt(CompoundTag tag) {
-		if (tag.contains(NBT_KEY, Tag.TAG_LONG_ARRAY)) {
-			long[] arr = tag.getLongArray(NBT_KEY);
+		if (com.jar.jarstacker.adapter.NbtAdapter.contains(tag, NBT_KEY, Tag.TAG_LONG_ARRAY)) {
+			long[] arr = com.jar.jarstacker.adapter.NbtAdapter.getLongArray(tag, NBT_KEY);
 			BabyGrowthState state = new BabyGrowthState();
 			for (long v : arr) {
 				state.adultAtTimes.add(v);

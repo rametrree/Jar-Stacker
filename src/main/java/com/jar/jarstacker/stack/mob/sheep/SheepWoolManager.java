@@ -9,8 +9,12 @@ import com.jar.jarstacker.stack.mob.SplitPlacementResolver;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.phys.AABB;
+//? if >=1.21.5 {
+/*import net.minecraft.world.entity.animal.sheep.Sheep;
+*///?} else {
+import net.minecraft.world.entity.animal.Sheep;
+//?}
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Collections;
@@ -71,7 +75,7 @@ public class SheepWoolManager {
 			Sheep regrown = com.jar.jarstacker.adapter.EntityAdapter.create(EntityType.SHEEP, level);
 			if (regrown != null) {
 				Vec3 safePos = SplitPlacementResolver.findSafeSplitPosition(level, sheep, regrown, Collections.singleton(sheep.getBoundingBox()));
-				regrown.moveTo(safePos.x, safePos.y, safePos.z, sheep.getYRot(), sheep.getXRot());
+				com.jar.jarstacker.adapter.EntityAdapter.moveTo(regrown, safePos.x, safePos.y, safePos.z, sheep.getYRot(), sheep.getXRot());
 				regrown.setColor(sheep.getColor());
 				regrown.setSheared(false);
 				regrown.setAge(sheep.getAge());

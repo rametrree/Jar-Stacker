@@ -8,8 +8,12 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
-import net.minecraft.world.entity.VariantHolder;
+//? if >=1.21.5 {
+/*import net.minecraft.world.entity.animal.sheep.Sheep;
+*///?} else {
 import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.world.entity.VariantHolder;
+//?}
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Shulker;
 import net.minecraft.world.entity.monster.Slime;
@@ -80,7 +84,7 @@ public class MobCompatibility {
 			return true;
 		}
 
-		if (mob instanceof net.minecraft.world.entity.Saddleable saddleable && saddleable.isSaddled()) {
+		if (com.jar.jarstacker.adapter.EntityAdapter.isSaddled(mob)) {
 			return true;
 		}
 
@@ -124,7 +128,7 @@ public class MobCompatibility {
 		if (mob instanceof TamableAnimal tamable && tamable.isTame()) {
 			return new MobInspection(false, "Entity is tamed");
 		}
-		if (mob instanceof net.minecraft.world.entity.Saddleable saddleable && saddleable.isSaddled()) {
+		if (com.jar.jarstacker.adapter.EntityAdapter.isSaddled(mob)) {
 			return new MobInspection(false, "Entity is saddled");
 		}
 		if (hasDamageableEquipment(mob)) {
@@ -229,10 +233,8 @@ public class MobCompatibility {
 		}
 
 		// Variant check
-		if (a instanceof VariantHolder<?> vA && b instanceof VariantHolder<?> vB) {
-			if (!Objects.equals(vA.getVariant(), vB.getVariant())) {
-				return false;
-			}
+		if (!com.jar.jarstacker.adapter.EntityAdapter.variantsMatch(a, b)) {
+			return false;
 		}
 
 		// Sheep color & sheared state
@@ -320,9 +322,7 @@ public class MobCompatibility {
 		if (a instanceof net.minecraft.world.entity.animal.Animal aAnim && b instanceof net.minecraft.world.entity.animal.Animal bAnim) {
 			if (getStackState(aAnim) != getStackState(bAnim)) return "LIFECYCLE_STATE_MISMATCH";
 		}
-		if (a instanceof VariantHolder<?> vA && b instanceof VariantHolder<?> vB) {
-			if (!Objects.equals(vA.getVariant(), vB.getVariant())) return "VARIANT_MISMATCH";
-		}
+		if (!com.jar.jarstacker.adapter.EntityAdapter.variantsMatch(a, b)) return "VARIANT_MISMATCH";
 		if (a instanceof net.minecraft.world.entity.animal.MushroomCow mcA && b instanceof net.minecraft.world.entity.animal.MushroomCow mcB) {
 			if (mcA.getVariant() != mcB.getVariant()) return "MOOSHROOM_VARIANT_MISMATCH";
 			net.minecraft.world.item.component.SuspiciousStewEffects stewA =

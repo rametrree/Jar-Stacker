@@ -36,8 +36,13 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 	@Shadow protected abstract SoundEvent getDeathSound();
 	@Shadow protected abstract float getSoundVolume();
 	@Shadow public abstract float getVoicePitch();
+	//? if >=1.21.5 {
+	/*@Shadow protected net.minecraft.world.entity.EntityReference<net.minecraft.world.entity.player.Player> lastHurtByPlayer;
+	@Shadow protected int lastHurtByPlayerMemoryTime;
+	*///?} else {
 	@Shadow protected int lastHurtByPlayerTime;
 	@Shadow protected net.minecraft.world.entity.player.Player lastHurtByPlayer;
+	//?}
 	@Shadow protected int attackStrengthTicker;
 	//? if >=1.21.2 {
 	/*@Shadow protected abstract void dropFromLootTable(ServerLevel serverLevel, DamageSource damageSource, boolean hitByPlayer);
@@ -154,6 +159,24 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 			if (damageSource != null && damageSource.getEntity() instanceof net.minecraft.world.entity.player.Player p) {
 				hitByPlayer = true;
 				playerCause = p;
+		//? if >=1.21.5 {
+		/*} else if (this.lastHurtByPlayerMemoryTime > 0 && ((LivingEntity) (Object) this).getLastHurtByPlayer() != null) {
+				hitByPlayer = true;
+				playerCause = ((LivingEntity) (Object) this).getLastHurtByPlayer();
+			}
+		}
+		if (hitByPlayer) {
+			if (playerCause != null) {
+				((LivingEntity) (Object) this).setLastHurtByPlayer(playerCause, this.lastHurtByPlayerMemoryTime <= 0 ? 100 : this.lastHurtByPlayerMemoryTime);
+			}
+			if (this.lastHurtByPlayerMemoryTime <= 0) {
+				this.lastHurtByPlayerMemoryTime = 100;
+			}
+		} else {
+			this.lastHurtByPlayerMemoryTime = 0;
+			this.lastHurtByPlayer = null;
+		}
+		*///?} else {
 			} else if (this.lastHurtByPlayerTime > 0 && this.lastHurtByPlayer != null) {
 				hitByPlayer = true;
 				playerCause = this.lastHurtByPlayer;
@@ -170,6 +193,7 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 			this.lastHurtByPlayerTime = 0;
 			this.lastHurtByPlayer = null;
 		}
+		//?}
 
 		//? if >=1.21.2 {
 		/*this.dropFromLootTable(serverLevel, damageSource, hitByPlayer);
@@ -191,22 +215,43 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 
 	@Override
 	public int jarstacker$getLastHurtByPlayerTime() {
+		//? if >=1.21.5 {
+		/*return this.lastHurtByPlayerMemoryTime;
+		*///?} else {
 		return this.lastHurtByPlayerTime;
+		//?}
 	}
 
 	@Override
 	public void jarstacker$setLastHurtByPlayerTime(int time) {
+		//? if >=1.21.5 {
+		/*this.lastHurtByPlayerMemoryTime = time;
+		*///?} else {
 		this.lastHurtByPlayerTime = time;
+		//?}
 	}
 
 	@Override
 	public net.minecraft.world.entity.player.Player jarstacker$getLastHurtByPlayer() {
+		//? if >=1.21.5 {
+		/*return ((LivingEntity) (Object) this).getLastHurtByPlayer();
+		*///?} else {
 		return this.lastHurtByPlayer;
+		//?}
 	}
 
 	@Override
 	public void jarstacker$setLastHurtByPlayer(net.minecraft.world.entity.player.Player player) {
+		//? if >=1.21.5 {
+		/*if (player != null) {
+			((LivingEntity) (Object) this).setLastHurtByPlayer(player, this.lastHurtByPlayerMemoryTime > 0 ? this.lastHurtByPlayerMemoryTime : 100);
+		} else {
+			this.lastHurtByPlayer = null;
+			this.lastHurtByPlayerMemoryTime = 0;
+		}
+		*///?} else {
 		this.lastHurtByPlayer = player;
+		//?}
 	}
 
 	@Override
@@ -328,7 +373,7 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 	@Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
 	private void jarstacker$loadData(CompoundTag tag, CallbackInfo ci) {
 		if (tag.contains("JarStackerCount")) {
-			this.jarstacker$stackCount = tag.getInt("JarStackerCount");
+			this.jarstacker$stackCount = com.jar.jarstacker.adapter.NbtAdapter.getInt(tag, "JarStackerCount");
 			if ((Object) this instanceof Mob mob) {
 				MobStackingManager.updateLabel(mob, this.jarstacker$stackCount, ModConfig.getInstance().getMobStacking().isShowLabel());
 			}
@@ -336,16 +381,16 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 			this.jarstacker$stackCount = 1;
 		}
 		if (tag.contains("JarStackerBreedingLock")) {
-			this.jarstacker$breedingLockTicks = tag.getInt("JarStackerBreedingLock");
+			this.jarstacker$breedingLockTicks = com.jar.jarstacker.adapter.NbtAdapter.getInt(tag, "JarStackerBreedingLock");
 		}
 		if (tag.contains("JarStackerInteractionLock")) {
-			this.jarstacker$interactionLockTicks = tag.getInt("JarStackerInteractionLock");
+			this.jarstacker$interactionLockTicks = com.jar.jarstacker.adapter.NbtAdapter.getInt(tag, "JarStackerInteractionLock");
 		}
 		if (tag.contains("JarStackerManagedLabel")) {
-			this.jarstacker$managedLabel = tag.getBoolean("JarStackerManagedLabel");
+			this.jarstacker$managedLabel = com.jar.jarstacker.adapter.NbtAdapter.getBoolean(tag, "JarStackerManagedLabel");
 		}
 		if (tag.contains("JarStackerSharedIgnition")) {
-			this.jarstacker$sharedIgnition = tag.getBoolean("JarStackerSharedIgnition");
+			this.jarstacker$sharedIgnition = com.jar.jarstacker.adapter.NbtAdapter.getBoolean(tag, "JarStackerSharedIgnition");
 		}
 		com.jar.jarstacker.stack.mob.baby.BabyGrowthState loadedGrowth = com.jar.jarstacker.stack.mob.baby.BabyGrowthState.loadFromNbt(tag);
 		if (loadedGrowth != null) {

@@ -3,7 +3,6 @@ package com.jar.jarstacker.stack.mob.status;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ThrownPotion;
 
 /**
  * Resolves the logical effect application scope (SINGLE, AREA, SHARED_ENVIRONMENT, SELF)
@@ -43,7 +42,7 @@ public class LogicalEffectScopeResolver {
 		if (isInSplash()) {
 			return Scope.AREA;
 		}
-		if (source instanceof ThrownPotion || source instanceof AreaEffectCloud) {
+		if (com.jar.jarstacker.adapter.EntityAdapter.isThrownPotion(source) || source instanceof AreaEffectCloud) {
 			return Scope.AREA;
 		}
 		if (source instanceof Projectile) {

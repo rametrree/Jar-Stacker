@@ -163,15 +163,15 @@ public class LogicalBurnState {
 	}
 
 	public static LogicalBurnState loadFromNbt(CompoundTag tag) {
-		if (tag == null || !tag.contains(NBT_KEY, Tag.TAG_COMPOUND)) {
+		if (tag == null || !com.jar.jarstacker.adapter.NbtAdapter.contains(tag, NBT_KEY, Tag.TAG_COMPOUND)) {
 			return null;
 		}
-		CompoundTag root = tag.getCompound(NBT_KEY);
+		CompoundTag root = com.jar.jarstacker.adapter.NbtAdapter.getCompound(tag, NBT_KEY);
 		LogicalBurnState state = new LogicalBurnState();
-		if (root.contains("Records", Tag.TAG_LIST)) {
-			ListTag list = root.getList("Records", Tag.TAG_COMPOUND);
+		if (com.jar.jarstacker.adapter.NbtAdapter.contains(root, "Records", Tag.TAG_LIST)) {
+			ListTag list = com.jar.jarstacker.adapter.NbtAdapter.getList(root, "Records", Tag.TAG_COMPOUND);
 			for (int i = 0; i < list.size(); i++) {
-				state.add(LogicalBurnRecord.loadNbt(list.getCompound(i)));
+				state.add(LogicalBurnRecord.loadNbt(com.jar.jarstacker.adapter.NbtAdapter.getCompound(list, i)));
 			}
 		}
 		return state;

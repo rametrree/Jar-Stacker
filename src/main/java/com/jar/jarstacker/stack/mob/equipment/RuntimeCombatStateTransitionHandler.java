@@ -126,7 +126,7 @@ public class RuntimeCombatStateTransitionHandler {
 			if (spawnPos == null) {
 				spawnPos = mob.position();
 			}
-			extractedMob.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, mob.getYRot(), mob.getXRot());
+			com.jar.jarstacker.adapter.EntityAdapter.moveTo(extractedMob, spawnPos.x, spawnPos.y, spawnPos.z, mob.getYRot(), mob.getXRot());
 
 			// Assign transferred equipment, health, and stack count to extracted singleton
 			extractedMob.setItemSlot(slot, stack.copy());
@@ -229,7 +229,7 @@ public class RuntimeCombatStateTransitionHandler {
 			if (spawnPos == null) {
 				spawnPos = mob.position();
 			}
-			extractedMob.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, mob.getYRot(), mob.getXRot());
+			com.jar.jarstacker.adapter.EntityAdapter.moveTo(extractedMob, spawnPos.x, spawnPos.y, spawnPos.z, mob.getYRot(), mob.getXRot());
 
 			// Configure extracted singleton mob
 			extractedMob.setHealth(extractedHp);
