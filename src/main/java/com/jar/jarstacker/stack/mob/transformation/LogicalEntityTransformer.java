@@ -420,7 +420,7 @@ public class LogicalEntityTransformer {
 		// Materialize transient physical singleton
 		@SuppressWarnings("unchecked")
 		EntityType<Mob> type = (EntityType<Mob>) sourceMob.getType();
-		Mob extracted = type.create(level);
+		Mob extracted = com.jar.jarstacker.adapter.EntityAdapter.create(type, level);
 		if (extracted == null) {
 			// Pre-commit rollback
 			((StackableEntity) sourceMob).jarstacker$setStackCount(count);

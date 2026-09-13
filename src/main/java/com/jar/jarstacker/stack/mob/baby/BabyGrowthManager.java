@@ -140,7 +140,7 @@ public class BabyGrowthManager {
 		if (mergeTarget == null) {
 			@SuppressWarnings("unchecked")
 			EntityType<Animal> type = (EntityType<Animal>) animal.getType();
-			adultRep = type.create(level);
+			adultRep = com.jar.jarstacker.adapter.EntityAdapter.create(type, level);
 			if (adultRep == null) {
 				// Abort promotion safely without losing baby records
 				JarStackerMod.LOGGER.error("[JarStackerBaby] PROMOTION_ABORTED_CANNOT_CREATE_ENTITY uuid={}", animal.getUUID());
@@ -236,7 +236,7 @@ public class BabyGrowthManager {
 		// 2. Materialize transient singleton baby
 		@SuppressWarnings("unchecked")
 		EntityType<Animal> type = (EntityType<Animal>) animal.getType();
-		Animal extracted = type.create(level);
+		Animal extracted = com.jar.jarstacker.adapter.EntityAdapter.create(type, level);
 		if (extracted == null || simulateMaterializationFailure) {
 			// Rollback on materialization failure!
 			state.insert(earliestAdultAt);

@@ -126,7 +126,7 @@ public class MobInteractionHandler {
 					// 2. Spawn extracted singleton
 					@SuppressWarnings("unchecked")
 					EntityType<Mob> type = (EntityType<Mob>) mob.getType();
-					Mob extracted = type.create(serverLevel);
+					Mob extracted = com.jar.jarstacker.adapter.EntityAdapter.create(type, serverLevel);
 					if (extracted == null) {
 						// Restore count if creation failed
 						((StackableEntity) mob).jarstacker$setStackCount(count);

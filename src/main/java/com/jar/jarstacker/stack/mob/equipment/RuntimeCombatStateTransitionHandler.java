@@ -108,7 +108,7 @@ public class RuntimeCombatStateTransitionHandler {
 			mob.setItemSlot(slot, ItemStack.EMPTY);
 
 			// Materialize extracted singleton mob
-			Entity rawEntity = mob.getType().create(serverLevel);
+			Entity rawEntity = com.jar.jarstacker.adapter.EntityAdapter.create(mob.getType(), serverLevel);
 			if (!(rawEntity instanceof Mob extractedMob)) {
 				// Rollback
 				if (state != null) {
@@ -205,7 +205,7 @@ public class RuntimeCombatStateTransitionHandler {
 			mob.setHealth(nextActiveHp);
 
 			// Materialize extracted singleton mob
-			Entity rawEntity = mob.getType().create(serverLevel);
+			Entity rawEntity = com.jar.jarstacker.adapter.EntityAdapter.create(mob.getType(), serverLevel);
 			if (!(rawEntity instanceof Mob extractedMob)) {
 				// Rollback
 				if (healthState != null) {

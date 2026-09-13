@@ -38,7 +38,7 @@ public class AnimalInteractionHandler {
 		// 2. Spawn a remainder animal of identical type with count = remainderCount
 		@SuppressWarnings("unchecked")
 		EntityType<Animal> type = (EntityType<Animal>) clickedAnimal.getType();
-		Animal remainder = type.create(level);
+		Animal remainder = com.jar.jarstacker.adapter.EntityAdapter.create(type, level);
 		if (remainder != null) {
 			MovementDiagnostics.logMovementEvent("ENTITY_CREATED", remainder, null, "role=remainder");
 
@@ -100,7 +100,7 @@ public class AnimalInteractionHandler {
 		// 2. Spawn parentB with count = 1, locked for 300 ticks, in love
 		@SuppressWarnings("unchecked")
 		EntityType<Animal> type = (EntityType<Animal>) parentA.getType();
-		Animal parentB = type.create(level);
+		Animal parentB = com.jar.jarstacker.adapter.EntityAdapter.create(type, level);
 		if (parentB == null) return null;
 
 		MovementDiagnostics.logMovementEvent("ENTITY_CREATED", parentB, null, "role=parentB");
@@ -145,7 +145,7 @@ public class AnimalInteractionHandler {
 		// 3. If currentCount > 2, spawn remainder stack with count = currentCount - 2, in love
 		if (currentCount > 2) {
 			int remainderCount = currentCount - 2;
-			Animal remainder = type.create(level);
+			Animal remainder = com.jar.jarstacker.adapter.EntityAdapter.create(type, level);
 			if (remainder != null) {
 				MovementDiagnostics.logMovementEvent("ENTITY_CREATED", remainder, null, "role=remainder");
 

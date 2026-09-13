@@ -33,15 +33,17 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 	@Shadow public abstract float getHealth();
 	@Shadow public abstract float getMaxHealth();
 	@Shadow public abstract void setHealth(float health);
-	@Shadow protected abstract void dropAllDeathLoot(ServerLevel serverLevel, DamageSource damageSource);
-	@Shadow protected abstract void dropExperience(Entity entity);
 	@Shadow protected abstract SoundEvent getDeathSound();
 	@Shadow protected abstract float getSoundVolume();
 	@Shadow public abstract float getVoicePitch();
 	@Shadow protected int lastHurtByPlayerTime;
 	@Shadow protected net.minecraft.world.entity.player.Player lastHurtByPlayer;
 	@Shadow protected int attackStrengthTicker;
+	//? if >=1.21.2 {
+	/*@Shadow protected abstract void dropFromLootTable(ServerLevel serverLevel, DamageSource damageSource, boolean hitByPlayer);
+	*///?} else {
 	@Shadow protected abstract void dropFromLootTable(DamageSource damageSource, boolean hitByPlayer);
+	//?}
 	@Shadow protected abstract void dropCustomDeathLoot(ServerLevel serverLevel, DamageSource damageSource, boolean hitByPlayer);
 	@Shadow public abstract boolean isAlwaysExperienceDropper();
 	@Shadow protected abstract int getExperienceReward(ServerLevel serverLevel, Entity entity);
@@ -169,7 +171,11 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 			this.lastHurtByPlayer = null;
 		}
 
+		//? if >=1.21.2 {
+		/*this.dropFromLootTable(serverLevel, damageSource, hitByPlayer);
+		*///?} else {
 		this.dropFromLootTable(damageSource, hitByPlayer);
+		//?}
 		this.dropCustomDeathLoot(serverLevel, damageSource, hitByPlayer);
 
 		if (hitByPlayer || this.isAlwaysExperienceDropper()) {
@@ -401,14 +407,32 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 
 	@Unique private com.jar.jarstacker.stack.mob.death.CombatDeathContext.Scope jarstacker$dieScope = null;
 
+	//? if >=1.21.2 {
+	/*@Inject(
+		method = "actuallyHurt(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)V",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/entity/LivingEntity;setHealth(F)V"
+		)
+	)
+	private void jarstacker$onActuallyHurt(net.minecraft.server.level.ServerLevel level, DamageSource damageSource, float amount, CallbackInfo ci) {
+		jarstacker$handleActuallyHurt(damageSource, amount);
+	}
+	*///?} else {
 	@Inject(
-		method = "actuallyHurt",
+		method = "actuallyHurt(Lnet/minecraft/world/damagesource/DamageSource;F)V",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/LivingEntity;setHealth(F)V"
 		)
 	)
 	private void jarstacker$onActuallyHurt(DamageSource damageSource, float amount, CallbackInfo ci) {
+		jarstacker$handleActuallyHurt(damageSource, amount);
+	}
+	//?}
+
+	@Unique
+	private void jarstacker$handleActuallyHurt(DamageSource damageSource, float amount) {
 		if ((Object) this instanceof LivingEntity living) {
 			com.jar.jarstacker.stack.mob.health.LogicalHealthManager.IN_ACTUALLY_HURT.set(true);
 			try {

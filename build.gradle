@@ -14,6 +14,11 @@ loom {
 			sourceSet sourceSets.main
 		}
 	}
+	runs {
+		configureEach {
+			runDir = rootProject.file("run").path
+		}
+	}
 }
 
 dependencies {
@@ -27,12 +32,23 @@ dependencies {
 	modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 
+version = "${project.mod_version}+mc${project.minecraft_version}"
+
+base {
+	archivesName = "jarstacker"
+}
+
 processResources {
-	def version = project.version
-	inputs.property "version", version
+	def modVer = project.mod_version
+	def mcDep = project.hasProperty("minecraft_dependency") ? project.property("minecraft_dependency") : "~${project.minecraft_version}"
+	inputs.property "version", modVer
+	inputs.property "minecraft_dependency", mcDep
 
 	filesMatching("fabric.mod.json") {
-		expand "version": version
+		expand([
+			"version": modVer,
+			"minecraft_dependency": mcDep
+		])
 	}
 }
 

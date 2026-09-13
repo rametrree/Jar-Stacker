@@ -16,6 +16,25 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(MushroomCow.class)
 public class MushroomCowMixin {
 
+	//? if >=1.21.2 {
+	/*@ModifyArg(
+		method = "shear(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/sounds/SoundSource;Lnet/minecraft/world/item/ItemStack;)V",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/entity/animal/MushroomCow;convertTo(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/entity/ConversionParams;Lnet/minecraft/world/entity/ConversionParams$AfterConversion;)Lnet/minecraft/world/entity/Mob;"
+		),
+		index = 2
+	)
+	@SuppressWarnings("unchecked")
+	private net.minecraft.world.entity.ConversionParams.AfterConversion<?> jarstacker$onShearConvertTo(net.minecraft.world.entity.ConversionParams.AfterConversion<?> original) {
+		return cow -> {
+			if (original != null) {
+				((net.minecraft.world.entity.ConversionParams.AfterConversion<net.minecraft.world.entity.animal.Cow>) original).finalizeConversion((net.minecraft.world.entity.animal.Cow) cow);
+			}
+			LogicalEntityTransformer.recordDirectTransformation((MushroomCow) (Object) this, (Mob) cow);
+		};
+	}
+	*///?} else {
 	@ModifyArg(
 		method = "shear",
 		at = @At(
@@ -30,5 +49,6 @@ public class MushroomCowMixin {
 		}
 		return entity;
 	}
+	//?}
 }
 

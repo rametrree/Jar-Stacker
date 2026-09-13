@@ -48,7 +48,7 @@ public class JarStackerClientMod implements ClientModInitializer {
 					.executes(context -> {
 						Minecraft mc = Minecraft.getInstance();
 						if (mc.isSingleplayer()) {
-							mc.tell(() -> mc.setScreen(JarStackerConfigScreenFactory.createScreen(
+							mc.execute(() -> mc.setScreen(JarStackerConfigScreenFactory.createScreen(
 								mc.screen,
 								ModConfig.getInstance(),
 								ModConfig.getConfigRevision()

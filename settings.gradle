@@ -9,4 +9,17 @@ pluginManagement {
 	}
 }
 
+plugins {
+	id 'dev.kikugie.stonecutter' version '0.9.8'
+}
+
+stonecutter {
+	centralScript = "build.gradle"
+	kotlinController = false
+
+	create(rootProject) {
+		versions("1.21.1", "1.21.2", "1.21.4")
+	}
+}
+
 rootProject.name = 'jarstacker'

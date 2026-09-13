@@ -68,7 +68,7 @@ public class SheepWoolManager {
 		}
 
 		if (!merged) {
-			Sheep regrown = EntityType.SHEEP.create(level);
+			Sheep regrown = com.jar.jarstacker.adapter.EntityAdapter.create(EntityType.SHEEP, level);
 			if (regrown != null) {
 				Vec3 safePos = SplitPlacementResolver.findSafeSplitPosition(level, sheep, regrown, Collections.singleton(sheep.getBoundingBox()));
 				regrown.moveTo(safePos.x, safePos.y, safePos.z, sheep.getYRot(), sheep.getXRot());

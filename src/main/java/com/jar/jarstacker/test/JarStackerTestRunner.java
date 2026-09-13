@@ -95,6 +95,10 @@ public class JarStackerTestRunner {
 		}
 	}
 
+	private static <T extends Entity> T createEntity(EntityType<T> type, net.minecraft.world.level.Level level) {
+		return com.jar.jarstacker.adapter.EntityAdapter.create(type, level);
+	}
+
 	public static List<TestResult> runAllTests(ServerLevel level, Vec3 pos) {
 		List<TestResult> results = new ArrayList<>();
 		String originalJson = ModConfig.getInstance().toJson();
@@ -259,7 +263,7 @@ public class JarStackerTestRunner {
 		// 1. Multiple identical Zombies merge
 		try {
 			for (int i = 0; i < 50; i++) {
-				Zombie z = EntityType.ZOMBIE.create(level);
+				Zombie z = createEntity(EntityType.ZOMBIE, level);
 				if (z != null) {
 					z.setPos(pos.x, pos.y, pos.z);
 					level.addFreshEntity(z);
@@ -278,9 +282,9 @@ public class JarStackerTestRunner {
 
 		// 2. Different mob EntityTypes remain separate
 		try {
-			Zombie z = EntityType.ZOMBIE.create(level);
+			Zombie z = createEntity(EntityType.ZOMBIE, level);
 			z.setPos(pos.x, pos.y, pos.z);
-			Skeleton s = EntityType.SKELETON.create(level);
+			Skeleton s = createEntity(EntityType.SKELETON, level);
 			s.setPos(pos.x, pos.y, pos.z);
 			level.addFreshEntity(z);
 			level.addFreshEntity(s);
@@ -295,16 +299,16 @@ public class JarStackerTestRunner {
 
 		// 3. Excluded mobs remain separate
 		try {
-			Villager v1 = EntityType.VILLAGER.create(level);
+			Villager v1 = createEntity(EntityType.VILLAGER, level);
 			v1.setPos(pos.x, pos.y, pos.z);
-			Villager v2 = EntityType.VILLAGER.create(level);
+			Villager v2 = createEntity(EntityType.VILLAGER, level);
 			v2.setPos(pos.x, pos.y, pos.z);
 			level.addFreshEntity(v1);
 			level.addFreshEntity(v2);
 			MobStackingManager.scanAndStack(level, config);
 			boolean passVillager = MobCompatibility.isExcluded(v1) && MobCompatibility.canStack(v1, v2, config.getMobStacking()) == false;
 
-			Zombie namedZ = EntityType.ZOMBIE.create(level);
+			Zombie namedZ = createEntity(EntityType.ZOMBIE, level);
 			namedZ.setCustomName(Component.literal("Boss"));
 			boolean passNamed = MobCompatibility.isExcluded(namedZ);
 
@@ -320,7 +324,7 @@ public class JarStackerTestRunner {
 
 		// 4. Mob labels show correct logical count
 		try {
-			Zombie z = EntityType.ZOMBIE.create(level);
+			Zombie z = createEntity(EntityType.ZOMBIE, level);
 			z.setPos(pos.x, pos.y, pos.z);
 			level.addFreshEntity(z);
 			MobStackingManager.updateLabel(z, 37, true);
@@ -340,7 +344,7 @@ public class JarStackerTestRunner {
 
 		// 5. SINGLE mob death (Zombie x50 -> Zombie x49)
 		try {
-			Zombie z = EntityType.ZOMBIE.create(level);
+			Zombie z = createEntity(EntityType.ZOMBIE, level);
 			z.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) z).jarstacker$setStackCount(50);
 			level.addFreshEntity(z);
@@ -359,7 +363,7 @@ public class JarStackerTestRunner {
 
 		// 6. Repeated deaths remove final mob
 		try {
-			Zombie z = EntityType.ZOMBIE.create(level);
+			Zombie z = createEntity(EntityType.ZOMBIE, level);
 			z.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) z).jarstacker$setStackCount(2);
 			level.addFreshEntity(z);
@@ -384,13 +388,13 @@ public class JarStackerTestRunner {
 
 		// 7. Mob persistence
 		try {
-			Zombie z = EntityType.ZOMBIE.create(level);
+			Zombie z = createEntity(EntityType.ZOMBIE, level);
 			z.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) z).jarstacker$setStackCount(75);
 			CompoundTag tag = new CompoundTag();
 			z.addAdditionalSaveData(tag);
 
-			Zombie reloaded = EntityType.ZOMBIE.create(level);
+			Zombie reloaded = createEntity(EntityType.ZOMBIE, level);
 			reloaded.readAdditionalSaveData(tag);
 			int loadedCount = ((StackableEntity) reloaded).jarstacker$getStackCount();
 			boolean pass = loadedCount == 75;
@@ -452,7 +456,7 @@ public class JarStackerTestRunner {
 		// Stress 3: 100 Zombies
 		try {
 			for (int i = 0; i < 100; i++) {
-				Zombie z = EntityType.ZOMBIE.create(level);
+				Zombie z = createEntity(EntityType.ZOMBIE, level);
 				if (z != null) {
 					z.setPos(pos.x, pos.y, pos.z);
 					level.addFreshEntity(z);
@@ -474,7 +478,7 @@ public class JarStackerTestRunner {
 		// Stress 4: 300 Zombies
 		try {
 			for (int i = 0; i < 300; i++) {
-				Zombie z = EntityType.ZOMBIE.create(level);
+				Zombie z = createEntity(EntityType.ZOMBIE, level);
 				if (z != null) {
 					z.setPos(pos.x, pos.y, pos.z);
 					level.addFreshEntity(z);
@@ -615,7 +619,7 @@ public class JarStackerTestRunner {
 			config.validate();
 
 			for (int i = 0; i < 50; i++) {
-				Zombie z = EntityType.ZOMBIE.create(level);
+				Zombie z = createEntity(EntityType.ZOMBIE, level);
 				if (z != null) {
 					z.setPos(pos.x, pos.y, pos.z);
 					level.addFreshEntity(z);
@@ -660,7 +664,7 @@ public class JarStackerTestRunner {
 			ItemEntity diamond = new ItemEntity(level, pos.x, pos.y, pos.z, new ItemStack(Items.DIAMOND, 5));
 			ItemCompatibility.ItemInspection itemInsp = ItemCompatibility.inspectItem(diamond, config.getItemStacking());
 
-			Villager villager = EntityType.VILLAGER.create(level);
+			Villager villager = createEntity(EntityType.VILLAGER, level);
 			boolean villagerExcluded = false;
 			if (villager != null) {
 				villagerExcluded = MobCompatibility.isExcluded(villager);
@@ -684,7 +688,7 @@ public class JarStackerTestRunner {
 			ItemStackingManager.updateLabel(singleItem, 1, true);
 			boolean itemPass = singleItem.hasCustomName() && singleItem.isCustomNameVisible();
 
-			Zombie singleZombie = EntityType.ZOMBIE.create(level);
+			Zombie singleZombie = createEntity(EntityType.ZOMBIE, level);
 			boolean mobPass = false;
 			if (singleZombie != null) {
 				MobStackingManager.updateLabel(singleZombie, 1, true);
@@ -708,7 +712,7 @@ public class JarStackerTestRunner {
 
 		// Test B1: Feeding Stacked Cow splits 1 and leaves remainder
 		try {
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) cow).jarstacker$setStackCount(10);
 			level.addFreshEntity(cow);
@@ -729,7 +733,7 @@ public class JarStackerTestRunner {
 
 		// Test B2: Two Animals Split From Same Stack
 		try {
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) cow).jarstacker$setStackCount(20);
 			level.addFreshEntity(cow);
@@ -762,17 +766,17 @@ public class JarStackerTestRunner {
 
 		// Test B3: Vanilla Child Produced From Breeding
 		try {
-			Cow p1 = EntityType.COW.create(level);
+			Cow p1 = createEntity(EntityType.COW, level);
 			p1.setPos(pos.x, pos.y, pos.z);
 			p1.setInLove(null);
 			level.addFreshEntity(p1);
 
-			Cow p2 = EntityType.COW.create(level);
+			Cow p2 = createEntity(EntityType.COW, level);
 			p2.setPos(pos.x + 0.5, pos.y, pos.z);
 			p2.setInLove(null);
 			level.addFreshEntity(p2);
 
-			Cow remainderStack = EntityType.COW.create(level);
+			Cow remainderStack = createEntity(EntityType.COW, level);
 			remainderStack.setPos(pos.x + 2.0, pos.y, pos.z);
 			((StackableEntity) remainderStack).jarstacker$setStackCount(18);
 			level.addFreshEntity(remainderStack);
@@ -799,7 +803,7 @@ public class JarStackerTestRunner {
 
 		// Test B4: Food Consumption Validation
 		try {
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			boolean acceptsWheat = cow.isFood(new ItemStack(Items.WHEAT));
 			boolean rejectsDiamond = !cow.isFood(new ItemStack(Items.DIAMOND));
 			boolean pass = acceptsWheat && rejectsDiamond;
@@ -812,12 +816,12 @@ public class JarStackerTestRunner {
 
 		// Test B5: No Immediate Re-Merge while in Love Mode
 		try {
-			Cow loveCow = EntityType.COW.create(level);
+			Cow loveCow = createEntity(EntityType.COW, level);
 			loveCow.setPos(pos.x, pos.y, pos.z);
 			loveCow.setInLove(null);
 			level.addFreshEntity(loveCow);
 
-			Cow stackCow = EntityType.COW.create(level);
+			Cow stackCow = createEntity(EntityType.COW, level);
 			stackCow.setPos(pos.x + 0.5, pos.y, pos.z);
 			((StackableEntity) stackCow).jarstacker$setStackCount(19);
 			level.addFreshEntity(stackCow);
@@ -838,12 +842,12 @@ public class JarStackerTestRunner {
 
 		// Test B6: Cooldown Prevents Re-Merge
 		try {
-			Cow cooldownCow = EntityType.COW.create(level);
+			Cow cooldownCow = createEntity(EntityType.COW, level);
 			cooldownCow.setPos(pos.x, pos.y, pos.z);
 			cooldownCow.setAge(6000); // 5 minutes cooldown
 			level.addFreshEntity(cooldownCow);
 
-			Cow normalCow = EntityType.COW.create(level);
+			Cow normalCow = createEntity(EntityType.COW, level);
 			normalCow.setPos(pos.x + 0.5, pos.y, pos.z);
 			((StackableEntity) normalCow).jarstacker$setStackCount(18);
 			level.addFreshEntity(normalCow);
@@ -864,12 +868,12 @@ public class JarStackerTestRunner {
 
 		// Test B7: Baby Animals Separate from Adult
 		try {
-			Cow baby = EntityType.COW.create(level);
+			Cow baby = createEntity(EntityType.COW, level);
 			baby.setPos(pos.x, pos.y, pos.z);
 			baby.setBaby(true);
 			level.addFreshEntity(baby);
 
-			Cow adult = EntityType.COW.create(level);
+			Cow adult = createEntity(EntityType.COW, level);
 			adult.setPos(pos.x + 0.5, pos.y, pos.z);
 			((StackableEntity) adult).jarstacker$setStackCount(20);
 			level.addFreshEntity(adult);
@@ -896,10 +900,10 @@ public class JarStackerTestRunner {
 			CompoundTag tagSingleton = new CompoundTag();
 			tagSingleton.putInt("JarStackerCount", 1);
 
-			Cow cRem = EntityType.COW.create(level);
+			Cow cRem = createEntity(EntityType.COW, level);
 			cRem.readAdditionalSaveData(tagRemainder);
 
-			Cow cSingle = EntityType.COW.create(level);
+			Cow cSingle = createEntity(EntityType.COW, level);
 			cSingle.readAdditionalSaveData(tagSingleton);
 
 			int remLoaded = ((StackableEntity) cRem).jarstacker$getStackCount();
@@ -922,7 +926,7 @@ public class JarStackerTestRunner {
 		// Test L1: Baby Stacking
 		try {
 			for (int i = 0; i < 4; i++) {
-				Cow baby = EntityType.COW.create(level);
+				Cow baby = createEntity(EntityType.COW, level);
 				baby.setPos(pos.x + (i * 0.2), pos.y, pos.z);
 				baby.setBaby(true);
 				level.addFreshEntity(baby);
@@ -939,13 +943,13 @@ public class JarStackerTestRunner {
 
 		// Test L2: Baby Different Ages
 		try {
-			Cow b1 = EntityType.COW.create(level);
+			Cow b1 = createEntity(EntityType.COW, level);
 			b1.setPos(pos.x, pos.y, pos.z);
 			b1.setBaby(true);
 			b1.setAge(-24000);
 			level.addFreshEntity(b1);
 
-			Cow b2 = EntityType.COW.create(level);
+			Cow b2 = createEntity(EntityType.COW, level);
 			b2.setPos(pos.x + 0.5, pos.y, pos.z);
 			b2.setBaby(true);
 			b2.setAge(-5000);
@@ -964,12 +968,12 @@ public class JarStackerTestRunner {
 
 		// Test L3: Baby vs Adult
 		try {
-			Cow baby = EntityType.COW.create(level);
+			Cow baby = createEntity(EntityType.COW, level);
 			baby.setPos(pos.x, pos.y, pos.z);
 			baby.setBaby(true);
 			level.addFreshEntity(baby);
 
-			Cow adult = EntityType.COW.create(level);
+			Cow adult = createEntity(EntityType.COW, level);
 			adult.setPos(pos.x + 0.5, pos.y, pos.z);
 			level.addFreshEntity(adult);
 
@@ -986,7 +990,7 @@ public class JarStackerTestRunner {
 
 		// Test L4: Baby Growth
 		try {
-			Cow babyStack = EntityType.COW.create(level);
+			Cow babyStack = createEntity(EntityType.COW, level);
 			babyStack.setPos(pos.x, pos.y, pos.z);
 			babyStack.setBaby(true);
 			babyStack.setAge(-100);
@@ -999,7 +1003,7 @@ public class JarStackerTestRunner {
 			int countAfterGrowth = ((StackableEntity) babyStack).jarstacker$getStackCount();
 
 			// Spawn nearby adult stack
-			Cow adultStack = EntityType.COW.create(level);
+			Cow adultStack = createEntity(EntityType.COW, level);
 			adultStack.setPos(pos.x + 0.5, pos.y, pos.z);
 			((StackableEntity) adultStack).jarstacker$setStackCount(10);
 			level.addFreshEntity(adultStack);
@@ -1016,19 +1020,19 @@ public class JarStackerTestRunner {
 
 		// Test L5: In-Love Stacking
 		try {
-			Cow c1 = EntityType.COW.create(level);
+			Cow c1 = createEntity(EntityType.COW, level);
 			c1.setPos(pos.x, pos.y, pos.z);
 			c1.setInLove(null);
 			((StackableEntity) c1).jarstacker$setStackCount(2);
 			level.addFreshEntity(c1);
 
-			Cow c2 = EntityType.COW.create(level);
+			Cow c2 = createEntity(EntityType.COW, level);
 			c2.setPos(pos.x + 0.5, pos.y, pos.z);
 			c2.setInLove(null);
 			((StackableEntity) c2).jarstacker$setStackCount(3);
 			level.addFreshEntity(c2);
 
-			Cow adult = EntityType.COW.create(level);
+			Cow adult = createEntity(EntityType.COW, level);
 			adult.setPos(pos.x + 1.0, pos.y, pos.z);
 			level.addFreshEntity(adult);
 
@@ -1047,13 +1051,13 @@ public class JarStackerTestRunner {
 
 		// Test L6: Cooldown Stacking
 		try {
-			Cow c1 = EntityType.COW.create(level);
+			Cow c1 = createEntity(EntityType.COW, level);
 			c1.setPos(pos.x, pos.y, pos.z);
 			c1.setAge(6000);
 			((StackableEntity) c1).jarstacker$setStackCount(2);
 			level.addFreshEntity(c1);
 
-			Cow c2 = EntityType.COW.create(level);
+			Cow c2 = createEntity(EntityType.COW, level);
 			c2.setPos(pos.x + 0.5, pos.y, pos.z);
 			c2.setAge(2000);
 			((StackableEntity) c2).jarstacker$setStackCount(5);
@@ -1073,12 +1077,12 @@ public class JarStackerTestRunner {
 
 		// Test L7: Cooldown vs In-Love
 		try {
-			Cow inLove = EntityType.COW.create(level);
+			Cow inLove = createEntity(EntityType.COW, level);
 			inLove.setPos(pos.x, pos.y, pos.z);
 			inLove.setInLove(null);
 			level.addFreshEntity(inLove);
 
-			Cow cooldown = EntityType.COW.create(level);
+			Cow cooldown = createEntity(EntityType.COW, level);
 			cooldown.setPos(pos.x + 0.5, pos.y, pos.z);
 			cooldown.setAge(6000);
 			level.addFreshEntity(cooldown);
@@ -1097,12 +1101,12 @@ public class JarStackerTestRunner {
 
 		// Test L8: Cooldown Rejoin Adult
 		try {
-			Cow adult = EntityType.COW.create(level);
+			Cow adult = createEntity(EntityType.COW, level);
 			adult.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) adult).jarstacker$setStackCount(10);
 			level.addFreshEntity(adult);
 
-			Cow cooldown = EntityType.COW.create(level);
+			Cow cooldown = createEntity(EntityType.COW, level);
 			cooldown.setPos(pos.x + 0.5, pos.y, pos.z);
 			cooldown.setAge(6000);
 			((StackableEntity) cooldown).jarstacker$setStackCount(5);
@@ -1126,7 +1130,7 @@ public class JarStackerTestRunner {
 
 		// Test L9: Full Breeding Lifecycle
 		try {
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) cow).jarstacker$setStackCount(20);
 			level.addFreshEntity(cow);
@@ -1175,13 +1179,13 @@ public class JarStackerTestRunner {
 
 		// Test L10: Cooldown Expiry
 		try {
-			Cow cooldownStack = EntityType.COW.create(level);
+			Cow cooldownStack = createEntity(EntityType.COW, level);
 			cooldownStack.setPos(pos.x, pos.y, pos.z);
 			cooldownStack.setAge(6000);
 			((StackableEntity) cooldownStack).jarstacker$setStackCount(2);
 			level.addFreshEntity(cooldownStack);
 
-			Cow adultStack = EntityType.COW.create(level);
+			Cow adultStack = createEntity(EntityType.COW, level);
 			adultStack.setPos(pos.x + 0.5, pos.y, pos.z);
 			((StackableEntity) adultStack).jarstacker$setStackCount(18);
 			level.addFreshEntity(adultStack);
@@ -1201,7 +1205,7 @@ public class JarStackerTestRunner {
 
 		// Test L11: Baby Group Growth
 		try {
-			Cow babyGroup = EntityType.COW.create(level);
+			Cow babyGroup = createEntity(EntityType.COW, level);
 			babyGroup.setPos(pos.x, pos.y, pos.z);
 			babyGroup.setBaby(true);
 			babyGroup.setAge(-200);
@@ -1236,13 +1240,13 @@ public class JarStackerTestRunner {
 			tagCooldown.putInt("JarStackerCount", 3);
 			tagCooldown.putInt("Age", 5000);
 
-			Cow cAdult = EntityType.COW.create(level);
+			Cow cAdult = createEntity(EntityType.COW, level);
 			cAdult.readAdditionalSaveData(tagAdult);
 
-			Cow cBaby = EntityType.COW.create(level);
+			Cow cBaby = createEntity(EntityType.COW, level);
 			cBaby.readAdditionalSaveData(tagBaby);
 
-			Cow cCooldown = EntityType.COW.create(level);
+			Cow cCooldown = createEntity(EntityType.COW, level);
 			cCooldown.readAdditionalSaveData(tagCooldown);
 
 			int adultCnt = ((StackableEntity) cAdult).jarstacker$getStackCount();
@@ -1280,7 +1284,7 @@ public class JarStackerTestRunner {
 
 		// Test D2: Feed Interaction Sets Breeding Lock
 		try {
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) cow).jarstacker$setStackCount(20);
 			level.addFreshEntity(cow);
@@ -1305,7 +1309,7 @@ public class JarStackerTestRunner {
 
 		// Test P1: Pair Extraction on IN_LOVE count 2
 		try {
-			Cow inLoveStack = EntityType.COW.create(level);
+			Cow inLoveStack = createEntity(EntityType.COW, level);
 			inLoveStack.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) inLoveStack).jarstacker$setStackCount(2);
 			inLoveStack.setInLove(null);
@@ -1331,7 +1335,7 @@ public class JarStackerTestRunner {
 
 		// Test P2: Pair Extraction on IN_LOVE count 10 (Invariant: 10 = 8 + 1 + 1)
 		try {
-			Cow inLoveStack = EntityType.COW.create(level);
+			Cow inLoveStack = createEntity(EntityType.COW, level);
 			inLoveStack.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) inLoveStack).jarstacker$setStackCount(10);
 			inLoveStack.setInLove(null);
@@ -1360,14 +1364,14 @@ public class JarStackerTestRunner {
 
 		// Test P3: Locked Parents Survive Multiple Scans Without Re-Merging
 		try {
-			Cow parentA = EntityType.COW.create(level);
+			Cow parentA = createEntity(EntityType.COW, level);
 			parentA.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) parentA).jarstacker$setStackCount(1);
 			((StackableEntity) parentA).jarstacker$setBreedingLockTicks(300);
 			parentA.setInLove(null);
 			level.addFreshEntity(parentA);
 
-			Cow parentB = EntityType.COW.create(level);
+			Cow parentB = createEntity(EntityType.COW, level);
 			parentB.setPos(pos.x + 0.3, pos.y, pos.z);
 			((StackableEntity) parentB).jarstacker$setStackCount(1);
 			((StackableEntity) parentB).jarstacker$setBreedingLockTicks(300);
@@ -1390,14 +1394,14 @@ public class JarStackerTestRunner {
 
 		// Test P4: Post-Breeding Cooldown Restack
 		try {
-			Cow parentA = EntityType.COW.create(level);
+			Cow parentA = createEntity(EntityType.COW, level);
 			parentA.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) parentA).jarstacker$setStackCount(1);
 			((StackableEntity) parentA).jarstacker$setBreedingLockTicks(300);
 			parentA.setInLove(null);
 			level.addFreshEntity(parentA);
 
-			Cow parentB = EntityType.COW.create(level);
+			Cow parentB = createEntity(EntityType.COW, level);
 			parentB.setPos(pos.x + 0.3, pos.y, pos.z);
 			((StackableEntity) parentB).jarstacker$setStackCount(1);
 			((StackableEntity) parentB).jarstacker$setBreedingLockTicks(300);
@@ -1426,14 +1430,14 @@ public class JarStackerTestRunner {
 
 		// Test P5: Breeding Lock Timeout Expiry Cleans Up Safely
 		try {
-			Cow parent = EntityType.COW.create(level);
+			Cow parent = createEntity(EntityType.COW, level);
 			parent.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) parent).jarstacker$setStackCount(1);
 			((StackableEntity) parent).jarstacker$setBreedingLockTicks(1);
 			parent.setInLove(null);
 			level.addFreshEntity(parent);
 
-			Cow stack = EntityType.COW.create(level);
+			Cow stack = createEntity(EntityType.COW, level);
 			stack.setPos(pos.x + 0.3, pos.y, pos.z);
 			((StackableEntity) stack).jarstacker$setStackCount(4);
 			stack.setInLove(null);
@@ -1455,7 +1459,7 @@ public class JarStackerTestRunner {
 
 		// Test F1: Full Breeding Interaction & Lifecycle (20 -> 18 Adult + 2 Cooldown + 1 Baby = 21)
 		try {
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(20);
 			level.addFreshEntity(cowStack);
@@ -1482,7 +1486,7 @@ public class JarStackerTestRunner {
 			((StackableEntity) cowStack).jarstacker$setBreedingLockTicks(0);
 			((StackableEntity) rem1).jarstacker$setBreedingLockTicks(0);
 
-			Cow baby = EntityType.COW.create(level);
+			Cow baby = createEntity(EntityType.COW, level);
 			baby.setPos(pos.x + 0.5, pos.y, pos.z);
 			baby.setBaby(true);
 			((StackableEntity) baby).jarstacker$setStackCount(1);
@@ -1520,7 +1524,7 @@ public class JarStackerTestRunner {
 			java.util.Set<java.util.UUID> seenUuids = new java.util.HashSet<>();
 			boolean duplicateUuid = false;
 
-			Cow herd = EntityType.COW.create(level);
+			Cow herd = createEntity(EntityType.COW, level);
 			herd.setPos(pos.x, pos.y, pos.z);
 			((StackableEntity) herd).jarstacker$setStackCount(30);
 			level.addFreshEntity(herd);
@@ -1560,7 +1564,7 @@ public class JarStackerTestRunner {
 								((StackableEntity) p1).jarstacker$setBreedingLockTicks(0);
 								((StackableEntity) p2).jarstacker$setBreedingLockTicks(0);
 
-								Cow b = EntityType.COW.create(level);
+								Cow b = createEntity(EntityType.COW, level);
 								b.setPos(pos.x + 0.1 * cycle, pos.y, pos.z);
 								b.setBaby(true);
 								((StackableEntity) b).jarstacker$setStackCount(1);
@@ -1598,7 +1602,7 @@ public class JarStackerTestRunner {
 			net.minecraft.core.BlockPos penCenter = spawnPos.offset(10, 0, 10);
 			buildPen(level, penCenter, 2); // 5x5 pen (radius 2)
 
-			Cow centerCow = EntityType.COW.create(level);
+			Cow centerCow = createEntity(EntityType.COW, level);
 			centerCow.setPos(penCenter.getX() + 0.5, penCenter.getY(), penCenter.getZ() + 0.5);
 			((StackableEntity) centerCow).jarstacker$setStackCount(20);
 			centerCow.setInLove(null);
@@ -1632,7 +1636,7 @@ public class JarStackerTestRunner {
 			net.minecraft.core.BlockPos penCenter = spawnPos.offset(10, 0, 10);
 			buildPen(level, penCenter, 2);
 
-			Cow nearFenceCow = EntityType.COW.create(level);
+			Cow nearFenceCow = createEntity(EntityType.COW, level);
 			// Place cow directly against fence (fence is at offset +2.0)
 			nearFenceCow.setPos(penCenter.getX() + 1.85, penCenter.getY(), penCenter.getZ() + 0.5);
 			((StackableEntity) nearFenceCow).jarstacker$setStackCount(20);
@@ -1664,7 +1668,7 @@ public class JarStackerTestRunner {
 			net.minecraft.core.BlockPos penCenter = spawnPos.offset(10, 0, 10);
 			buildPen(level, penCenter, 2);
 
-			Cow cornerCow = EntityType.COW.create(level);
+			Cow cornerCow = createEntity(EntityType.COW, level);
 			// Position in corner between +X and +Z fences
 			cornerCow.setPos(penCenter.getX() + 1.85, penCenter.getY(), penCenter.getZ() + 1.85);
 			((StackableEntity) cornerCow).jarstacker$setStackCount(20);
@@ -1697,7 +1701,7 @@ public class JarStackerTestRunner {
 			net.minecraft.core.BlockPos penCenter = spawnPos.offset(10, 0, 10);
 			buildPen(level, penCenter, 2);
 
-			Cow herd = EntityType.COW.create(level);
+			Cow herd = createEntity(EntityType.COW, level);
 			herd.setPos(penCenter.getX() + 0.5, penCenter.getY(), penCenter.getZ() + 0.5);
 			((StackableEntity) herd).jarstacker$setStackCount(30);
 			level.addFreshEntity(herd);
@@ -1736,7 +1740,7 @@ public class JarStackerTestRunner {
 			net.minecraft.core.BlockPos penCenter = spawnPos.offset(10, 0, 10);
 			buildPen(level, penCenter, 2);
 
-			Cow centerCow = EntityType.COW.create(level);
+			Cow centerCow = createEntity(EntityType.COW, level);
 			centerCow.setPos(penCenter.getX() + 0.5, penCenter.getY(), penCenter.getZ() + 0.5);
 			((StackableEntity) centerCow).jarstacker$setStackCount(10);
 			centerCow.setInLove(null);
@@ -1774,7 +1778,7 @@ public class JarStackerTestRunner {
 			net.minecraft.core.BlockPos penCenter = spawnPos.offset(10, 0, 10);
 			buildPen(level, penCenter, 2);
 
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(penCenter.getX() + 0.5, penCenter.getY(), penCenter.getZ() + 0.5);
 			((StackableEntity) cow).jarstacker$setStackCount(10);
 			cow.setInLove(null);
@@ -1796,14 +1800,14 @@ public class JarStackerTestRunner {
 			net.minecraft.core.BlockPos penCenter = spawnPos.offset(10, 0, 10);
 			buildPen(level, penCenter, 2);
 
-			Cow parentA = EntityType.COW.create(level);
+			Cow parentA = createEntity(EntityType.COW, level);
 			parentA.setPos(penCenter.getX() + 0.3, penCenter.getY(), penCenter.getZ() + 0.5);
 			((StackableEntity) parentA).jarstacker$setStackCount(1);
 			((StackableEntity) parentA).jarstacker$setBreedingLockTicks(300);
 			parentA.setInLove(null);
 			level.addFreshEntity(parentA);
 
-			Cow parentB = EntityType.COW.create(level);
+			Cow parentB = createEntity(EntityType.COW, level);
 			parentB.setPos(penCenter.getX() + 0.9, penCenter.getY(), penCenter.getZ() + 0.5);
 			((StackableEntity) parentB).jarstacker$setStackCount(1);
 			((StackableEntity) parentB).jarstacker$setBreedingLockTicks(300);
@@ -1822,7 +1826,7 @@ public class JarStackerTestRunner {
 			((StackableEntity) parentA).jarstacker$setBreedingLockTicks(0);
 			((StackableEntity) parentB).jarstacker$setBreedingLockTicks(0);
 
-			Cow baby = EntityType.COW.create(level);
+			Cow baby = createEntity(EntityType.COW, level);
 			baby.setPos(penCenter.getX() + 0.6, penCenter.getY(), penCenter.getZ() + 0.5);
 			baby.setBaby(true);
 			((StackableEntity) baby).jarstacker$setStackCount(1);
@@ -1849,7 +1853,7 @@ public class JarStackerTestRunner {
 			buildPen(level, penCenter, 2);
 
 			for (int i = 0; i < 4; i++) {
-				Cow c = EntityType.COW.create(level);
+				Cow c = createEntity(EntityType.COW, level);
 				c.setPos(penCenter.getX() + 0.3 * i, penCenter.getY(), penCenter.getZ() + 0.3 * i);
 				((StackableEntity) c).jarstacker$setStackCount(5);
 				level.addFreshEntity(c);
@@ -1886,7 +1890,7 @@ public class JarStackerTestRunner {
 			// 3x3 outer pen, so only a 1x1 interior cell exists
 			buildPen(level, penCenter, 1);
 
-			Cow crampedCow = EntityType.COW.create(level);
+			Cow crampedCow = createEntity(EntityType.COW, level);
 			crampedCow.setPos(penCenter.getX() + 0.5, penCenter.getY(), penCenter.getZ() + 0.5);
 			((StackableEntity) crampedCow).jarstacker$setStackCount(10);
 			crampedCow.setInLove(null);
@@ -1919,7 +1923,7 @@ public class JarStackerTestRunner {
 			java.util.Set<java.util.UUID> seenUuids = new java.util.HashSet<>();
 			boolean duplicateUuid = false;
 
-			Cow herd = EntityType.COW.create(level);
+			Cow herd = createEntity(EntityType.COW, level);
 			herd.setPos(penCenter.getX() + 0.5, penCenter.getY(), penCenter.getZ() + 0.5);
 			((StackableEntity) herd).jarstacker$setStackCount(30);
 			level.addFreshEntity(herd);
@@ -1969,7 +1973,7 @@ public class JarStackerTestRunner {
 								((StackableEntity) p1).jarstacker$setBreedingLockTicks(0);
 								((StackableEntity) p2).jarstacker$setBreedingLockTicks(0);
 
-								Cow b = EntityType.COW.create(level);
+								Cow b = createEntity(EntityType.COW, level);
 								b.setPos(penCenter.getX() + 0.5, penCenter.getY(), penCenter.getZ() + 0.5);
 								b.setBaby(true);
 								((StackableEntity) b).jarstacker$setStackCount(1);
@@ -2010,7 +2014,7 @@ public class JarStackerTestRunner {
 		// Test A1: Single Feed Anchor Stability & Interaction Handoff
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(20);
 			level.addFreshEntity(cowStack);
@@ -2065,7 +2069,7 @@ public class JarStackerTestRunner {
 		// Test A2: Ten Continuous Feeds without Camera Movement
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(100);
 			level.addFreshEntity(cowStack);
@@ -2117,7 +2121,7 @@ public class JarStackerTestRunner {
 		// Test A3: View-Ray Obstruction Avoidance
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(10);
 			level.addFreshEntity(cowStack);
@@ -2165,7 +2169,7 @@ public class JarStackerTestRunner {
 
 			// Place anchor beside eastern fence (center + 1.8)
 			Vec3 nearFencePos = new Vec3(penA.getX() + 1.8, penA.getY(), penA.getZ() + 0.5);
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(nearFencePos.x, nearFencePos.y, nearFencePos.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(15);
 			level.addFreshEntity(cowStack);
@@ -2208,7 +2212,7 @@ public class JarStackerTestRunner {
 
 			// Place anchor in north-east corner (center + 1.8, center + 1.8)
 			Vec3 cornerPos = new Vec3(penA.getX() + 1.8, penA.getY(), penA.getZ() + 1.8);
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(cornerPos.x, cornerPos.y, cornerPos.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(10);
 			level.addFreshEntity(cowStack);
@@ -2247,7 +2251,7 @@ public class JarStackerTestRunner {
 		// Test A6: Survival Item Consumption
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(15);
 			level.addFreshEntity(cowStack);
@@ -2276,7 +2280,7 @@ public class JarStackerTestRunner {
 		// Test A7: Creative Mode Item Consumption
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(10);
 			level.addFreshEntity(cowStack);
@@ -2305,7 +2309,7 @@ public class JarStackerTestRunner {
 		// Test A8: Stack x2 and x1 Edge Cases
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(2);
 			level.addFreshEntity(cowStack);
@@ -2359,7 +2363,7 @@ public class JarStackerTestRunner {
 		// Test A9: Full Breeding Lifecycle with Continuous Feeds
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(20);
 			level.addFreshEntity(cowStack);
@@ -2390,7 +2394,7 @@ public class JarStackerTestRunner {
 				((StackableEntity) p1).jarstacker$setBreedingLockTicks(0);
 				((StackableEntity) p2).jarstacker$setBreedingLockTicks(0);
 
-				Cow baby = EntityType.COW.create(level);
+				Cow baby = createEntity(EntityType.COW, level);
 				baby.setPos(posA.x + 0.5, posA.y, posA.z);
 				baby.setBaby(true);
 				((StackableEntity) baby).jarstacker$setStackCount(1);
@@ -2430,7 +2434,7 @@ public class JarStackerTestRunner {
 		// Test A10: Repeated Raycast Target Stability
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(10);
 			level.addFreshEntity(cowStack);
@@ -2468,7 +2472,7 @@ public class JarStackerTestRunner {
 		// Test I1: Cow Milking (DIRECT)
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(20);
 			level.addFreshEntity(cowStack);
@@ -2504,7 +2508,7 @@ public class JarStackerTestRunner {
 		// Test I2: Baby Cow Milk Attempt
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
-			Cow babyStack = EntityType.COW.create(level);
+			Cow babyStack = createEntity(EntityType.COW, level);
 			babyStack.setPos(posA.x, posA.y, posA.z);
 			babyStack.setBaby(true);
 			((StackableEntity) babyStack).jarstacker$setStackCount(10);
@@ -2539,7 +2543,7 @@ public class JarStackerTestRunner {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 			for (ItemEntity ie : level.getEntitiesOfClass(ItemEntity.class, cleanAreaA)) ie.discard();
 
-			Sheep sheepStack = EntityType.SHEEP.create(level);
+			Sheep sheepStack = createEntity(EntityType.SHEEP, level);
 			sheepStack.setPos(posA.x, posA.y, posA.z);
 			sheepStack.setColor(DyeColor.WHITE);
 			sheepStack.setSheared(false);
@@ -2595,7 +2599,7 @@ public class JarStackerTestRunner {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 			for (ItemEntity ie : level.getEntitiesOfClass(ItemEntity.class, cleanAreaA)) ie.discard();
 
-			Sheep sheepStack = EntityType.SHEEP.create(level);
+			Sheep sheepStack = createEntity(EntityType.SHEEP, level);
 			sheepStack.setPos(posA.x, posA.y, posA.z);
 			sheepStack.setColor(DyeColor.WHITE);
 			sheepStack.setSheared(false);
@@ -2646,7 +2650,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 
-			Sheep sheepStack = EntityType.SHEEP.create(level);
+			Sheep sheepStack = createEntity(EntityType.SHEEP, level);
 			sheepStack.setPos(posA.x, posA.y, posA.z);
 			sheepStack.setColor(DyeColor.WHITE);
 			sheepStack.setSheared(false);
@@ -2695,7 +2699,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 
-			Sheep sheepStack = EntityType.SHEEP.create(level);
+			Sheep sheepStack = createEntity(EntityType.SHEEP, level);
 			sheepStack.setPos(posA.x, posA.y, posA.z);
 			sheepStack.setColor(DyeColor.WHITE);
 			sheepStack.setSheared(false);
@@ -2746,7 +2750,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 
-			Sheep sheepStack = EntityType.SHEEP.create(level);
+			Sheep sheepStack = createEntity(EntityType.SHEEP, level);
 			sheepStack.setPos(posA.x, posA.y, posA.z);
 			sheepStack.setColor(DyeColor.RED);
 			sheepStack.setSheared(false);
@@ -2780,7 +2784,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyStack = EntityType.COW.create(level);
+			Cow babyStack = createEntity(EntityType.COW, level);
 			babyStack.setPos(posA.x, posA.y, posA.z);
 			babyStack.setBaby(true);
 			babyStack.setAge(-24000);
@@ -2819,7 +2823,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyStack = EntityType.COW.create(level);
+			Cow babyStack = createEntity(EntityType.COW, level);
 			babyStack.setPos(posA.x, posA.y, posA.z);
 			babyStack.setBaby(true);
 			babyStack.setAge(-24000);
@@ -2864,7 +2868,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Wolf w : level.getEntitiesOfClass(Wolf.class, cleanAreaA)) w.discard();
 
-			Wolf wolfStack = EntityType.WOLF.create(level);
+			Wolf wolfStack = createEntity(EntityType.WOLF, level);
 			wolfStack.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) wolfStack).jarstacker$setStackCount(10);
 			level.addFreshEntity(wolfStack);
@@ -2914,7 +2918,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Wolf w : level.getEntitiesOfClass(Wolf.class, cleanAreaA)) w.discard();
 
-			Wolf wolfStack = EntityType.WOLF.create(level);
+			Wolf wolfStack = createEntity(EntityType.WOLF, level);
 			wolfStack.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) wolfStack).jarstacker$setStackCount(5);
 			level.addFreshEntity(wolfStack);
@@ -2969,7 +2973,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(10);
 			level.addFreshEntity(cowStack);
@@ -3005,7 +3009,7 @@ public class JarStackerTestRunner {
 			buildPen(level, penA, 3);
 
 			Vec3 nearFence = new Vec3(penA.getX() + 1.8, penA.getY(), penA.getZ() + 1.8);
-			Sheep sheepStack = EntityType.SHEEP.create(level);
+			Sheep sheepStack = createEntity(EntityType.SHEEP, level);
 			sheepStack.setPos(nearFence.x, nearFence.y, nearFence.z);
 			sheepStack.setColor(DyeColor.WHITE);
 			sheepStack.setSheared(false);
@@ -3041,7 +3045,7 @@ public class JarStackerTestRunner {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 
 			// 1. Creative dyeing
-			Sheep sheepStackC = EntityType.SHEEP.create(level);
+			Sheep sheepStackC = createEntity(EntityType.SHEEP, level);
 			sheepStackC.setPos(posA.x, posA.y, posA.z);
 			sheepStackC.setColor(DyeColor.WHITE);
 			((StackableEntity) sheepStackC).jarstacker$setStackCount(5);
@@ -3058,7 +3062,7 @@ public class JarStackerTestRunner {
 			creativePlayer.discard();
 
 			// 2. Survival dyeing
-			Sheep sheepStackS = EntityType.SHEEP.create(level);
+			Sheep sheepStackS = createEntity(EntityType.SHEEP, level);
 			sheepStackS.setPos(posA.x, posA.y, posA.z);
 			sheepStackS.setColor(DyeColor.WHITE);
 			((StackableEntity) sheepStackS).jarstacker$setStackCount(5);
@@ -3083,7 +3087,7 @@ public class JarStackerTestRunner {
 
 		// Test I15: Interaction State Persistence
 		try {
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) cow).jarstacker$setStackCount(35);
 			((StackableEntity) cow).jarstacker$setInteractionLockTicks(250);
@@ -3091,7 +3095,7 @@ public class JarStackerTestRunner {
 			CompoundTag tag = new CompoundTag();
 			cow.saveWithoutId(tag);
 
-			Cow loaded = EntityType.COW.create(level);
+			Cow loaded = createEntity(EntityType.COW, level);
 			loaded.load(tag);
 
 			int loadedCount = ((StackableEntity) loaded).jarstacker$getStackCount();
@@ -3115,21 +3119,21 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow cowA = EntityType.COW.create(level);
+			Cow cowA = createEntity(EntityType.COW, level);
 			cowA.setPos(posA.x, posA.y, posA.z);
 			cowA.setBaby(true);
 			cowA.setAge(-18000);
 			((StackableEntity) cowA).jarstacker$setStackCount(1);
 			level.addFreshEntity(cowA);
 
-			Cow cowB = EntityType.COW.create(level);
+			Cow cowB = createEntity(EntityType.COW, level);
 			cowB.setPos(posA.x + 0.2, posA.y, posA.z);
 			cowB.setBaby(true);
 			cowB.setAge(-12000);
 			((StackableEntity) cowB).jarstacker$setStackCount(1);
 			level.addFreshEntity(cowB);
 
-			Cow cowC = EntityType.COW.create(level);
+			Cow cowC = createEntity(EntityType.COW, level);
 			cowC.setPos(posA.x - 0.2, posA.y, posA.z);
 			cowC.setBaby(true);
 			cowC.setAge(-5000);
@@ -3160,7 +3164,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			((StackableEntity) babyCow).jarstacker$setStackCount(3);
@@ -3197,7 +3201,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			((StackableEntity) babyCow).jarstacker$setStackCount(10);
@@ -3233,7 +3237,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			((StackableEntity) babyCow).jarstacker$setStackCount(3);
@@ -3271,7 +3275,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			babyCow.setAge(-20000);
@@ -3303,7 +3307,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			babyCow.setAge(-20000);
@@ -3340,7 +3344,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			((StackableEntity) babyCow).jarstacker$setStackCount(2);
@@ -3380,7 +3384,7 @@ public class JarStackerTestRunner {
 
 		// Test B8: Save / Reload
 		try {
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(posA.x, posA.y, posA.z);
 			cow.setBaby(true);
 			((StackableEntity) cow).jarstacker$setStackCount(5);
@@ -3396,7 +3400,7 @@ public class JarStackerTestRunner {
 			CompoundTag tag = new CompoundTag();
 			cow.saveWithoutId(tag);
 
-			Cow loaded = EntityType.COW.create(level);
+			Cow loaded = createEntity(EntityType.COW, level);
 			loaded.load(tag);
 
 			int loadedCount = ((StackableEntity) loaded).jarstacker$getStackCount();
@@ -3420,7 +3424,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			((StackableEntity) babyCow).jarstacker$setStackCount(3);
@@ -3455,7 +3459,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 
-			Sheep sheep = EntityType.SHEEP.create(level);
+			Sheep sheep = createEntity(EntityType.SHEEP, level);
 			sheep.setPos(posA.x, posA.y, posA.z);
 			sheep.setColor(DyeColor.WHITE);
 			sheep.setSheared(false);
@@ -3490,7 +3494,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 
-			Sheep sheep = EntityType.SHEEP.create(level);
+			Sheep sheep = createEntity(EntityType.SHEEP, level);
 			sheep.setPos(posA.x, posA.y, posA.z);
 			sheep.setColor(DyeColor.WHITE);
 			sheep.setSheared(true);
@@ -3521,7 +3525,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 
-			Sheep sheep = EntityType.SHEEP.create(level);
+			Sheep sheep = createEntity(EntityType.SHEEP, level);
 			sheep.setPos(posA.x, posA.y, posA.z);
 			sheep.setColor(DyeColor.WHITE);
 			sheep.setSheared(true);
@@ -3562,14 +3566,14 @@ public class JarStackerTestRunner {
 		try {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 
-			Sheep shearedSheep = EntityType.SHEEP.create(level);
+			Sheep shearedSheep = createEntity(EntityType.SHEEP, level);
 			shearedSheep.setPos(posA.x, posA.y, posA.z);
 			shearedSheep.setColor(DyeColor.WHITE);
 			shearedSheep.setSheared(true);
 			((StackableEntity) shearedSheep).jarstacker$setStackCount(5);
 			level.addFreshEntity(shearedSheep);
 
-			Sheep unshearedSheep = EntityType.SHEEP.create(level);
+			Sheep unshearedSheep = createEntity(EntityType.SHEEP, level);
 			unshearedSheep.setPos(posA.x + 1.0, posA.y, posA.z);
 			unshearedSheep.setColor(DyeColor.WHITE);
 			unshearedSheep.setSheared(false);
@@ -3595,7 +3599,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 
-			Sheep redSheep = EntityType.SHEEP.create(level);
+			Sheep redSheep = createEntity(EntityType.SHEEP, level);
 			redSheep.setPos(posA.x, posA.y, posA.z);
 			redSheep.setColor(DyeColor.RED);
 			redSheep.setSheared(true);
@@ -3627,7 +3631,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 
-			Sheep sheep = EntityType.SHEEP.create(level);
+			Sheep sheep = createEntity(EntityType.SHEEP, level);
 			sheep.setPos(posA.x, posA.y, posA.z);
 			sheep.setColor(DyeColor.WHITE);
 			sheep.setSheared(true);
@@ -3655,13 +3659,13 @@ public class JarStackerTestRunner {
 		try {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 
-			Sheep shearedSheep = EntityType.SHEEP.create(level);
+			Sheep shearedSheep = createEntity(EntityType.SHEEP, level);
 			shearedSheep.setPos(posA.x, posA.y, posA.z);
 			shearedSheep.setColor(DyeColor.WHITE);
 			shearedSheep.setSheared(true);
 			((StackableEntity) shearedSheep).jarstacker$setStackCount(4);
 
-			Sheep unshearedSheep = EntityType.SHEEP.create(level);
+			Sheep unshearedSheep = createEntity(EntityType.SHEEP, level);
 			unshearedSheep.setPos(posA.x + 1.0, posA.y, posA.z);
 			unshearedSheep.setColor(DyeColor.WHITE);
 			unshearedSheep.setSheared(false);
@@ -3673,10 +3677,10 @@ public class JarStackerTestRunner {
 			CompoundTag tag2 = new CompoundTag();
 			unshearedSheep.saveWithoutId(tag2);
 
-			Sheep l1 = EntityType.SHEEP.create(level);
+			Sheep l1 = createEntity(EntityType.SHEEP, level);
 			l1.load(tag1);
 
-			Sheep l2 = EntityType.SHEEP.create(level);
+			Sheep l2 = createEntity(EntityType.SHEEP, level);
 			l2.load(tag2);
 
 			boolean pass = (((StackableEntity) l1).jarstacker$getStackCount() == 4) && (l1.isSheared())
@@ -3698,7 +3702,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			((StackableEntity) babyCow).jarstacker$setStackCount(100);
@@ -3736,7 +3740,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			((StackableEntity) babyCow).jarstacker$setStackCount(1000);
@@ -3774,7 +3778,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Sheep s : level.getEntitiesOfClass(Sheep.class, cleanAreaA)) s.discard();
 
-			Sheep sheep = EntityType.SHEEP.create(level);
+			Sheep sheep = createEntity(EntityType.SHEEP, level);
 			sheep.setPos(posA.x, posA.y, posA.z);
 			sheep.setColor(DyeColor.WHITE);
 			sheep.setSheared(true);
@@ -3813,7 +3817,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow cowA = EntityType.COW.create(level);
+			Cow cowA = createEntity(EntityType.COW, level);
 			cowA.setPos(posA.x, posA.y, posA.z);
 			cowA.setBaby(true);
 			((StackableEntity) cowA).jarstacker$setStackCount(5);
@@ -3824,7 +3828,7 @@ public class JarStackerTestRunner {
 			for (int i = 0; i < 5; i++) stateA.insert(now + 100000L + i * 100);
 			((StackableEntity) cowA).jarstacker$setBabyGrowthState(stateA);
 
-			Cow cowB = EntityType.COW.create(level);
+			Cow cowB = createEntity(EntityType.COW, level);
 			cowB.setPos(posA.x + 0.2, posA.y, posA.z);
 			cowB.setBaby(true);
 			((StackableEntity) cowB).jarstacker$setStackCount(7);
@@ -3881,7 +3885,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			babyCow.setAge(-20000);
@@ -3914,7 +3918,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			babyCow.setAge(-20000);
@@ -3949,7 +3953,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			((StackableEntity) babyCow).jarstacker$setStackCount(100);
@@ -3985,14 +3989,14 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow adultCow = EntityType.COW.create(level);
+			Cow adultCow = createEntity(EntityType.COW, level);
 			adultCow.setPos(posA.x + 1.0, posA.y, posA.z);
 			adultCow.setBaby(false);
 			adultCow.setAge(0);
 			((StackableEntity) adultCow).jarstacker$setStackCount(20);
 			level.addFreshEntity(adultCow);
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			((StackableEntity) babyCow).jarstacker$setStackCount(10);
@@ -4021,7 +4025,7 @@ public class JarStackerTestRunner {
 
 		// Test L7: Persistence Exact Records
 		try {
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(posA.x, posA.y, posA.z);
 			cow.setBaby(true);
 			((StackableEntity) cow).jarstacker$setStackCount(100);
@@ -4033,7 +4037,7 @@ public class JarStackerTestRunner {
 			CompoundTag tag = new CompoundTag();
 			cow.saveWithoutId(tag);
 
-			Cow loaded = EntityType.COW.create(level);
+			Cow loaded = createEntity(EntityType.COW, level);
 			loaded.load(tag);
 
 			int loadedCount = ((StackableEntity) loaded).jarstacker$getStackCount();
@@ -4054,7 +4058,7 @@ public class JarStackerTestRunner {
 
 		// Test L8: Chunk Reload Idempotency
 		try {
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(posA.x, posA.y, posA.z);
 			cow.setBaby(true);
 			((StackableEntity) cow).jarstacker$setStackCount(50);
@@ -4066,12 +4070,12 @@ public class JarStackerTestRunner {
 			CompoundTag tag1 = new CompoundTag();
 			cow.saveWithoutId(tag1);
 
-			Cow r1 = EntityType.COW.create(level);
+			Cow r1 = createEntity(EntityType.COW, level);
 			r1.load(tag1);
 			CompoundTag tag2 = new CompoundTag();
 			r1.saveWithoutId(tag2);
 
-			Cow r2 = EntityType.COW.create(level);
+			Cow r2 = createEntity(EntityType.COW, level);
 			r2.load(tag2);
 
 			int count2 = ((StackableEntity) r2).jarstacker$getStackCount();
@@ -4091,7 +4095,7 @@ public class JarStackerTestRunner {
 
 		// Test L9: Missing Records Repair
 		try {
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(posA.x, posA.y, posA.z);
 			cow.setBaby(true);
 			cow.setAge(-20000);
@@ -4118,7 +4122,7 @@ public class JarStackerTestRunner {
 
 		// Test L10: Extra Records Repair
 		try {
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(posA.x, posA.y, posA.z);
 			cow.setBaby(true);
 			cow.setAge(-20000);
@@ -4145,7 +4149,7 @@ public class JarStackerTestRunner {
 
 		// Test L11: Missing Metadata Migration Idempotency
 		try {
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(posA.x, posA.y, posA.z);
 			cow.setBaby(true);
 			cow.setAge(-15000);
@@ -4170,7 +4174,7 @@ public class JarStackerTestRunner {
 
 		// Test L12: Unsorted Records Repair
 		try {
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(posA.x, posA.y, posA.z);
 			cow.setBaby(true);
 			((StackableEntity) cow).jarstacker$setStackCount(3);
@@ -4197,7 +4201,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(posA.x, posA.y, posA.z);
 			cow.setBaby(true);
 			((StackableEntity) cow).jarstacker$setStackCount(10);
@@ -4225,7 +4229,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			((StackableEntity) babyCow).jarstacker$setStackCount(10);
@@ -4262,7 +4266,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			babyCow.setAge(-20000);
@@ -4297,7 +4301,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow cowA = EntityType.COW.create(level);
+			Cow cowA = createEntity(EntityType.COW, level);
 			cowA.setPos(posA.x, posA.y, posA.z);
 			cowA.setBaby(true);
 			((StackableEntity) cowA).jarstacker$setStackCount(1000);
@@ -4307,7 +4311,7 @@ public class JarStackerTestRunner {
 			for (int i = 0; i < 1000; i++) stateA.insert(100000L + i * 10L);
 			((StackableEntity) cowA).jarstacker$setBabyGrowthState(stateA);
 
-			Cow cowB = EntityType.COW.create(level);
+			Cow cowB = createEntity(EntityType.COW, level);
 			cowB.setPos(posA.x + 0.5, posA.y, posA.z);
 			cowB.setBaby(true);
 			((StackableEntity) cowB).jarstacker$setStackCount(1000);
@@ -4339,7 +4343,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			babyCow.setAge(-20000);
@@ -4377,7 +4381,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			babyCow.setAge(-20000);
@@ -4395,7 +4399,7 @@ public class JarStackerTestRunner {
 			CompoundTag tag = new CompoundTag();
 			babyCow.saveWithoutId(tag);
 
-			Cow loaded = EntityType.COW.create(level);
+			Cow loaded = createEntity(EntityType.COW, level);
 			loaded.load(tag);
 
 			com.jar.jarstacker.stack.mob.logical.LogicalStateValidator.ValidationReport rep =
@@ -4419,7 +4423,7 @@ public class JarStackerTestRunner {
 		try {
 			for (Cow c : level.getEntitiesOfClass(Cow.class, cleanAreaA)) c.discard();
 
-			Cow babyCow = EntityType.COW.create(level);
+			Cow babyCow = createEntity(EntityType.COW, level);
 			babyCow.setPos(posA.x, posA.y, posA.z);
 			babyCow.setBaby(true);
 			((StackableEntity) babyCow).jarstacker$setStackCount(2000);
@@ -4461,7 +4465,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow mooshroom = EntityType.MOOSHROOM.create(level);
+			MushroomCow mooshroom = createEntity(EntityType.MOOSHROOM, level);
 			mooshroom.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) mooshroom).jarstacker$setStackCount(5);
 			level.addFreshEntity(mooshroom);
@@ -4494,7 +4498,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow mooshroom = EntityType.MOOSHROOM.create(level);
+			MushroomCow mooshroom = createEntity(EntityType.MOOSHROOM, level);
 			mooshroom.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) mooshroom).jarstacker$setStackCount(5);
 			((MushroomCowAccessor) mooshroom).jarstacker$setStewEffects(SuspiciousStewEffects.EMPTY);
@@ -4533,7 +4537,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow mooshroom = EntityType.MOOSHROOM.create(level);
+			MushroomCow mooshroom = createEntity(EntityType.MOOSHROOM, level);
 			mooshroom.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) mooshroom).jarstacker$setStackCount(5);
 			level.addFreshEntity(mooshroom);
@@ -4579,12 +4583,12 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			Cow existingCow = EntityType.COW.create(level);
+			Cow existingCow = createEntity(EntityType.COW, level);
 			existingCow.setPos(posA.x + 0.8, posA.y, posA.z);
 			((StackableEntity) existingCow).jarstacker$setStackCount(10);
 			level.addFreshEntity(existingCow);
 
-			MushroomCow mooshroom = EntityType.MOOSHROOM.create(level);
+			MushroomCow mooshroom = createEntity(EntityType.MOOSHROOM, level);
 			mooshroom.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) mooshroom).jarstacker$setStackCount(5);
 			level.addFreshEntity(mooshroom);
@@ -4621,7 +4625,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow babyMoosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow babyMoosh = createEntity(EntityType.MOOSHROOM, level);
 			babyMoosh.setPos(posA.x, posA.y, posA.z);
 			babyMoosh.setBaby(true);
 			babyMoosh.setAge(-20000);
@@ -4657,15 +4661,15 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow redMoosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow redMoosh = createEntity(EntityType.MOOSHROOM, level);
 			redMoosh.setPos(posA.x, posA.y, posA.z);
-			redMoosh.setVariant(MushroomCow.MushroomType.RED);
+			com.jar.jarstacker.adapter.EntityAdapter.setMooshroomVariant(redMoosh, false);
 			((StackableEntity) redMoosh).jarstacker$setStackCount(5);
 			level.addFreshEntity(redMoosh);
 
-			MushroomCow brownMoosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow brownMoosh = createEntity(EntityType.MOOSHROOM, level);
 			brownMoosh.setPos(posA.x + 3.0, posA.y, posA.z);
-			brownMoosh.setVariant(MushroomCow.MushroomType.BROWN);
+			com.jar.jarstacker.adapter.EntityAdapter.setMooshroomVariant(brownMoosh, true);
 			((StackableEntity) brownMoosh).jarstacker$setStackCount(5);
 			level.addFreshEntity(brownMoosh);
 
@@ -4693,7 +4697,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow mooshroom = EntityType.MOOSHROOM.create(level);
+			MushroomCow mooshroom = createEntity(EntityType.MOOSHROOM, level);
 			mooshroom.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) mooshroom).jarstacker$setStackCount(5);
 			level.addFreshEntity(mooshroom);
@@ -4727,7 +4731,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			SnowGolem golem = EntityType.SNOW_GOLEM.create(level);
+			SnowGolem golem = createEntity(EntityType.SNOW_GOLEM, level);
 			golem.setPos(posA.x, posA.y, posA.z);
 			golem.setPumpkin(true);
 			((StackableEntity) golem).jarstacker$setStackCount(5);
@@ -4772,7 +4776,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			SnowGolem golem = EntityType.SNOW_GOLEM.create(level);
+			SnowGolem golem = createEntity(EntityType.SNOW_GOLEM, level);
 			golem.setPos(posA.x, posA.y, posA.z);
 			golem.setPumpkin(true);
 			((StackableEntity) golem).jarstacker$setStackCount(3);
@@ -4814,7 +4818,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			SnowGolem golem = EntityType.SNOW_GOLEM.create(level);
+			SnowGolem golem = createEntity(EntityType.SNOW_GOLEM, level);
 			golem.setPos(posA.x, posA.y, posA.z);
 			golem.setPumpkin(false);
 			((StackableEntity) golem).jarstacker$setStackCount(1);
@@ -4841,7 +4845,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			Pig pig = EntityType.PIG.create(level);
+			Pig pig = createEntity(EntityType.PIG, level);
 			pig.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) pig).jarstacker$setStackCount(5);
 			level.addFreshEntity(pig);
@@ -4880,7 +4884,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			Pig pig = EntityType.PIG.create(level);
+			Pig pig = createEntity(EntityType.PIG, level);
 			pig.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) pig).jarstacker$setStackCount(3);
 			level.addFreshEntity(pig);
@@ -4916,7 +4920,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			Pig pig = EntityType.PIG.create(level);
+			Pig pig = createEntity(EntityType.PIG, level);
 			pig.setPos(posA.x, posA.y, posA.z);
 			pig.equipSaddle(new ItemStack(Items.SADDLE), net.minecraft.sounds.SoundSource.NEUTRAL);
 			((StackableEntity) pig).jarstacker$setStackCount(1);
@@ -4949,7 +4953,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			Strider strider = EntityType.STRIDER.create(level);
+			Strider strider = createEntity(EntityType.STRIDER, level);
 			strider.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) strider).jarstacker$setStackCount(5);
 			level.addFreshEntity(strider);
@@ -4986,8 +4990,8 @@ public class JarStackerTestRunner {
 
 		// Test T2: Strider Cold-State Compatibility
 		try {
-			Strider striderA = EntityType.STRIDER.create(level);
-			Strider striderB = EntityType.STRIDER.create(level);
+			Strider striderA = createEntity(EntityType.STRIDER, level);
+			Strider striderB = createEntity(EntityType.STRIDER, level);
 
 			striderA.setSuffocating(true); // Cold
 			striderB.setSuffocating(false); // Warm
@@ -5009,8 +5013,8 @@ public class JarStackerTestRunner {
 
 		// Test T3: Strider Passenger Exclusion
 		try {
-			Strider strider = EntityType.STRIDER.create(level);
-			Strider babyPassenger = EntityType.STRIDER.create(level);
+			Strider strider = createEntity(EntityType.STRIDER, level);
+			Strider babyPassenger = createEntity(EntityType.STRIDER, level);
 			babyPassenger.setBaby(true);
 			babyPassenger.startRiding(strider, true);
 
@@ -5030,7 +5034,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow mooshroom = EntityType.MOOSHROOM.create(level);
+			MushroomCow mooshroom = createEntity(EntityType.MOOSHROOM, level);
 			mooshroom.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) mooshroom).jarstacker$setStackCount(5);
 			level.addFreshEntity(mooshroom);
@@ -5066,7 +5070,7 @@ public class JarStackerTestRunner {
 			cleanPen(level, cleanAreaA);
 
 			// 1. Survival mode: Bowl -> Stew & Shears -> damaged
-			MushroomCow moosh1 = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh1 = createEntity(EntityType.MOOSHROOM, level);
 			moosh1.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh1).jarstacker$setStackCount(2);
 			level.addFreshEntity(moosh1);
@@ -5084,7 +5088,7 @@ public class JarStackerTestRunner {
 			boolean survivalShearsDamaged = shearsSurv.getDamageValue() > 0;
 
 			// 2. Creative mode: Bowl not consumed, Shears not damaged
-			MushroomCow moosh2 = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh2 = createEntity(EntityType.MOOSHROOM, level);
 			moosh2.setPos(posA.x + 3.0, posA.y, posA.z);
 			((StackableEntity) moosh2).jarstacker$setStackCount(2);
 			level.addFreshEntity(moosh2);
@@ -5121,15 +5125,15 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow cleanBrown = EntityType.MOOSHROOM.create(level);
+			MushroomCow cleanBrown = createEntity(EntityType.MOOSHROOM, level);
 			cleanBrown.setPos(posA.x, posA.y, posA.z);
-			cleanBrown.setVariant(MushroomCow.MushroomType.BROWN);
+			com.jar.jarstacker.adapter.EntityAdapter.setMooshroomVariant(cleanBrown, true);
 			((StackableEntity) cleanBrown).jarstacker$setStackCount(5);
 			level.addFreshEntity(cleanBrown);
 
-			MushroomCow preparedBrown = EntityType.MOOSHROOM.create(level);
+			MushroomCow preparedBrown = createEntity(EntityType.MOOSHROOM, level);
 			preparedBrown.setPos(posA.x + 1.0, posA.y, posA.z);
-			preparedBrown.setVariant(MushroomCow.MushroomType.BROWN);
+			com.jar.jarstacker.adapter.EntityAdapter.setMooshroomVariant(preparedBrown, true);
 			((StackableEntity) preparedBrown).jarstacker$setStackCount(1);
 			((MushroomCowAccessor) preparedBrown).jarstacker$setStewEffects(SuspiciousStewEffects.EMPTY);
 			level.addFreshEntity(preparedBrown);
@@ -5153,16 +5157,16 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow prep1 = EntityType.MOOSHROOM.create(level);
+			MushroomCow prep1 = createEntity(EntityType.MOOSHROOM, level);
 			prep1.setPos(posA.x, posA.y, posA.z);
-			prep1.setVariant(MushroomCow.MushroomType.BROWN);
+			com.jar.jarstacker.adapter.EntityAdapter.setMooshroomVariant(prep1, true);
 			((StackableEntity) prep1).jarstacker$setStackCount(2);
 			((MushroomCowAccessor) prep1).jarstacker$setStewEffects(SuspiciousStewEffects.EMPTY);
 			level.addFreshEntity(prep1);
 
-			MushroomCow prep2 = EntityType.MOOSHROOM.create(level);
+			MushroomCow prep2 = createEntity(EntityType.MOOSHROOM, level);
 			prep2.setPos(posA.x + 0.5, posA.y, posA.z);
-			prep2.setVariant(MushroomCow.MushroomType.BROWN);
+			com.jar.jarstacker.adapter.EntityAdapter.setMooshroomVariant(prep2, true);
 			((StackableEntity) prep2).jarstacker$setStackCount(3);
 			((MushroomCowAccessor) prep2).jarstacker$setStewEffects(SuspiciousStewEffects.EMPTY);
 			level.addFreshEntity(prep2);
@@ -5185,16 +5189,16 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow prep1 = EntityType.MOOSHROOM.create(level);
+			MushroomCow prep1 = createEntity(EntityType.MOOSHROOM, level);
 			prep1.setPos(posA.x, posA.y, posA.z);
-			prep1.setVariant(MushroomCow.MushroomType.BROWN);
+			com.jar.jarstacker.adapter.EntityAdapter.setMooshroomVariant(prep1, true);
 			((StackableEntity) prep1).jarstacker$setStackCount(2);
 			((MushroomCowAccessor) prep1).jarstacker$setStewEffects(SuspiciousStewEffects.EMPTY);
 			level.addFreshEntity(prep1);
 
-			MushroomCow prep2 = EntityType.MOOSHROOM.create(level);
+			MushroomCow prep2 = createEntity(EntityType.MOOSHROOM, level);
 			prep2.setPos(posA.x + 0.5, posA.y, posA.z);
-			prep2.setVariant(MushroomCow.MushroomType.BROWN);
+			com.jar.jarstacker.adapter.EntityAdapter.setMooshroomVariant(prep2, true);
 			((StackableEntity) prep2).jarstacker$setStackCount(3);
 			// Simulate different effect contents by using a non-empty stew effects object if possible, or null vs empty
 			// In MC 1.21.1, SuspiciousStewEffects has a list of effects. We can test null vs EMPTY or distinct instances if available
@@ -5225,9 +5229,9 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow prep = EntityType.MOOSHROOM.create(level);
+			MushroomCow prep = createEntity(EntityType.MOOSHROOM, level);
 			prep.setPos(posA.x, posA.y, posA.z);
-			prep.setVariant(MushroomCow.MushroomType.BROWN);
+			com.jar.jarstacker.adapter.EntityAdapter.setMooshroomVariant(prep, true);
 			((StackableEntity) prep).jarstacker$setStackCount(5);
 			((MushroomCowAccessor) prep).jarstacker$setStewEffects(SuspiciousStewEffects.EMPTY);
 			level.addFreshEntity(prep);
@@ -5263,7 +5267,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow normalMoosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow normalMoosh = createEntity(EntityType.MOOSHROOM, level);
 			normalMoosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) normalMoosh).jarstacker$setStackCount(20);
 			level.addFreshEntity(normalMoosh);
@@ -5297,7 +5301,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(10);
 			level.addFreshEntity(moosh);
@@ -5336,7 +5340,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(10);
 			level.addFreshEntity(moosh);
@@ -5379,7 +5383,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(10);
 			level.addFreshEntity(moosh);
@@ -5418,12 +5422,12 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			Cow existingCow = EntityType.COW.create(level);
+			Cow existingCow = createEntity(EntityType.COW, level);
 			existingCow.setPos(posA.x + 0.8, posA.y, posA.z);
 			((StackableEntity) existingCow).jarstacker$setStackCount(20);
 			level.addFreshEntity(existingCow);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(10);
 			level.addFreshEntity(moosh);
@@ -5459,7 +5463,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(3);
 			level.addFreshEntity(moosh);
@@ -5477,8 +5481,8 @@ public class JarStackerTestRunner {
 			);
 
 			// Spawning a Zombie or Sheep during active context
-			Zombie unrelatedZombie = EntityType.ZOMBIE.create(level);
-			Cow validCow = EntityType.COW.create(level);
+			Zombie unrelatedZombie = createEntity(EntityType.ZOMBIE, level);
+			Cow validCow = createEntity(EntityType.COW, level);
 			validCow.setPos(posA.x, posA.y, posA.z);
 
 			boolean matchesZombie = ctx.matches(unrelatedZombie);
@@ -5499,7 +5503,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(3);
 			level.addFreshEntity(moosh);
@@ -5532,7 +5536,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(2);
 			level.addFreshEntity(moosh);
@@ -5568,7 +5572,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(2);
 			level.addFreshEntity(moosh);
@@ -5598,7 +5602,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(10);
 			level.addFreshEntity(moosh);
@@ -5636,7 +5640,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(1);
 			level.addFreshEntity(moosh);
@@ -5677,7 +5681,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(1);
 			level.addFreshEntity(moosh);
@@ -5707,13 +5711,13 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(1);
 			level.addFreshEntity(moosh);
 			MobStackingManager.updateLabel(moosh, 1, true);
 
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(posA.x + 1.0, posA.y, posA.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(20);
 			level.addFreshEntity(cowStack);
@@ -5743,13 +5747,13 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(10);
 			level.addFreshEntity(moosh);
 			MobStackingManager.updateLabel(moosh, 10, true);
 
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(posA.x + 1.0, posA.y, posA.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(20);
 			level.addFreshEntity(cowStack);
@@ -5780,13 +5784,13 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(2);
 			level.addFreshEntity(moosh);
 			MobStackingManager.updateLabel(moosh, 2, true);
 
-			Cow cowStack = EntityType.COW.create(level);
+			Cow cowStack = createEntity(EntityType.COW, level);
 			cowStack.setPos(posA.x + 1.0, posA.y, posA.z);
 			((StackableEntity) cowStack).jarstacker$setStackCount(20);
 			level.addFreshEntity(cowStack);
@@ -5819,7 +5823,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			moosh.setCustomName(Component.literal("Mushie"));
 			moosh.setCustomNameVisible(true);
@@ -5858,12 +5862,12 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow mooshManaged = EntityType.MOOSHROOM.create(level);
+			MushroomCow mooshManaged = createEntity(EntityType.MOOSHROOM, level);
 			mooshManaged.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) mooshManaged).jarstacker$setStackCount(2);
 			MobStackingManager.updateLabel(mooshManaged, 2, true);
 
-			MushroomCow mooshPlayer = EntityType.MOOSHROOM.create(level);
+			MushroomCow mooshPlayer = createEntity(EntityType.MOOSHROOM, level);
 			mooshPlayer.setPos(posA.x + 1.0, posA.y, posA.z);
 			mooshPlayer.setCustomName(Component.literal("Mooshroom ร—2"));
 			((StackableEntity) mooshPlayer).jarstacker$setManagedLabel(false);
@@ -5888,14 +5892,14 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(10);
 			level.addFreshEntity(moosh);
 
 			final Cow[] unrelatedRef = new Cow[1];
 			LogicalEntityTransformer.onPreShearSpawnHook = (lvl) -> {
-				Cow unrelated = EntityType.COW.create(lvl);
+				Cow unrelated = createEntity(EntityType.COW, lvl);
 				unrelated.setPos(posA.x + 0.5, posA.y, posA.z);
 				((StackableEntity) unrelated).jarstacker$setStackCount(1);
 				lvl.addFreshEntity(unrelated);
@@ -5932,7 +5936,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(10);
 			level.addFreshEntity(moosh);
@@ -5966,7 +5970,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(10);
 			level.addFreshEntity(moosh);
@@ -6001,7 +6005,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) cow).jarstacker$setStackCount(1);
 			level.addFreshEntity(cow);
@@ -6019,7 +6023,7 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(10);
 			level.addFreshEntity(moosh);
@@ -6052,12 +6056,12 @@ public class JarStackerTestRunner {
 		try {
 			cleanPen(level, cleanAreaA);
 
-			MushroomCow moosh = EntityType.MOOSHROOM.create(level);
+			MushroomCow moosh = createEntity(EntityType.MOOSHROOM, level);
 			moosh.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) moosh).jarstacker$setStackCount(1);
 			MobStackingManager.updateLabel(moosh, 1, true);
 
-			Cow cow = EntityType.COW.create(level);
+			Cow cow = createEntity(EntityType.COW, level);
 			cow.setPos(posA.x, posA.y, posA.z);
 			cow.setCustomName(moosh.getCustomName());
 			((StackableEntity) cow).jarstacker$setManagedLabel(true);
@@ -6152,7 +6156,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H1 - Direct Damage
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -6180,7 +6184,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H2 - Repeated Direct Damage
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -6213,7 +6217,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H3 - Axe Hit (Single-Target)
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -6243,7 +6247,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H4 - Sword Non-Sweep
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -6274,7 +6278,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H5 - Sword Sweep On Primary Stack
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -6306,12 +6310,12 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H6 - Nearby Secondary Stack Sweep
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie primary = EntityType.ZOMBIE.create(level);
+			Zombie primary = createEntity(EntityType.ZOMBIE, level);
 			primary.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) primary).jarstacker$setStackCount(1);
 			level.addFreshEntity(primary);
 
-			Zombie secondary = EntityType.ZOMBIE.create(level);
+			Zombie secondary = createEntity(EntityType.ZOMBIE, level);
 			secondary.setPos(posH.x + 0.8, posH.y, posH.z);
 			((StackableEntity) secondary).jarstacker$setStackCount(3);
 			level.addFreshEntity(secondary);
@@ -6341,7 +6345,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H7 - Explosion Area Damage
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(10);
 			level.addFreshEntity(zombie);
@@ -6369,7 +6373,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H8 - Explosion Multi-Death
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(10);
 			level.addFreshEntity(zombie);
@@ -6397,7 +6401,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H9 - Lightning Area Damage
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -6425,7 +6429,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H10 - Lava / Shared Fire
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -6454,7 +6458,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H11 - Flaming Projectile
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -6489,7 +6493,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H12 - Fall Damage
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -6522,7 +6526,7 @@ Vec3 posH = pos.add(25, 0, 25);
 // Test H13 - Direct Multi-Hit Death
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(zombie);
@@ -6546,7 +6550,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H14 - Sweep Multi-Death
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -6574,7 +6578,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H15 - Save/Reload Damaged Stack
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie original = EntityType.ZOMBIE.create(level);
+			Zombie original = createEntity(EntityType.ZOMBIE, level);
 			original.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) original).jarstacker$setStackCount(5);
 			level.addFreshEntity(original);
@@ -6590,7 +6594,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
 			original.saveWithoutId(tag);
 
-			Zombie reloaded = EntityType.ZOMBIE.create(level);
+			Zombie reloaded = createEntity(EntityType.ZOMBIE, level);
 			reloaded.load(tag);
 
 			int reloadedCount = ((StackableEntity) reloaded).jarstacker$getStackCount();
@@ -6614,7 +6618,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H16 - Merge Damaged Stacks
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie stackA = EntityType.ZOMBIE.create(level);
+			Zombie stackA = createEntity(EntityType.ZOMBIE, level);
 			stackA.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) stackA).jarstacker$setStackCount(2);
 			level.addFreshEntity(stackA);
@@ -6623,7 +6627,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			stateA.set(1, 10.0f);
 			stackA.setHealth(5.0f);
 
-			Zombie stackB = EntityType.ZOMBIE.create(level);
+			Zombie stackB = createEntity(EntityType.ZOMBIE, level);
 			stackB.setPos(posH.x + 0.5, posH.y, posH.z);
 			((StackableEntity) stackB).jarstacker$setStackCount(2);
 			level.addFreshEntity(stackB);
@@ -6652,7 +6656,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H17 - Split Damaged Stack
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie source = EntityType.ZOMBIE.create(level);
+			Zombie source = createEntity(EntityType.ZOMBIE, level);
 			source.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) source).jarstacker$setStackCount(3);
 			level.addFreshEntity(source);
@@ -6662,7 +6666,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			sourceState.set(2, 18.0f);
 			source.setHealth(4.0f);
 
-			Zombie extracted = EntityType.ZOMBIE.create(level);
+			Zombie extracted = createEntity(EntityType.ZOMBIE, level);
 			extracted.setPos(posH.x + 1.0, posH.y, posH.z);
 			((StackableEntity) extracted).jarstacker$setStackCount(1);
 			level.addFreshEntity(extracted);
@@ -6687,7 +6691,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H18 - Health Repair
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -6724,7 +6728,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H19 - Stress Test ร—100 Explosion
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(100);
 			level.addFreshEntity(zombie);
@@ -6749,7 +6753,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H20 - Stress Test ร—1000 Explosion
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(1000);
 			level.addFreshEntity(zombie);
@@ -6774,7 +6778,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H21 - No Duplicate Loot
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(10);
 			level.addFreshEntity(zombie);
@@ -6795,7 +6799,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H22 - No Duplicate XP
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(10);
 			level.addFreshEntity(zombie);
@@ -6820,7 +6824,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H23 - Invulnerability Frames
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			zombie.invulnerableTime = 20;
@@ -6846,12 +6850,12 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H24 - Knockback Non-Multiplication
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie singleZombie = EntityType.ZOMBIE.create(level);
+			Zombie singleZombie = createEntity(EntityType.ZOMBIE, level);
 			singleZombie.setPos(posH.x, posH.y, posH.z);
 			((StackableEntity) singleZombie).jarstacker$setStackCount(1);
 			level.addFreshEntity(singleZombie);
 
-			Zombie stackedZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackedZombie = createEntity(EntityType.ZOMBIE, level);
 			stackedZombie.setPos(posH.x + 2.0, posH.y, posH.z);
 			((StackableEntity) stackedZombie).jarstacker$setStackCount(50);
 			level.addFreshEntity(stackedZombie);
@@ -6875,7 +6879,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test H25 - Migration
 		try {
 			cleanPen(level, cleanAreaH);
-			Zombie legacyZombie = EntityType.ZOMBIE.create(level);
+			Zombie legacyZombie = createEntity(EntityType.ZOMBIE, level);
 			legacyZombie.setPos(posH.x, posH.y, posH.z);
 
 			net.minecraft.nbt.CompoundTag legacyTag = new net.minecraft.nbt.CompoundTag();
@@ -6888,7 +6892,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			net.minecraft.nbt.CompoundTag savedTag = new net.minecraft.nbt.CompoundTag();
 			legacyZombie.saveWithoutId(savedTag);
 
-			Zombie reloadedZombie = EntityType.ZOMBIE.create(level);
+			Zombie reloadedZombie = createEntity(EntityType.ZOMBIE, level);
 			reloadedZombie.load(savedTag);
 
 			LogicalHealthState state2 = ((StackableEntity) reloadedZombie).jarstacker$getLogicalHealthState();
@@ -7079,7 +7083,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			CompoundTag legacyTag = new CompoundTag();
 			legacyTag.putInt("JarStackerCount", 10);
 			legacyTag.putFloat("Health", 4.0f);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posM.x, posM.y, posM.z);
 			zombie.load(legacyTag);
 			LogicalHealthState state = ((StackableEntity) zombie).jarstacker$getLogicalHealthState();
@@ -7105,7 +7109,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test CM2 - Migration Idempotency
 		try {
 			cleanPen(level, cleanAreaM);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posM.x, posM.y, posM.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(10);
 			zombie.setHealth(4.0f);
@@ -7116,7 +7120,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			zombie.saveWithoutId(tag);
 
 			// Repeatedly load into a new entity
-			Zombie reloaded = EntityType.ZOMBIE.create(level);
+			Zombie reloaded = createEntity(EntityType.ZOMBIE, level);
 			for (int loadCycle = 0; loadCycle < 3; loadCycle++) {
 				reloaded.load(tag);
 			}
@@ -7146,7 +7150,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			CompoundTag legacyTag = new CompoundTag();
 			legacyTag.putInt("JarStackerCount", 10);
 			legacyTag.putFloat("Health", 20.0f);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posM.x, posM.y, posM.z);
 			zombie.load(legacyTag);
 			LogicalHealthState state = ((StackableEntity) zombie).jarstacker$getLogicalHealthState();
@@ -7180,9 +7184,9 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test CE1 - Damageable Armor Stacking Exclusion
 		try {
 			cleanPen(level, cleanAreaE);
-			Zombie zombieA = EntityType.ZOMBIE.create(level);
+			Zombie zombieA = createEntity(EntityType.ZOMBIE, level);
 			zombieA.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.IRON_HELMET));
-			Zombie zombieB = EntityType.ZOMBIE.create(level);
+			Zombie zombieB = createEntity(EntityType.ZOMBIE, level);
 
 			boolean excludedA = MobCompatibility.isExcluded(zombieA);
 			boolean canStack = MobCompatibility.canStack(zombieA, zombieB, config.getMobStacking());
@@ -7199,7 +7203,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test CE2 - Stack Acquires Damageable Armor at Runtime
 		try {
 			cleanPen(level, cleanAreaE);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posE.x, posE.y, posE.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -7231,9 +7235,9 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test CE3 - Non-Damageable Equipment Stacking
 		try {
 			cleanPen(level, cleanAreaE);
-			Zombie zombieA = EntityType.ZOMBIE.create(level);
+			Zombie zombieA = createEntity(EntityType.ZOMBIE, level);
 			zombieA.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.DIRT));
-			Zombie zombieB = EntityType.ZOMBIE.create(level);
+			Zombie zombieB = createEntity(EntityType.ZOMBIE, level);
 			zombieB.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.DIRT));
 
 			boolean hasDamageableA = MobCompatibility.hasDamageableEquipment(zombieA);
@@ -7258,7 +7262,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test D1 - Partial Kill
 		try {
 			cleanPen(level, cleanAreaD);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posD.x, posD.y, posD.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			LogicalHealthState state = new LogicalHealthState();
@@ -7288,7 +7292,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test D2 - Whole Stack Kill
 		try {
 			cleanPen(level, cleanAreaD);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posD.x, posD.y, posD.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			LogicalHealthManager.getOrCreateState(zombie);
@@ -7312,7 +7316,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test D3 - Singleton Death
 		try {
 			cleanPen(level, cleanAreaD);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posD.x, posD.y, posD.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(1);
 			level.addFreshEntity(zombie);
@@ -7332,7 +7336,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test D4 - Stack ร—2 Death Boundary
 		try {
 			cleanPen(level, cleanAreaD);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posD.x, posD.y, posD.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			LogicalHealthManager.getOrCreateState(zombie);
@@ -7354,7 +7358,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test D5 - Looting Sweep
 		try {
 			cleanPen(level, cleanAreaD);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posD.x, posD.y, posD.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(3);
 			LogicalHealthManager.getOrCreateState(zombie);
@@ -7378,7 +7382,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test D6 - Explosion Death Exactness
 		try {
 			cleanPen(level, cleanAreaD);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posD.x, posD.y, posD.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			LogicalHealthManager.getOrCreateState(zombie);
@@ -7399,7 +7403,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test D7 - Lava Whole Stack No Player XP
 		try {
 			cleanPen(level, cleanAreaD);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posD.x, posD.y, posD.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			LogicalHealthManager.getOrCreateState(zombie);
@@ -7422,7 +7426,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test D8 - Player-Caused Environment Attribution
 		try {
 			cleanPen(level, cleanAreaD);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posD.x, posD.y, posD.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(3);
 			LogicalHealthManager.getOrCreateState(zombie);
@@ -7450,7 +7454,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test D9 - XP Value Sum
 		try {
 			cleanPen(level, cleanAreaD);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posD.x, posD.y, posD.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(4);
 			level.addFreshEntity(zombie);
@@ -7480,7 +7484,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test D10 - No Duplicate Items
 		try {
 			cleanPen(level, cleanAreaD);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posD.x, posD.y, posD.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			LogicalHealthManager.getOrCreateState(zombie);
@@ -7502,7 +7506,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test D11 - ร—100 Lethal AoE
 		try {
 			cleanPen(level, cleanAreaD);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posD.x, posD.y, posD.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(100);
 			LogicalHealthManager.getOrCreateState(zombie);
@@ -7528,7 +7532,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test D12 - Mixed Survivors
 		try {
 			cleanPen(level, cleanAreaD);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posD.x, posD.y, posD.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			LogicalHealthState state = new LogicalHealthState();
@@ -7583,7 +7587,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test CE4 - Runtime Armor Pickup
 		try {
 			cleanPen(level, cleanAreaE);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posE.x, posE.y, posE.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(10);
 			LogicalHealthManager.getOrCreateState(zombie);
@@ -7619,7 +7623,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test CE5 - Damaged Active Mob Pickup
 		try {
 			cleanPen(level, cleanAreaE);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posE.x, posE.y, posE.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			LogicalHealthState state = new LogicalHealthState();
@@ -7664,7 +7668,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test CE6 - Item Ownership
 		try {
 			cleanPen(level, cleanAreaE);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posE.x, posE.y, posE.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -7692,7 +7696,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			cleanPen(level, cleanAreaE);
 			buildPen(level, penCenterE, 3);
 			Vec3 cornerPos = new Vec3(penCenterE.getX() + 1.8, penCenterE.getY(), penCenterE.getZ() + 1.8);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(cornerPos.x, cornerPos.y, cornerPos.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -7720,7 +7724,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test CE8 - Remove Equipment
 		try {
 			cleanPen(level, cleanAreaE);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.IRON_HELMET));
 			boolean initialExcluded = MobCompatibility.hasDamageableEquipment(zombie);
 
@@ -7728,7 +7732,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			zombie.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
 			boolean afterExcluded = MobCompatibility.hasDamageableEquipment(zombie);
 
-			Zombie partner = EntityType.ZOMBIE.create(level);
+			Zombie partner = createEntity(EntityType.ZOMBIE, level);
 			boolean canStack = MobCompatibility.canStack(zombie, partner, config.getMobStacking());
 
 			boolean pass = initialExcluded && !afterExcluded && canStack;
@@ -7744,7 +7748,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			cleanPen(level, cleanAreaE);
 			RuntimeCombatStateTransitionHandler.failNextExtractionForTesting = true;
 
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posE.x, posE.y, posE.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -7775,7 +7779,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC1 - Arrow Switch TO Looting (MC-3304 Parity)
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie vanillaZombie = EntityType.ZOMBIE.create(level);
+			Zombie vanillaZombie = createEntity(EntityType.ZOMBIE, level);
 			vanillaZombie.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) vanillaZombie).jarstacker$setStackCount(1);
 			level.addFreshEntity(vanillaZombie);
@@ -7792,7 +7796,7 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			// Stack test: Zombie x3
 			cleanPen(level, cleanAreaA);
-			Zombie stackZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackZombie = createEntity(EntityType.ZOMBIE, level);
 			stackZombie.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) stackZombie).jarstacker$setStackCount(3);
 			LogicalHealthManager.getOrCreateState(stackZombie);
@@ -7823,7 +7827,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC2 - Arrow Switch AWAY
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie vanillaZombie = EntityType.ZOMBIE.create(level);
+			Zombie vanillaZombie = createEntity(EntityType.ZOMBIE, level);
 			vanillaZombie.setPos(posA.x, posA.y, posA.z);
 			level.addFreshEntity(vanillaZombie);
 
@@ -7838,7 +7842,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			CombatDeathContext vbCtx = CombatDeathContext.capture(vanillaZombie, arrowSource);
 
 			cleanPen(level, cleanAreaA);
-			Zombie stackZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackZombie = createEntity(EntityType.ZOMBIE, level);
 			stackZombie.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) stackZombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(stackZombie);
@@ -7861,7 +7865,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC3 - Bow Off-Hand + Looting Main-Hand
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie vanillaZombie = EntityType.ZOMBIE.create(level);
+			Zombie vanillaZombie = createEntity(EntityType.ZOMBIE, level);
 			vanillaZombie.setPos(posA.x, posA.y, posA.z);
 			level.addFreshEntity(vanillaZombie);
 
@@ -7875,7 +7879,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			CombatDeathContext vbCtx = CombatDeathContext.capture(vanillaZombie, arrowSource);
 
 			cleanPen(level, cleanAreaA);
-			Zombie stackZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackZombie = createEntity(EntityType.ZOMBIE, level);
 			stackZombie.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) stackZombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(stackZombie);
@@ -7897,7 +7901,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC4 - Projectile Owner Isolation
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie stackZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackZombie = createEntity(EntityType.ZOMBIE, level);
 			stackZombie.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) stackZombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(stackZombie);
@@ -7930,7 +7934,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC5 - Player TNT + Looting
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie vanillaZombie = EntityType.ZOMBIE.create(level);
+			Zombie vanillaZombie = createEntity(EntityType.ZOMBIE, level);
 			vanillaZombie.setPos(posA.x, posA.y, posA.z);
 			level.addFreshEntity(vanillaZombie);
 
@@ -7943,7 +7947,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			CombatDeathContext vbCtx = CombatDeathContext.capture(vanillaZombie, tntSource);
 
 			cleanPen(level, cleanAreaA);
-			Zombie stackZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackZombie = createEntity(EntityType.ZOMBIE, level);
 			stackZombie.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) stackZombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(stackZombie);
@@ -7968,7 +7972,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC6 - Player TNT Switch Away
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie vanillaZombie = EntityType.ZOMBIE.create(level);
+			Zombie vanillaZombie = createEntity(EntityType.ZOMBIE, level);
 			vanillaZombie.setPos(posA.x, posA.y, posA.z);
 			level.addFreshEntity(vanillaZombie);
 
@@ -7984,7 +7988,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			CombatDeathContext vbCtx = CombatDeathContext.capture(vanillaZombie, tntSource);
 
 			cleanPen(level, cleanAreaA);
-			Zombie stackZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackZombie = createEntity(EntityType.ZOMBIE, level);
 			stackZombie.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) stackZombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(stackZombie);
@@ -8007,7 +8011,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC7 - Unowned TNT
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie stackZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackZombie = createEntity(EntityType.ZOMBIE, level);
 			stackZombie.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) stackZombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(stackZombie);
@@ -8035,7 +8039,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC8 - Recent Player Hit + Lava
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie vanillaZombie = EntityType.ZOMBIE.create(level);
+			Zombie vanillaZombie = createEntity(EntityType.ZOMBIE, level);
 			vanillaZombie.setPos(posA.x, posA.y, posA.z);
 			level.addFreshEntity(vanillaZombie);
 
@@ -8049,7 +8053,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			CombatDeathContext vbCtx = CombatDeathContext.capture(vanillaZombie, lavaSource);
 
 			cleanPen(level, cleanAreaA);
-			Zombie stackZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackZombie = createEntity(EntityType.ZOMBIE, level);
 			stackZombie.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) stackZombie).jarstacker$setStackCount(3);
 			((StackableEntity) stackZombie).jarstacker$setLastHurtByPlayerTime(100);
@@ -8077,7 +8081,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC9 - Natural Lava
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie vanillaZombie = EntityType.ZOMBIE.create(level);
+			Zombie vanillaZombie = createEntity(EntityType.ZOMBIE, level);
 			vanillaZombie.setPos(posA.x, posA.y, posA.z);
 			level.addFreshEntity(vanillaZombie);
 
@@ -8085,7 +8089,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			CombatDeathContext vbCtx = CombatDeathContext.capture(vanillaZombie, lavaSource);
 
 			cleanPen(level, cleanAreaA);
-			Zombie stackZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackZombie = createEntity(EntityType.ZOMBIE, level);
 			stackZombie.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) stackZombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(stackZombie);
@@ -8110,11 +8114,11 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC10 - Sweep Secondary
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie primaryZombie = EntityType.ZOMBIE.create(level);
+			Zombie primaryZombie = createEntity(EntityType.ZOMBIE, level);
 			primaryZombie.setPos(posA.x, posA.y, posA.z);
 			level.addFreshEntity(primaryZombie);
 
-			Zombie secondaryZombie = EntityType.ZOMBIE.create(level);
+			Zombie secondaryZombie = createEntity(EntityType.ZOMBIE, level);
 			secondaryZombie.setPos(posA.x + 1.0, posA.y, posA.z);
 			level.addFreshEntity(secondaryZombie);
 
@@ -8129,7 +8133,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			CombatContext.endAttack();
 
 			cleanPen(level, cleanAreaA);
-			Zombie stackZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackZombie = createEntity(EntityType.ZOMBIE, level);
 			stackZombie.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) stackZombie).jarstacker$setStackCount(4);
 			LogicalHealthManager.getOrCreateState(stackZombie);
@@ -8162,7 +8166,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC11 - Entire Logical Stack Projectile Kill
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie stackZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackZombie = createEntity(EntityType.ZOMBIE, level);
 			stackZombie.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) stackZombie).jarstacker$setStackCount(5);
 			LogicalHealthState state = new LogicalHealthState();
@@ -8201,7 +8205,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC12 - Final Representative Parity
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie stackZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackZombie = createEntity(EntityType.ZOMBIE, level);
 			stackZombie.setPos(posA.x, posA.y, posA.z);
 			((StackableEntity) stackZombie).jarstacker$setStackCount(4);
 			LogicalHealthManager.getOrCreateState(stackZombie);
@@ -8235,7 +8239,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC13 - Context Cleanup
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie zombie1 = EntityType.ZOMBIE.create(level);
+			Zombie zombie1 = createEntity(EntityType.ZOMBIE, level);
 			zombie1.setPos(posA.x, posA.y, posA.z);
 			level.addFreshEntity(zombie1);
 
@@ -8252,7 +8256,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			CombatDeathContext currentAfterScope = CombatDeathContext.getCurrentContext();
 
 			// Now trigger unrelated environmental death
-			Zombie zombie2 = EntityType.ZOMBIE.create(level);
+			Zombie zombie2 = createEntity(EntityType.ZOMBIE, level);
 			zombie2.setPos(posA.x, posA.y, posA.z);
 			level.addFreshEntity(zombie2);
 			DamageSource lavaSource = level.damageSources().lava();
@@ -8275,11 +8279,11 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC14 - Two Players Same Tick
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie zombieA = EntityType.ZOMBIE.create(level);
+			Zombie zombieA = createEntity(EntityType.ZOMBIE, level);
 			zombieA.setPos(posA.x - 1.0, posA.y, posA.z);
 			level.addFreshEntity(zombieA);
 
-			Zombie zombieB = EntityType.ZOMBIE.create(level);
+			Zombie zombieB = createEntity(EntityType.ZOMBIE, level);
 			zombieB.setPos(posA.x + 1.0, posA.y, posA.z);
 			level.addFreshEntity(zombieB);
 
@@ -8312,7 +8316,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VC15 - Owner Changes Equipment Before Death
 		try {
 			cleanPen(level, cleanAreaA);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posA.x, posA.y, posA.z);
 			level.addFreshEntity(zombie);
 
@@ -8345,7 +8349,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S1 - Single Poison
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -8374,7 +8378,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S2 - Poison Independent Duration
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -8397,12 +8401,12 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S3 - Poison Health Tick
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie baseline = EntityType.ZOMBIE.create(level);
+			Zombie baseline = createEntity(EntityType.ZOMBIE, level);
 			baseline.setPos(posS.x, posS.y, posS.z);
 			level.addFreshEntity(baseline);
 			baseline.addEffect(new MobEffectInstance(MobEffects.POISON, 200, 0));
 
-			Zombie stackZombie = EntityType.ZOMBIE.create(level);
+			Zombie stackZombie = createEntity(EntityType.ZOMBIE, level);
 			stackZombie.setPos(posS.x + 1, posS.y, posS.z);
 			((StackableEntity) stackZombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(stackZombie);
@@ -8427,7 +8431,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S4 - Wither Death
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(zombie);
@@ -8457,7 +8461,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S5 - Regeneration
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(zombie);
@@ -8490,7 +8494,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S6 - Resistance Direct Damage
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -8512,7 +8516,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S7 - Resistance AoE
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -8536,7 +8540,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S8 - Strength / Weakness Projection
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -8557,7 +8561,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S9 - Speed / Slowness Projection
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -8582,7 +8586,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S10 - Effect Expiration
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(zombie);
@@ -8612,7 +8616,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S11 - Effect Upgrade
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			level.addFreshEntity(zombie);
 
@@ -8633,7 +8637,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S12 - Splash Potion Whole Stack
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(10);
 			level.addFreshEntity(zombie);
@@ -8665,12 +8669,12 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S13 - Splash Distance
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombieA = EntityType.ZOMBIE.create(level);
+			Zombie zombieA = createEntity(EntityType.ZOMBIE, level);
 			zombieA.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombieA).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombieA);
 
-			Zombie zombieB = EntityType.ZOMBIE.create(level);
+			Zombie zombieB = createEntity(EntityType.ZOMBIE, level);
 			zombieB.setPos(posS.x + 2, posS.y, posS.z);
 			((StackableEntity) zombieB).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombieB);
@@ -8703,7 +8707,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S14 - Lingering Cloud
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(zombie);
@@ -8730,7 +8734,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S15 - Instant Damage Projectile
 		try {
 			cleanPen(level, cleanAreaS);
-			Pig pig = EntityType.PIG.create(level);
+			Pig pig = createEntity(EntityType.PIG, level);
 			pig.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) pig).jarstacker$setStackCount(5);
 			level.addFreshEntity(pig);
@@ -8754,7 +8758,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S16 - Instant Damage Splash
 		try {
 			cleanPen(level, cleanAreaS);
-			Pig pig = EntityType.PIG.create(level);
+			Pig pig = createEntity(EntityType.PIG, level);
 			pig.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) pig).jarstacker$setStackCount(3);
 			level.addFreshEntity(pig);
@@ -8778,7 +8782,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S17 - Instant Health / Undead
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -8803,18 +8807,18 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S18 - Merge Divergent Effects
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie z1 = EntityType.ZOMBIE.create(level);
+			Zombie z1 = createEntity(EntityType.ZOMBIE, level);
 			z1.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) z1).jarstacker$setStackCount(1);
 			level.addFreshEntity(z1);
 			LogicalStatusEffectManager.getOrCreateStatusState(z1).get(0).addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0), z1);
 
-			Zombie z2 = EntityType.ZOMBIE.create(level);
+			Zombie z2 = createEntity(EntityType.ZOMBIE, level);
 			z2.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) z2).jarstacker$setStackCount(1);
 			level.addFreshEntity(z2);
 
-			Zombie z3 = EntityType.ZOMBIE.create(level);
+			Zombie z3 = createEntity(EntityType.ZOMBIE, level);
 			z3.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) z3).jarstacker$setStackCount(1);
 			level.addFreshEntity(z3);
@@ -8845,7 +8849,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S19 - Split Effect Owner
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie source = EntityType.ZOMBIE.create(level);
+			Zombie source = createEntity(EntityType.ZOMBIE, level);
 			source.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) source).jarstacker$setStackCount(3);
 			level.addFreshEntity(source);
@@ -8854,7 +8858,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			sState.get(0).addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0), source);
 			sState.get(2).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 100, 0), source);
 
-			Zombie extracted = EntityType.ZOMBIE.create(level);
+			Zombie extracted = createEntity(EntityType.ZOMBIE, level);
 			LogicalHealthManager.extractHealthState(source, extracted);
 			((StackableEntity) source).jarstacker$setStackCount(2);
 
@@ -8877,7 +8881,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S20 - Runtime Equipment Extraction
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(zombie);
@@ -8903,7 +8907,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S21 - Save / Reload
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -8932,7 +8936,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S22 - Migration
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(4);
 			zombie.addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0));
@@ -8958,7 +8962,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test S23 - Repair
 		try {
 			cleanPen(level, cleanAreaS);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posS.x, posS.y, posS.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -8986,7 +8990,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test F1 - Flaming Arrow
 		try {
 			cleanPen(level, cleanAreaB);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posB.x, posB.y, posB.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(5);
 			level.addFreshEntity(zombie);
@@ -9009,7 +9013,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test F2 - Independent Burn Timers
 		try {
 			cleanPen(level, cleanAreaB);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posB.x, posB.y, posB.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -9035,7 +9039,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test F3 - Fire Tick Damage
 		try {
 			cleanPen(level, cleanAreaB);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posB.x, posB.y, posB.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -9062,7 +9066,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test F4 - Shared Fire Block
 		try {
 			cleanPen(level, cleanAreaB);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posB.x, posB.y, posB.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(4);
 			level.addFreshEntity(zombie);
@@ -9088,7 +9092,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test F5 - Lava + Mixed Fire Resistance
 		try {
 			cleanPen(level, cleanAreaB);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posB.x, posB.y, posB.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(zombie);
@@ -9113,7 +9117,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test F6 - Burn Death
 		try {
 			cleanPen(level, cleanAreaB);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posB.x, posB.y, posB.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -9141,7 +9145,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test F7 - Burn Save / Reload
 		try {
 			cleanPen(level, cleanAreaB);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posB.x, posB.y, posB.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -9175,7 +9179,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test P1 - Projection Double-Tick Guard
 		try {
 			cleanPen(level, cleanAreaP);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posP.x, posP.y, posP.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -9197,7 +9201,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test P2 - Active Member Death Projection
 		try {
 			cleanPen(level, cleanAreaP);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posP.x, posP.y, posP.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -9221,7 +9225,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test P3 - Active Member Switch
 		try {
 			cleanPen(level, cleanAreaP);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posP.x, posP.y, posP.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -9248,7 +9252,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test P4 - Attribute Modifier Cleanup
 		try {
 			cleanPen(level, cleanAreaP);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posP.x, posP.y, posP.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombie);
@@ -9273,12 +9277,12 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test P5 - Context Isolation
 		try {
 			cleanPen(level, cleanAreaP);
-			Zombie zombieA = EntityType.ZOMBIE.create(level);
+			Zombie zombieA = createEntity(EntityType.ZOMBIE, level);
 			zombieA.setPos(posP.x - 2, posP.y, posP.z);
 			((StackableEntity) zombieA).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombieA);
 
-			Zombie zombieB = EntityType.ZOMBIE.create(level);
+			Zombie zombieB = createEntity(EntityType.ZOMBIE, level);
 			zombieB.setPos(posP.x + 2, posP.y, posP.z);
 			((StackableEntity) zombieB).jarstacker$setStackCount(2);
 			level.addFreshEntity(zombieB);
@@ -9303,7 +9307,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test P6 - Nested Health Effect
 		try {
 			cleanPen(level, cleanAreaP);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posP.x, posP.y, posP.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(3);
 			level.addFreshEntity(zombie);
@@ -9337,7 +9341,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test ST1 - Stress x100 Poison
 		try {
 			cleanPen(level, cleanAreaST);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posST.x, posST.y, posST.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(100);
 			level.addFreshEntity(zombie);
@@ -9365,7 +9369,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test ST2 - Stress x1000 Mixed Effects
 		try {
 			cleanPen(level, cleanAreaST);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posST.x, posST.y, posST.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(1000);
 			level.addFreshEntity(zombie);
@@ -9399,7 +9403,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test ST3 - Stress x1000 Burning
 		try {
 			cleanPen(level, cleanAreaST);
-			Zombie zombie = EntityType.ZOMBIE.create(level);
+			Zombie zombie = createEntity(EntityType.ZOMBIE, level);
 			zombie.setPos(posST.x, posST.y, posST.z);
 			((StackableEntity) zombie).jarstacker$setStackCount(1000);
 			level.addFreshEntity(zombie);
@@ -9432,14 +9436,14 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test GE1 - Attribute-only Vanilla parity
 		try {
 			cleanPen(level, cleanAreaGE);
-			Zombie baseline = EntityType.ZOMBIE.create(level);
+			Zombie baseline = createEntity(EntityType.ZOMBIE, level);
 			baseline.setPos(posGE.x + 2, posGE.y, posGE.z);
 			level.addFreshEntity(baseline);
 			baseline.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 200, 1));
 			double vanillaSpeed = baseline.getAttributeValue(Attributes.MOVEMENT_SPEED);
 			double baseSpeed = baseline.getAttributeBaseValue(Attributes.MOVEMENT_SPEED);
 
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posGE.x, posGE.y, posGE.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
@@ -9465,7 +9469,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test GE2 - Generic periodic Vanilla callback parity
 		try {
 			cleanPen(level, cleanAreaGE);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posGE.x, posGE.y, posGE.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
@@ -9492,14 +9496,14 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test GE3 - Instant-effect parity
 		try {
 			cleanPen(level, cleanAreaGE);
-			Zombie baseline = EntityType.ZOMBIE.create(level);
+			Zombie baseline = createEntity(EntityType.ZOMBIE, level);
 			baseline.setPos(posGE.x + 2, posGE.y, posGE.z);
 			level.addFreshEntity(baseline);
 			baseline.setHealth(10.0f);
 			baseline.heal(6.0f);
 			float baselineHealedHp = baseline.getHealth();
 
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posGE.x, posGE.y, posGE.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
@@ -9529,13 +9533,13 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test GE4 - Visual-state parity
 		try {
 			cleanPen(level, cleanAreaGE);
-			Zombie baseline = EntityType.ZOMBIE.create(level);
+			Zombie baseline = createEntity(EntityType.ZOMBIE, level);
 			baseline.setPos(posGE.x + 2, posGE.y, posGE.z);
 			level.addFreshEntity(baseline);
 			baseline.setInvisible(true);
 			boolean baselineInvis = baseline.isInvisible();
 
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posGE.x, posGE.y, posGE.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
@@ -9558,7 +9562,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test GE5 - Unsupported/custom safe fallback
 		try {
 			cleanPen(level, cleanAreaGE);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posGE.x, posGE.y, posGE.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(3);
 			level.addFreshEntity(stacked);
@@ -9601,7 +9605,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test RI1 - Real Tipped Arrow projectile collision
 		try {
 			cleanPen(level, cleanAreaRI);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posRI.x, posRI.y, posRI.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(5);
 			level.addFreshEntity(stacked);
@@ -9631,12 +9635,12 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test RI2 - Real Splash Potion entity
 		try {
 			cleanPen(level, cleanAreaRI);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posRI.x, posRI.y, posRI.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(3);
 			level.addFreshEntity(stacked);
 
-			ThrownPotion potion = new ThrownPotion(level, posRI.x, posRI.y + 1, posRI.z);
+			ThrownPotion potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posRI.x, posRI.y + 1, posRI.z);
 			ItemStack potionStack = PotionContents.createItemStack(Items.SPLASH_POTION, Potions.WEAKNESS);
 			potion.setItem(potionStack);
 			level.addFreshEntity(potion);
@@ -9660,7 +9664,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test RI3 - Real AreaEffectCloud lifecycle
 		try {
 			cleanPen(level, cleanAreaRI);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posRI.x, posRI.y, posRI.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(3);
 			level.addFreshEntity(stacked);
@@ -9690,7 +9694,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test RI4 - Cloud reapplication delay
 		try {
 			cleanPen(level, cleanAreaRI);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posRI.x, posRI.y, posRI.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(3);
 			level.addFreshEntity(stacked);
@@ -9721,7 +9725,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test RI5 - Cloud exit
 		try {
 			cleanPen(level, cleanAreaRI);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posRI.x + 20, posRI.y, posRI.z + 20);
 			((StackableEntity) stacked).jarstacker$setStackCount(3);
 			level.addFreshEntity(stacked);
@@ -9752,12 +9756,12 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test RI6 - Cloud multi-stack behavior
 		try {
 			cleanPen(level, cleanAreaRI);
-			Zombie stackA = EntityType.ZOMBIE.create(level);
+			Zombie stackA = createEntity(EntityType.ZOMBIE, level);
 			stackA.setPos(posRI.x - 1, posRI.y, posRI.z);
 			((StackableEntity) stackA).jarstacker$setStackCount(2);
 			level.addFreshEntity(stackA);
 
-			Zombie stackB = EntityType.ZOMBIE.create(level);
+			Zombie stackB = createEntity(EntityType.ZOMBIE, level);
 			stackB.setPos(posRI.x + 1, posRI.y, posRI.z);
 			((StackableEntity) stackB).jarstacker$setStackCount(3);
 			level.addFreshEntity(stackB);
@@ -9798,7 +9802,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test FB1 - Unsupported extraction HP preservation
 		try {
 			cleanPen(level, cleanAreaFB);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posFB.x, posFB.y, posFB.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(5);
 			level.addFreshEntity(stacked);
@@ -9836,7 +9840,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test FB2 - Existing effects preserved
 		try {
 			cleanPen(level, cleanAreaFB);
-			Cow stacked = EntityType.COW.create(level);
+			Cow stacked = createEntity(EntityType.COW, level);
 			stacked.setPos(posFB.x, posFB.y, posFB.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(3);
 			level.addFreshEntity(stacked);
@@ -9861,7 +9865,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test FB3 - Burn state preserved
 		try {
 			cleanPen(level, cleanAreaFB);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posFB.x, posFB.y, posFB.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(3);
 			level.addFreshEntity(stacked);
@@ -9884,7 +9888,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test FB4 - Placement/failure rollback
 		try {
 			cleanPen(level, cleanAreaFB);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posFB.x, posFB.y, posFB.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(3);
 			level.addFreshEntity(stacked);
@@ -9922,7 +9926,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test PS1 - Levitation Real Movement Parity
 		try {
 			cleanPen(level, cleanAreaPS);
-			Zombie baseline = EntityType.ZOMBIE.create(level);
+			Zombie baseline = createEntity(EntityType.ZOMBIE, level);
 			baseline.setPos(posPS.x + 2, posPS.y, posPS.z);
 			level.addFreshEntity(baseline);
 			baseline.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 100, 0));
@@ -9930,7 +9934,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			baseline.travel(Vec3.ZERO);
 			double vanillaDeltaY = baseline.getDeltaMovement().y;
 
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posPS.x, posPS.y, posPS.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
@@ -9952,7 +9956,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test PS2 - Water Breathing Underwater Drowning Parity
 		try {
 			cleanPen(level, cleanAreaPS);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posPS.x, posPS.y, posPS.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
@@ -9975,7 +9979,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test PS3 - Slow Falling Fall Damage Parity
 		try {
 			cleanPen(level, cleanAreaPS);
-			Zombie baseline = EntityType.ZOMBIE.create(level);
+			Zombie baseline = createEntity(EntityType.ZOMBIE, level);
 			baseline.setPos(posPS.x + 2, posPS.y + 5, posPS.z);
 			level.addFreshEntity(baseline);
 			baseline.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0));
@@ -9983,7 +9987,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			baseline.travel(Vec3.ZERO);
 			double vanillaDeltaY = baseline.getDeltaMovement().y;
 
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posPS.x, posPS.y + 5, posPS.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
@@ -10008,13 +10012,13 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test PS4 - Jump Boost Vertical Jump Parity
 		try {
 			cleanPen(level, cleanAreaPS);
-			Zombie baseline = EntityType.ZOMBIE.create(level);
+			Zombie baseline = createEntity(EntityType.ZOMBIE, level);
 			baseline.setPos(posPS.x + 2, posPS.y, posPS.z);
 			level.addFreshEntity(baseline);
 			baseline.addEffect(new MobEffectInstance(MobEffects.JUMP, 200, 1));
 			float baselineJumpBoost = 0.1f * (float) (baseline.getEffect(MobEffects.JUMP).getAmplifier() + 1);
 
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posPS.x, posPS.y, posPS.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
@@ -10035,7 +10039,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test PS5 - Active-Member Switch Effect Cleared
 		try {
 			cleanPen(level, cleanAreaPS);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posPS.x, posPS.y, posPS.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
@@ -10063,7 +10067,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test PS6 - Health Boost Max Health Parity & Clamping
 		try {
 			cleanPen(level, cleanAreaPS);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posPS.x, posPS.y, posPS.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
@@ -10108,7 +10112,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test UA1 - Unsupported SINGLE Baseline
 		try {
 			cleanPen(level, cleanAreaUA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posUA.x, posUA.y, posUA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(5);
 			level.addFreshEntity(stacked);
@@ -10133,12 +10137,12 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test UA2 - Unsupported Splash x100 Bounded Fallback
 		try {
 			cleanPen(level, cleanAreaUA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posUA.x, posUA.y, posUA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(100);
 			level.addFreshEntity(stacked);
 
-			ThrownPotion potion = new ThrownPotion(level, posUA.x, posUA.y + 1, posUA.z);
+			ThrownPotion potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posUA.x, posUA.y + 1, posUA.z);
 			MobEffectInstance oozing = new MobEffectInstance(MobEffects.OOZING, 200, 0);
 			MobEffectInstance modded = new MobEffectInstance(MODDED_UNSUPPORTED, 200, 0);
 
@@ -10159,7 +10163,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test UA3 - Unsupported Lingering x100 Bounded Fallback
 		try {
 			cleanPen(level, cleanAreaUA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posUA.x, posUA.y, posUA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(100);
 			level.addFreshEntity(stacked);
@@ -10186,7 +10190,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test UA4 - Repeated Cloud Exposure Cooldown
 		try {
 			cleanPen(level, cleanAreaUA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posUA.x, posUA.y, posUA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(100);
 			level.addFreshEntity(stacked);
@@ -10218,12 +10222,12 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test UA5 - Fallback Materialization Limit Behavior
 		try {
 			cleanPen(level, cleanAreaUA);
-			Zombie stackLarge = EntityType.ZOMBIE.create(level);
+			Zombie stackLarge = createEntity(EntityType.ZOMBIE, level);
 			stackLarge.setPos(posUA.x, posUA.y, posUA.z);
 			((StackableEntity) stackLarge).jarstacker$setStackCount(50);
 			level.addFreshEntity(stackLarge);
 
-			ThrownPotion potion = new ThrownPotion(level, posUA.x, posUA.y + 1, posUA.z);
+			ThrownPotion potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posUA.x, posUA.y + 1, posUA.z);
 			MobEffectInstance weaving = new MobEffectInstance(MobEffects.WEAVING, 200, 0);
 			LogicalStatusEffectManager.applyEffect(stackLarge, weaving, potion);
 			MobEffectInstance modded = new MobEffectInstance(MODDED_UNSUPPORTED, 200, 0);
@@ -10231,7 +10235,7 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			int largeRemainder = ((StackableEntity) stackLarge).jarstacker$getStackCount();
 
-			Zombie stackSmall = EntityType.ZOMBIE.create(level);
+			Zombie stackSmall = createEntity(EntityType.ZOMBIE, level);
 			stackSmall.setPos(posUA.x + 2, posUA.y, posUA.z);
 			((StackableEntity) stackSmall).jarstacker$setStackCount(3);
 			level.addFreshEntity(stackSmall);
@@ -10252,7 +10256,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test UA6 - State/Count Integrity After Bounded Failure/Recovery
 		try {
 			cleanPen(level, cleanAreaUA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posUA.x, posUA.y, posUA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(100);
 			level.addFreshEntity(stacked);
@@ -10262,7 +10266,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			LogicalBurnState bs = LogicalStatusEffectManager.getOrCreateBurnState(stacked);
 
 			RuntimeCombatStateTransitionHandler.failNextExtractionForTesting = true;
-			ThrownPotion potion = new ThrownPotion(level, posUA.x, posUA.y + 1, posUA.z);
+			ThrownPotion potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posUA.x, posUA.y + 1, posUA.z);
 			MobEffectInstance modded = new MobEffectInstance(MODDED_UNSUPPORTED, 200, 0);
 
 			boolean success = LogicalStatusEffectManager.applyEffect(stacked, modded, potion);
@@ -10288,12 +10292,12 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VA1 - Splash Oozing x100 Parity (Zero extraction storm, all 100 receive status)
 		try {
 			cleanPen(level, cleanAreaVA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posVA.x, posVA.y, posVA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(100);
 			level.addFreshEntity(stacked);
 
-			ThrownPotion potion = new ThrownPotion(level, posVA.x, posVA.y + 1, posVA.z);
+			ThrownPotion potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posVA.x, posVA.y + 1, posVA.z);
 			MobEffectInstance oozing = new MobEffectInstance(MobEffects.OOZING, 200, 0);
 
 			boolean success = LogicalStatusEffectManager.applyEffect(stacked, oozing, potion);
@@ -10323,12 +10327,12 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VA2 - Splash Wind Charged x100 Parity (Zero extraction storm, all 100 receive status)
 		try {
 			cleanPen(level, cleanAreaVA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posVA.x, posVA.y, posVA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(100);
 			level.addFreshEntity(stacked);
 
-			ThrownPotion potion = new ThrownPotion(level, posVA.x, posVA.y + 1, posVA.z);
+			ThrownPotion potion = com.jar.jarstacker.adapter.EntityAdapter.createThrownPotion(level, posVA.x, posVA.y + 1, posVA.z);
 			MobEffectInstance wind = new MobEffectInstance(MobEffects.WIND_CHARGED, 200, 0);
 
 			boolean success = LogicalStatusEffectManager.applyEffect(stacked, wind, potion);
@@ -10358,7 +10362,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VA3 - Lingering Weaving x100 Parity (Zero extraction storm, cloud cooldown respected)
 		try {
 			cleanPen(level, cleanAreaVA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posVA.x, posVA.y, posVA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(100);
 			level.addFreshEntity(stacked);
@@ -10396,7 +10400,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VA4 - Infested Logical Hurt Parity (Exactly 1 damaged member triggers onMobHurt)
 		try {
 			cleanPen(level, cleanAreaVA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posVA.x, posVA.y, posVA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(5);
 			level.addFreshEntity(stacked);
@@ -10421,7 +10425,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VA5 - Oozing Logical Death Parity (Dying member triggers slime spawn)
 		try {
 			cleanPen(level, cleanAreaVA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posVA.x, posVA.y, posVA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
@@ -10448,7 +10452,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VA6 - Weaving Logical Death Parity (Dying member triggers cobweb spawn)
 		try {
 			cleanPen(level, cleanAreaVA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posVA.x, posVA.y, posVA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
@@ -10474,7 +10478,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VA7 - Wind Charged Logical Death Parity (Dying member triggers wind burst)
 		try {
 			cleanPen(level, cleanAreaVA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posVA.x, posVA.y, posVA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(2);
 			level.addFreshEntity(stacked);
@@ -10500,7 +10504,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VA8 - Multi-Death Parity (K dying affected members trigger exactly K callbacks)
 		try {
 			cleanPen(level, cleanAreaVA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posVA.x, posVA.y, posVA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(10);
 			level.addFreshEntity(stacked);
@@ -10538,7 +10542,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VA9 - Unaffected Logical Members (0 callbacks triggered)
 		try {
 			cleanPen(level, cleanAreaVA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posVA.x, posVA.y, posVA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(5);
 			level.addFreshEntity(stacked);
@@ -10566,7 +10570,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test VA10 - Save/Reload EVENT_DRIVEN_LOGICAL State Parity
 		try {
 			cleanPen(level, cleanAreaVA);
-			Zombie stacked = EntityType.ZOMBIE.create(level);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posVA.x, posVA.y, posVA.z);
 			((StackableEntity) stacked).jarstacker$setStackCount(4);
 			level.addFreshEntity(stacked);
@@ -10580,7 +10584,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
 			stacked.addAdditionalSaveData(tag);
 
-			Zombie loaded = EntityType.ZOMBIE.create(level);
+			Zombie loaded = createEntity(EntityType.ZOMBIE, level);
 			((StackableEntity) loaded).jarstacker$setStackCount(4);
 			loaded.readAdditionalSaveData(tag);
 

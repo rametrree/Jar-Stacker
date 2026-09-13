@@ -42,7 +42,7 @@ public class LogicalVanillaEffectExecutor {
 		boolean keepEffect = true;
 		try (LogicalEffectExecutionContext.Scope scope = LogicalEffectExecutionContext.open(representative.getUUID(), memberIndex, holder)) {
 			// 3. Invoke actual Vanilla applyEffectTick
-			keepEffect = holder.value().applyEffectTick(representative, instance.getAmplifier());
+			keepEffect = com.jar.jarstacker.adapter.EffectAdapter.applyEffectTick(holder, representative, instance.getAmplifier());
 
 			// 4. Capture resulting state into target logical member
 			float postHp = representative.getHealth();

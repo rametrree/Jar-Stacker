@@ -49,7 +49,7 @@ public class LogicalHealthManager {
 			net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effect = inst.getEffect();
 			if (com.jar.jarstacker.stack.mob.status.LogicalEffectClassifier.classify(effect) == com.jar.jarstacker.stack.mob.status.LogicalEffectBehaviorClass.EVENT_DRIVEN_LOGICAL) {
 				testHurtCallbackCount++;
-				effect.value().onMobHurt(entity, inst.getAmplifier(), damageSource, damageAmount);
+				com.jar.jarstacker.adapter.EffectAdapter.onMobHurt(effect, entity, inst.getAmplifier(), damageSource, damageAmount);
 			}
 		}
 	}
@@ -62,7 +62,7 @@ public class LogicalHealthManager {
 			net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effect = inst.getEffect();
 			if (com.jar.jarstacker.stack.mob.status.LogicalEffectClassifier.classify(effect) == com.jar.jarstacker.stack.mob.status.LogicalEffectBehaviorClass.EVENT_DRIVEN_LOGICAL) {
 				testDeathCallbackCount++;
-				effect.value().onMobRemoved(entity, inst.getAmplifier(), net.minecraft.world.entity.Entity.RemovalReason.KILLED);
+				com.jar.jarstacker.adapter.EffectAdapter.onMobRemoved(effect, entity, inst.getAmplifier(), net.minecraft.world.entity.Entity.RemovalReason.KILLED);
 			}
 		}
 	}

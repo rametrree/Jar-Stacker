@@ -127,9 +127,9 @@ public class LogicalEffectClassifier {
 			counts.put(c, 0);
 		}
 
-		for (Holder.Reference<MobEffect> ref : BuiltInRegistries.MOB_EFFECT.holders().toList()) {
-			ResourceLocation key = ref.key().location();
-			if ("minecraft".equals(key.getNamespace())) {
+		for (MobEffect effect : BuiltInRegistries.MOB_EFFECT) {
+			ResourceLocation key = BuiltInRegistries.MOB_EFFECT.getKey(effect);
+			if (key != null && "minecraft".equals(key.getNamespace())) {
 				total++;
 				LogicalEffectBehaviorClass behavior = OVERRIDES.get(key);
 				if (behavior == null) {

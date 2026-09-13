@@ -12,6 +12,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ThrownPotion.class)
 public abstract class ThrownPotionMixin {
 
+	//? if >=1.21.2 {
+	/*@Inject(method = "applySplash", at = @At("HEAD"))
+	private void jarstacker$onApplySplashHead(net.minecraft.server.level.ServerLevel level, Iterable<MobEffectInstance> effects, Entity entity, CallbackInfo ci) {
+		LogicalEffectScopeResolver.beginSplash(1.0);
+	}
+
+	@Inject(method = "applySplash", at = @At("RETURN"))
+	private void jarstacker$onApplySplashReturn(net.minecraft.server.level.ServerLevel level, Iterable<MobEffectInstance> effects, Entity entity, CallbackInfo ci) {
+		LogicalEffectScopeResolver.endSplash();
+	}
+	*///?} else {
 	@Inject(method = "applySplash", at = @At("HEAD"))
 	private void jarstacker$onApplySplashHead(Iterable<MobEffectInstance> effects, Entity entity, CallbackInfo ci) {
 		LogicalEffectScopeResolver.beginSplash(1.0);
@@ -21,5 +32,6 @@ public abstract class ThrownPotionMixin {
 	private void jarstacker$onApplySplashReturn(Iterable<MobEffectInstance> effects, Entity entity, CallbackInfo ci) {
 		LogicalEffectScopeResolver.endSplash();
 	}
+	//?}
 }
 

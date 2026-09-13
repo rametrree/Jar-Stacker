@@ -86,7 +86,7 @@ public class MobInteractionResolver {
 				}
 			}
 
-			if (mc.getVariant() == net.minecraft.world.entity.animal.MushroomCow.MushroomType.BROWN && heldItem.is(net.minecraft.tags.ItemTags.SMALL_FLOWERS)) {
+			if ("brown".equals(mc.getVariant().getSerializedName()) && heldItem.is(net.minecraft.tags.ItemTags.SMALL_FLOWERS)) {
 				return StackInteractionDecision.extractOne("Brown mooshroom flower feeding", 0);
 			}
 		}

@@ -40,4 +40,5 @@ replay_*.log
 *.jfr
 
 # docs
-docs/
+docs/*
+!docs/MULTIVERSION.md
