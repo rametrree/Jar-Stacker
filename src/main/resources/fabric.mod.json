@@ -8,7 +8,7 @@
 		"Jar"
 	],
 	"contact": {},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/jarstacker/icon.png",
 	"environment": "*",
 	"entrypoints": {
