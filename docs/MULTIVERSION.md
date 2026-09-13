@@ -21,14 +21,14 @@ Jar Stacker is engineered around four core tenets:
 
 | Minecraft Version | Compile Target | Artifact Used | SHA-256 Checksum | Automated Tests | Client Boot | Compatibility Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **1.21.1** | `1.21.1` (Dedicated) | `jarstacker-0.7.0+mc1.21.1.jar` | `569ADCC06DB8ED1A6D539DC5677F64DEF9F32F682399C7335C2F79F1F6D1C11C` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Independent Binary) |
-| **1.21.2** | `1.21.2` (Dedicated) | `jarstacker-0.7.0+mc1.21.2.jar` | `1D14D0DEB7175DB575400577CED3E35F70DB927E2E1262287E24D4642766FB5D` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
-| **1.21.3** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.2.jar` (Exact Binary) | `1D14D0DEB7175DB575400577CED3E35F70DB927E2E1262287E24D4642766FB5D` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.2–1.21.3) |
-| **1.21.4** | `1.21.4` (Dedicated) | `jarstacker-0.7.0+mc1.21.4.jar` | `294DE7C5A40FC0A1A07742C43440EFB420617B4784969F0AE03CAFF04446D93A` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Source-Compatible with 1.21.2) |
-| **1.21.5** | `1.21.5` (Dedicated) | `jarstacker-0.7.0+mc1.21.5.jar` | `C5EBD42CF2C17A840B6A5B1DE552906BCDD54167DC01D7B0A0E222E7694BF276` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Entity Potion & Accessor Changes) |
-| **1.21.6** | `1.21.6` (Dedicated) | `jarstacker-0.7.0+mc1.21.6.jar` | `6A2B32BFF24364ECEB91539FCF6FABD135BCC8ED85D6470AFCAF053B47ADDD61` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
-| **1.21.7** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `6A2B32BFF24364ECEB91539FCF6FABD135BCC8ED85D6470AFCAF053B47ADDD61` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
-| **1.21.8** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `6A2B32BFF24364ECEB91539FCF6FABD135BCC8ED85D6470AFCAF053B47ADDD61` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
+| **1.21.1** | `1.21.1` (Dedicated) | `jarstacker-0.7.0+mc1.21.1.jar` | `24C578AB2CEFCABE82704D302BB25DB0E2FC54ACB313A1C2D9AC55EB68FCD609` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Independent Binary) |
+| **1.21.2** | `1.21.2` (Dedicated) | `jarstacker-0.7.0+mc1.21.2.jar` | `4904B5ADBAE65DE07FFE980247CDBB60B233E4B5B76BDDA61240983907A9625A` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
+| **1.21.3** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.2.jar` (Exact Binary) | `4904B5ADBAE65DE07FFE980247CDBB60B233E4B5B76BDDA61240983907A9625A` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.2–1.21.3) |
+| **1.21.4** | `1.21.4` (Dedicated) | `jarstacker-0.7.0+mc1.21.4.jar` | `3A36082FA301A90F759235399E357FAFD4EDEE3BF0895474A6C8CE1C88F12CA1` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Source-Compatible with 1.21.2) |
+| **1.21.5** | `1.21.5` (Dedicated) | `jarstacker-0.7.0+mc1.21.5.jar` | `B26F2F1D3E95F61D2C85F99D3EF9765B9B5F53C828D7A20FA3DC25DC73656ABB` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Entity Potion & Accessor Changes) |
+| **1.21.6** | `1.21.6` (Dedicated) | `jarstacker-0.7.0+mc1.21.6.jar` | `1FACF56AF3737D1259021C5C539CB0416585414CCA9F3543B36E79D9500524D8` | **343 / 343 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
+| **1.21.7** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `1FACF56AF3737D1259021C5C539CB0416585414CCA9F3543B36E79D9500524D8` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
+| **1.21.8** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `1FACF56AF3737D1259021C5C539CB0416585414CCA9F3543B36E79D9500524D8` | **343 / 343 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
 
 ---
 
@@ -58,9 +58,24 @@ Minecraft 1.21.4 shares 100% source code compatibility with 1.21.2. Stonecutter 
 
 ### 1.21.5 Status: Dedicated Compile Target
 Minecraft 1.21.5 introduced entity hierarchy and accessor refactors:
-- `MushroomCow.setVariant` made private (resolved via `MushroomCowAccessor`).
+- `MushroomCow.setVariant` made private (resolved via `MushroomCowAccessor` `@Invoker("setVariant")`).
 - Split potion projectile hierarchy into `ThrownSplashPotion` vs `ThrownLingeringPotion`.
 - Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.5.jar`) passing all 343 tests and booting cleanly to the title screen.
+
+### 1.21.5 vs 1.21.6: Verified Binary Boundary (Incompatible)
+To conclusively establish whether Minecraft 1.21.5 and 1.21.6 can share a binary, the final compiled `jarstacker-0.7.0+mc1.21.5.jar` was explicitly probed against a Minecraft 1.21.6 runtime harness:
+1. **Metadata Enforcement Probe**: Launching the unmodified 1.21.5 artifact on 1.21.6 resulted in clean early rejection by Fabric Loader:
+   ```text
+   Mod 'Jar Stacker' (jarstacker) 0.7.0 requires version 1.21.5 of 'Minecraft' (minecraft), but only the wrong version is present: 1.21.6!
+   ```
+2. **Runtime Binary Boundary Probe**: Launching a metadata-widened copy (`>=1.21.5 <=1.21.6`) of the exact same 1.21.5 bytecode without recompilation resulted in immediate critical bootstrap failure during Mixin application:
+   ```text
+   MixinApplyError: Mixin [jarstacker.mixins.json:LivingEntityMixin from mod jarstacker] FAILED during APPLY
+   Caused by: InvalidInjectionException: Invalid descriptor on LivingEntityMixin->@Inject::jarstacker$saveData:
+   Expected: (Lnet/minecraft/world/level/storage/ValueOutput;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+   Found:    (Lnet/minecraft/nbt/CompoundTag;Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V
+   ```
+3. **Verified Boundary**: 1.21.5 is the strict upper boundary of the 1.21.5 binary. Minecraft 1.21.6 fundamentally changed entity serialization from `CompoundTag` to `ValueOutput`/`ValueInput`, requiring a dedicated compile target.
 
 ### 1.21.6 vs 1.21.7 & 1.21.8: Verified Same-Binary Compatibility Band (1.21.6–1.21.8)
 Minecraft 1.21.6 introduced major Vanilla serialization overhaul:
@@ -76,7 +91,7 @@ Minecraft 1.21.6 introduced major Vanilla serialization overhaul:
 
 ## 4. Full Mixin Audit
 
-Jar Stacker declares 12 mixins and accessors in `jarstacker.mixins.json` with `injectors.defaultRequire: 1`. Every mixin has been evaluated for target class stability, method signatures, and porting risks.
+Jar Stacker declares 24 mixins and accessors in `jarstacker.mixins.json` with `injectors.defaultRequire: 1`. Every mixin has been evaluated for target class stability, method signatures, and porting risks.
 
 | Mixin | Target Class | Hook / Accessor | Semantic Purpose | <=1.21.4 Status | 1.21.5 Status | >=1.21.6 Status | Risk | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -87,11 +102,23 @@ Jar Stacker declares 12 mixins and accessors in `jarstacker.mixins.json` with `i
 | `PlayerMixin` | `Player` | `attack` (HEAD, sweep invoke, sweep end, RETURN) | Tracks combat context for sweeping attacks, attributing sweep damage to stacked entities correctly. | Identical | Identical | Identical | **MEDIUM** | Essential for combat balance and sweep kill attribution. Bytecode injection points are stable across 1.21.x. |
 | `ThrownPotionMixin` | `ThrownPotion` / `ThrownSplashPotion` | `applySplash` / `onHitAsPotion` | Sets splash potion scope during potion impact so stacked mobs receive correct area status effects. | `applySplash(ServerLevel, ...)` | `applySplash(ServerLevel, ...)` | `onHitAsPotion(ServerLevel, ItemStack, HitResult)` | **MEDIUM** | Targeted method shifted to `onHitAsPotion` in 1.21.6 with `HitResult` parameter. |
 | `BreedGoalMixin` | `BreedGoal` | `canUse`<br>`breed` | Allows a stacked animal to breed with another virtual member of its own stack, clearing breeding lock ticks. | Identical | Identical | Identical | **MEDIUM** | Essential for animal farm automation and parity. Method logic unchanged across 1.21.x. |
-| `SheepMixin` | `Sheep` | `ate` (HEAD, TAIL) | Regrows wool for one sheep in a stack when grazing grass. | Identical | Identical | Identical | **LOW** | Sheep wool regrowth timer. Hook unchanged across 1.21.x. |
-| `MobMixin` | `Mob` | `setItemSlot` (TAIL) | Handles mob picking up equipment at runtime and splitting stack if necessary. | Identical | Identical | Identical | **LOW** | Equipment integrity when mobs pick up items. Hook unchanged across 1.21.x. |
+| `SheepMixin` | `Sheep` | `ate` (HEAD, TAIL) | Regrows wool for one sheep in a stack when grazing grass. | Identical | Target package changed to `animal.sheep.Sheep` | Target package changed to `animal.sheep.Sheep` | **LOW** | Sheep wool regrowth timer. Package handled via Stonecutter. |
+| `MobMixin` | `<1.21.5`: `Mob`<br>`>=1.21.5`: `LivingEntity` | `setItemSlot` (TAIL) | Handles mob picking up equipment at runtime and splitting stack if necessary. | Targeted to `Mob` | Targeted to `LivingEntity` with `instanceof Mob` filter | Targeted to `LivingEntity` with `instanceof Mob` filter | **LOW** | In 1.21.5+, `setItemSlot` moved up hierarchy; Stonecutter transitions target class cleanly. |
 | `ServerLevelMixin` | `ServerLevel` | `addFreshEntity` (HEAD) | Notifies `LogicalEntityTransformer` when a fresh entity is added during world operations. | Identical | Identical | Identical | **LOW** | Transformation detection (lightning strikes, etc.). Hook unchanged across 1.21.x. |
-| `MushroomCowAccessor` | `MushroomCow` | `@Accessor("stewEffects")`<br>`@Accessor("variant")` | Preserves suspicious stew effects and mutates variant on 1.21.5+. | `stewEffects` | `stewEffects` + `variant` | `stewEffects` + `variant` | **LOW** | Accessor utilities for Mooshroom properties. |
+| `MushroomCowAccessor` | `MushroomCow` | `@Accessor("stewEffects")`<br>`@Invoker("setVariant")` | Preserves suspicious stew effects and mutates variant on 1.21.5+. | `stewEffects` accessor | `stewEffects` accessor + `@Invoker("setVariant")` | `stewEffects` accessor + `@Invoker("setVariant")` | **LOW** | Uses `@Invoker` for private `setVariant` in >=1.21.5. |
 | `MobEffectInstanceAccessor` | `MobEffectInstance` | `@Accessor("duration")`<br>`@Invoker("tickDownDuration")` | Ticks down duration and mutates remaining duration during logical effect distribution. | Identical | Identical | Identical | **LOW** | Status effect duration management. Hooks unchanged across 1.21.x. |
+| `PigAccessor` | `Pig` | `@Invoker("setVariant")` | Mutates pig variant during typed extraction/materialization. | No-op interface | `@Invoker("setVariant")` | `@Invoker("setVariant")` | **LOW** | Hardens pig variant copying in >=1.21.5 without reflection. |
+| `WolfAccessor` | `<1.21.5`: `animal.Wolf`<br>`>=1.21.5`: `animal.wolf.Wolf` | `@Invoker("getVariant")`<br>`@Invoker("setVariant")` | Reads and mutates wolf variant in >=1.21.5. | No-op interface | `@Invoker("getVariant")` + `@Invoker("setVariant")` | `@Invoker("getVariant")` + `@Invoker("setVariant")` | **LOW** | Package and invokers handled via Stonecutter. |
+| `CatAccessor` | `Cat` | `@Invoker("setVariant")` | Mutates cat variant during typed extraction/materialization. | No-op interface | `@Invoker("setVariant")` | `@Invoker("setVariant")` | **LOW** | Type-safe variant mutation in >=1.21.5 without reflection. |
+| `FrogAccessor` | `Frog` | `@Invoker("setVariant")` | Mutates frog variant during typed extraction/materialization. | No-op interface | `@Invoker("setVariant")` | `@Invoker("setVariant")` | **LOW** | Type-safe variant mutation in >=1.21.5 without reflection. |
+| `HorseAccessor` | `Horse` | `@Invoker("setVariant")` | Mutates horse variant during typed extraction/materialization. | No-op interface | `@Invoker("setVariant")` | `@Invoker("setVariant")` | **LOW** | Type-safe variant mutation in >=1.21.5 without reflection. |
+| `LlamaAccessor` | `Llama` | `@Invoker("setVariant")` | Mutates llama variant during typed extraction/materialization. | No-op interface | `@Invoker("setVariant")` | `@Invoker("setVariant")` | **LOW** | Type-safe variant mutation in >=1.21.5 without reflection. |
+| `RabbitAccessor` | `Rabbit` | `@Invoker("setVariant")` | Mutates rabbit variant during typed extraction/materialization. | No-op interface | `@Invoker("setVariant")` | `@Invoker("setVariant")` | **LOW** | Type-safe variant mutation in >=1.21.5 without reflection. |
+| `FoxAccessor` | `Fox` | `@Invoker("setVariant")` | Mutates fox variant during typed extraction/materialization. | No-op interface | `@Invoker("setVariant")` | `@Invoker("setVariant")` | **LOW** | Type-safe variant mutation in >=1.21.5 without reflection. |
+| `AxolotlAccessor` | `Axolotl` | `@Invoker("setVariant")` | Mutates axolotl variant during typed extraction/materialization. | No-op interface | `@Invoker("setVariant")` | `@Invoker("setVariant")` | **LOW** | Type-safe variant mutation in >=1.21.5 without reflection. |
+| `ParrotAccessor` | `Parrot` | `@Invoker("setVariant")` | Mutates parrot variant during typed extraction/materialization. | No-op interface | `@Invoker("setVariant")` | `@Invoker("setVariant")` | **LOW** | Type-safe variant mutation in >=1.21.5 without reflection. |
+| `SalmonAccessor` | `Salmon` | `@Invoker("setVariant")` | Mutates salmon variant during typed extraction/materialization. | No-op interface | `@Invoker("setVariant")` | `@Invoker("setVariant")` | **LOW** | Type-safe variant mutation in >=1.21.5 without reflection. |
+| `TropicalFishAccessor` | `TropicalFish` | `@Invoker("getPackedVariant")`<br>`@Invoker("setPackedVariant")` | Reads and sets packed tropical fish variant integer. | No-op interface | `@Invoker` getters/setters | `@Invoker` getters/setters | **LOW** | Type-safe variant transfer in >=1.21.5 without reflection. |
 
 ---
 
@@ -134,8 +161,18 @@ Version divergence is strictly contained within two dedicated adapter classes an
 
 ### Source Reuse Quantification
 - **Total Shared Java Source**: ~14,000 lines across core stacking, combat attribution, logical health, status effects, and test suite.
-- **Version-Specific Divergence**: ~110 lines in adapters and mixin conditional blocks.
-- **Shared Source Code Percentage**: **~99.2%** (substantially exceeding the >=90% requirement and >=95% preference).
+- **Version-Specific Divergence**: ~130 lines in adapters and mixin conditional blocks.
+- **Shared Source Code Percentage**: **~99.1%** (substantially exceeding the >=90% requirement and >=95% preference).
+
+### Reflection & Fail-Safe Variant Policy
+To ensure peak server performance and eliminate runtime failure points:
+1. **Zero Hot-Path Reflection**: Runtime reflection (`getMethod`, `invoke`) is strictly forbidden inside compatibility checks, mob merging scans, entity ticking, and variant comparisons.
+2. **Compile-Time Typed Variant Checks**: `EntityAdapter.variantsMatch` uses typed `instanceof` branches and typed accessors/invokers across all 16 supported Vanilla variant entities (Mooshroom, Cow, Pig, Chicken, Wolf, Cat, Frog, Horse, Llama, Rabbit, Fox, Axolotl, Parrot, Salmon, Tropical Fish, and Villager-data holders).
+3. **Fail-Safe Semantic**: If variant compatibility cannot be positively verified, or if two entities possess differing variant semantics, `EntityAdapter.variantsMatch` returns `false` (NOT compatible). Code never fails open.
+4. **Hardened Variant Copying**: `EntityAdapter.copyVariant` uses compile-time typed methods (and generated `@Invoker("setVariant")` mixins for entities where setters are private in >=1.21.5) without reflection or suppressed exception handlers.
+5. **Permitted Low-Frequency Bridges**: Reflection is restricted to isolated, non-hot-path bridges:
+   - Client boot screen factory detection (`JarStackerConfigScreenFactory`) for optional YACL integration.
+   - Integration test runner NBT serialization bridge (`addAdditionalSaveData`/`readAdditionalSaveData`) supporting both Mojang and Yarn dev mappings.
 
 ---
 
