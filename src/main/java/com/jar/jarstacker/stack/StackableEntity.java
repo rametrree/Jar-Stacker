@@ -94,4 +94,29 @@ public interface StackableEntity {
 
 	default void jarstacker$setLastUnsupportedExtractionTime(long time) {
 	}
+
+	default long jarstacker$getSpawnSequence() {
+		return 0L;
+	}
+
+	default int jarstacker$getAge() {
+		return 0;
+	}
+
+	default void jarstacker$setAge(int age) {
+	}
+
+	default long jarstacker$getSpawnGameTime() {
+		return 0L;
+	}
+
+	default void jarstacker$setSpawnGameTime(long time) {
+	}
+
+	default long jarstacker$getFirstScanGameTime() {
+		return 0L;
+	}
+
+	default void jarstacker$setFirstScanGameTime(long time) {
+	}
 }

@@ -45,10 +45,7 @@ public class JarStackerMod implements ModInitializer {
 			long gameTime = level.getGameTime();
 
 			if (config.getItemStacking().isEnabled()) {
-				int itemInterval = config.getItemStacking().getScanIntervalTicks();
-				if (gameTime % itemInterval == 0) {
-					ItemStackingManager.scanAndStack(level, config);
-				}
+				ItemStackingManager.tick(level, config, gameTime);
 			}
 
 			if (config.getMobStacking().isEnabled()) {

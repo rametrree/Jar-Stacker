@@ -35,10 +35,43 @@ public abstract class ItemEntityMixin extends Entity implements StackableEntity 
 	@Shadow public abstract ItemStack getItem();
 
 	@Unique
+	private static final java.util.concurrent.atomic.AtomicLong JARSTACKER$SPAWN_COUNTER = new java.util.concurrent.atomic.AtomicLong();
+
+	@Unique
+	private final long jarstacker$spawnSequence = JARSTACKER$SPAWN_COUNTER.incrementAndGet();
+
+	@Unique
 	private int jarstacker$stackCount = 0;
+
+	@Unique
+	private long jarstacker$spawnGameTime = 0L;
+
+	@Unique
+	private long jarstacker$firstScanGameTime = 0L;
 
 	public ItemEntityMixin(EntityType<?> entityType, Level level) {
 		super(entityType, level);
+		this.jarstacker$spawnGameTime = level != null ? level.getGameTime() : 0L;
+	}
+
+	@Override
+	public long jarstacker$getSpawnGameTime() {
+		return this.jarstacker$spawnGameTime;
+	}
+
+	@Override
+	public void jarstacker$setSpawnGameTime(long time) {
+		this.jarstacker$spawnGameTime = time;
+	}
+
+	@Override
+	public long jarstacker$getFirstScanGameTime() {
+		return this.jarstacker$firstScanGameTime;
+	}
+
+	@Override
+	public void jarstacker$setFirstScanGameTime(long time) {
+		this.jarstacker$firstScanGameTime = time;
 	}
 
 	@Override
@@ -49,6 +82,21 @@ public abstract class ItemEntityMixin extends Entity implements StackableEntity 
 	@Override
 	public void jarstacker$setStackCount(int count) {
 		this.jarstacker$stackCount = count;
+	}
+
+	@Override
+	public long jarstacker$getSpawnSequence() {
+		return this.jarstacker$spawnSequence;
+	}
+
+	@Override
+	public int jarstacker$getAge() {
+		return this.age;
+	}
+
+	@Override
+	public void jarstacker$setAge(int age) {
+		this.age = age;
 	}
 
 	@Inject(method = "addAdditionalSaveData", at = @At("TAIL"))

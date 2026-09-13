@@ -16,6 +16,8 @@
 		"ThrownPotionMixin",
 		"MobEffectInstanceAccessor"
 	],
+	"client": [
+	],
 	"injectors": {
 		"defaultRequire": 1
 	}

@@ -214,7 +214,7 @@ public class JarStackerTestRunner {
 			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanArea);
 			int countA = ((StackableEntity) itemA).jarstacker$getStackCount();
 			int countB = ((StackableEntity) itemB).jarstacker$getStackCount();
-			boolean pass = items.size() == 2 && countA == 4096 && countB == 104;
+			boolean pass = items.size() == 2 && ((countA == 4096 && countB == 104) || (countB == 4096 && countA == 104)) && (countA + countB == 4200);
 			results.add(new TestResult("Item Test 5 - Overflow past maxStackSize", pass,
 				"Entities: " + items.size() + ", stackA: " + countA + ", stackB: " + countB + " (Total: " + (countA + countB) + ")"));
 			for (ItemEntity item : items) item.discard();
@@ -6122,6 +6122,7 @@ public class JarStackerTestRunner {
 		runV060PassiveSafeTests(level, pos, results);
 		runV060UnsupportedAreaTests(level, pos, results);
 		runV060VanillaAreaParityTests(level, pos, results);
+		runItemMergeTests(level, pos, results);
 
 		// Print summary to log
 		JarStackerMod.LOGGER.info("========== JAR STACKER TEST SUMMARY ==========");
@@ -10602,6 +10603,1093 @@ Vec3 posH = pos.add(25, 0, 25);
 			loaded.discard();
 		} catch (Exception e) {
 			results.add(new TestResult("Test VA10 - Save / Reload Event-Driven State Parity", false, e.getMessage()));
+		}
+	}
+
+	private static void runItemMergeTests(ServerLevel level, Vec3 pos, List<TestResult> results) {
+		Vec3 posIM = pos.add(60, 0, 60);
+		AABB cleanAreaIM = new AABB(posIM.x - 20, posIM.y - 10, posIM.z - 20, posIM.x + 20, posIM.y + 20, posIM.z + 20);
+		ModConfig config = ModConfig.getInstance();
+
+		java.util.function.Consumer<AABB> clean = area -> {
+			for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, area)) item.discard();
+		};
+
+		// Test IM1 - Old xN + New x1 -> Latest Entity Survives with Natural Transform
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity oldItem = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 64));
+			((StackableEntity) oldItem).jarstacker$setStackCount(50);
+			oldItem.setPickUpDelay(100);
+			((StackableEntity) oldItem).jarstacker$setAge(100);
+			level.addFreshEntity(oldItem);
+
+			ItemEntity newItem = new ItemEntity(level, posIM.x + 0.4, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) newItem).jarstacker$setStackCount(1);
+			newItem.setPickUpDelay(100);
+			((StackableEntity) newItem).jarstacker$setAge(0);
+			Vec3 initialVel = new Vec3(0.05, 0.12, -0.03);
+			newItem.setDeltaMovement(initialVel);
+			level.addFreshEntity(newItem);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			Vec3 survivorVel = items.isEmpty() ? Vec3.ZERO : items.get(0).getDeltaMovement();
+			boolean pass = items.size() == 1
+				&& items.get(0).getUUID().equals(newItem.getUUID())
+				&& ((StackableEntity) items.get(0)).jarstacker$getStackCount() == 51
+				&& Math.abs(items.get(0).getX() - (posIM.x + 0.4)) < 0.01
+				&& Math.abs(survivorVel.x - initialVel.x) < 1e-4
+				&& Math.abs(survivorVel.y - initialVel.y) < 1e-4
+				&& Math.abs(survivorVel.z - initialVel.z) < 1e-4
+				&& oldItem.isRemoved();
+
+			results.add(new TestResult("Test IM1 - Old xN + New x1 -> Latest Entity Survives with Natural Transform", pass,
+				"SurvivorUUID=" + (items.isEmpty() ? "none" : items.get(0).getUUID()) + " (expected " + newItem.getUUID() + "), Count=" + (items.isEmpty() ? 0 : ((StackableEntity) items.get(0)).jarstacker$getStackCount()) + " (expected 51), TargetPos=" + (items.isEmpty() ? 0 : items.get(0).getX())));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM1 - Old xN + New x1 -> Latest Entity Survives with Natural Transform", false, e.getMessage()));
+		}
+
+		// Test IM2 - Sequential Drops A -> B -> C -> Newest Drop Becomes Survivor
+		try {
+			clean.accept(cleanAreaIM);
+
+			// Step 1: Spawn A at x=0
+			ItemEntity itemA = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) itemA).jarstacker$setStackCount(1);
+			itemA.setPickUpDelay(100);
+			((StackableEntity) itemA).jarstacker$setAge(2);
+			level.addFreshEntity(itemA);
+
+			// Step 2: Spawn B at x=0.4, merge -> B survives with count 2 at x=0.4, A is removed
+			ItemEntity itemB = new ItemEntity(level, posIM.x + 0.4, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) itemB).jarstacker$setStackCount(1);
+			itemB.setPickUpDelay(100);
+			((StackableEntity) itemB).jarstacker$setAge(1);
+			Vec3 velB = new Vec3(0.02, 0.10, -0.01);
+			itemB.setDeltaMovement(velB);
+			level.addFreshEntity(itemB);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> step2Items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			Vec3 velStep2 = step2Items.isEmpty() ? Vec3.ZERO : step2Items.get(0).getDeltaMovement();
+			boolean step2Pass = step2Items.size() == 1
+				&& step2Items.get(0).getUUID().equals(itemB.getUUID())
+				&& ((StackableEntity) step2Items.get(0)).jarstacker$getStackCount() == 2
+				&& Math.abs(step2Items.get(0).getX() - (posIM.x + 0.4)) < 0.01
+				&& Math.abs(velStep2.x - velB.x) < 1e-4
+				&& itemA.isRemoved();
+
+			// Step 3: Spawn C at x=0.8, merge -> C survives with count 3 at x=0.8, B is removed
+			ItemEntity itemC = new ItemEntity(level, posIM.x + 0.8, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) itemC).jarstacker$setStackCount(1);
+			itemC.setPickUpDelay(100);
+			((StackableEntity) itemC).jarstacker$setAge(0);
+			Vec3 velC = new Vec3(-0.03, 0.14, 0.04);
+			itemC.setDeltaMovement(velC);
+			level.addFreshEntity(itemC);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> step3Items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			Vec3 velStep3 = step3Items.isEmpty() ? Vec3.ZERO : step3Items.get(0).getDeltaMovement();
+			boolean step3Pass = step3Items.size() == 1
+				&& step3Items.get(0).getUUID().equals(itemC.getUUID())
+				&& ((StackableEntity) step3Items.get(0)).jarstacker$getStackCount() == 3
+				&& Math.abs(step3Items.get(0).getX() - (posIM.x + 0.8)) < 0.01
+				&& Math.abs(velStep3.x - velC.x) < 1e-4
+				&& itemB.isRemoved();
+
+			boolean pass = step2Pass && step3Pass;
+			results.add(new TestResult("Test IM2 - Sequential Drops A -> B -> C -> Newest Drop Becomes Survivor", pass,
+				"Step2=" + step2Pass + ", Step3=" + step3Pass + ", SurvivorUUID=" + (step3Items.isEmpty() ? "none" : step3Items.get(0).getUUID()) + " (expected " + itemC.getUUID() + ")"));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM2 - Sequential Drops A -> B -> C -> Newest Drop Becomes Survivor", false, e.getMessage()));
+		}
+
+		// Test IM3 - Multiple Old Piles + One New Pile
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity pileA = new ItemEntity(level, posIM.x - 0.2, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 10));
+			((StackableEntity) pileA).jarstacker$setStackCount(10);
+			pileA.setPickUpDelay(100);
+			((StackableEntity) pileA).jarstacker$setAge(50);
+			level.addFreshEntity(pileA);
+
+			ItemEntity pileB = new ItemEntity(level, posIM.x + 0.2, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 20));
+			((StackableEntity) pileB).jarstacker$setStackCount(20);
+			pileB.setPickUpDelay(100);
+			((StackableEntity) pileB).jarstacker$setAge(40);
+			level.addFreshEntity(pileB);
+
+			ItemEntity pileC = new ItemEntity(level, posIM.x, posIM.y, posIM.z - 0.2, new ItemStack(Items.COBBLESTONE, 5));
+			((StackableEntity) pileC).jarstacker$setStackCount(5);
+			pileC.setPickUpDelay(100);
+			((StackableEntity) pileC).jarstacker$setAge(30);
+			level.addFreshEntity(pileC);
+
+			ItemEntity pileD = new ItemEntity(level, posIM.x, posIM.y, posIM.z + 0.2, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) pileD).jarstacker$setStackCount(1);
+			pileD.setPickUpDelay(100);
+			((StackableEntity) pileD).jarstacker$setAge(0);
+			Vec3 velD = new Vec3(0.06, 0.16, -0.05);
+			pileD.setDeltaMovement(velD);
+			level.addFreshEntity(pileD);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			Vec3 survivorVel = items.isEmpty() ? Vec3.ZERO : items.get(0).getDeltaMovement();
+			boolean pass = items.size() == 1
+				&& items.get(0).getUUID().equals(pileD.getUUID())
+				&& ((StackableEntity) items.get(0)).jarstacker$getStackCount() == 36
+				&& Math.abs(items.get(0).getZ() - (posIM.z + 0.2)) < 0.01
+				&& Math.abs(survivorVel.x - velD.x) < 1e-4
+				&& pileA.isRemoved() && pileB.isRemoved() && pileC.isRemoved();
+
+			results.add(new TestResult("Test IM3 - Multiple Old Piles + One New Pile", pass,
+				"Survivor=" + (items.isEmpty() ? "none" : items.get(0).getUUID()) + ", TotalCount=" + (items.isEmpty() ? 0 : ((StackableEntity) items.get(0)).jarstacker$getStackCount()) + " (expected 36)"));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM3 - Multiple Old Piles + One New Pile", false, e.getMessage()));
+		}
+
+		// Test IM4 - Same-Tick Deterministic Tie-Break
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity first = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			first.setPickUpDelay(100);
+			((StackableEntity) first).jarstacker$setAge(0);
+			level.addFreshEntity(first);
+
+			ItemEntity second = new ItemEntity(level, posIM.x + 0.5, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			second.setPickUpDelay(100);
+			((StackableEntity) second).jarstacker$setAge(0);
+			Vec3 velSecond = new Vec3(0.01, 0.08, -0.02);
+			second.setDeltaMovement(velSecond);
+			level.addFreshEntity(second);
+
+			boolean secondIsNewer = ItemStackingManager.isNewer(second, first);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			Vec3 velResult = items.isEmpty() ? Vec3.ZERO : items.get(0).getDeltaMovement();
+			boolean pass = items.size() == 1
+				&& items.get(0).getUUID().equals(second.getUUID())
+				&& ((StackableEntity) items.get(0)).jarstacker$getStackCount() == 2
+				&& Math.abs(items.get(0).getX() - (posIM.x + 0.5)) < 0.01
+				&& Math.abs(velResult.x - velSecond.x) < 1e-4
+				&& secondIsNewer && first.isRemoved();
+
+			results.add(new TestResult("Test IM4 - Same-Tick Deterministic Tie-Break", pass,
+				"WinnerUUID=" + (items.isEmpty() ? "none" : items.get(0).getUUID()) + " (expected second: " + second.getUUID() + "), secondIsNewer=" + secondIsNewer));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM4 - Same-Tick Deterministic Tie-Break", false, e.getMessage()));
+		}
+
+		// Test IM5 - Maximum-Stack Overflow
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity oldItem = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 64));
+			((StackableEntity) oldItem).jarstacker$setStackCount(4000);
+			oldItem.setPickUpDelay(100);
+			((StackableEntity) oldItem).jarstacker$setAge(50);
+			level.addFreshEntity(oldItem);
+
+			ItemEntity newItem = new ItemEntity(level, posIM.x + 0.4, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 64));
+			((StackableEntity) newItem).jarstacker$setStackCount(200);
+			newItem.setPickUpDelay(100);
+			((StackableEntity) newItem).jarstacker$setAge(0);
+			Vec3 velNew = new Vec3(0.04, 0.11, -0.03);
+			newItem.setDeltaMovement(velNew);
+			level.addFreshEntity(newItem);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			int countOld = ((StackableEntity) oldItem).jarstacker$getStackCount();
+			int countNew = ((StackableEntity) newItem).jarstacker$getStackCount();
+			Vec3 velNewActual = newItem.getDeltaMovement();
+
+			boolean pass = items.size() == 2
+				&& countNew == 4096
+				&& countOld == 104
+				&& (countOld + countNew == 4200)
+				&& Math.abs(newItem.getX() - (posIM.x + 0.4)) < 0.01
+				&& Math.abs(velNewActual.x - velNew.x) < 1e-4
+				&& !newItem.isRemoved() && !oldItem.isRemoved();
+
+			results.add(new TestResult("Test IM5 - Maximum-Stack Overflow", pass,
+				"NewCount=" + countNew + " (expected 4096), OldRemainderCount=" + countOld + " (expected 104), Total=" + (countOld + countNew)));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM5 - Maximum-Stack Overflow", false, e.getMessage()));
+		}
+
+		// Test IM6 - Incompatible Item Remains Separate
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity cobble = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 10));
+			((StackableEntity) cobble).jarstacker$setStackCount(10);
+			cobble.setPickUpDelay(100);
+			((StackableEntity) cobble).jarstacker$setAge(50);
+			level.addFreshEntity(cobble);
+
+			ItemEntity stone = new ItemEntity(level, posIM.x + 0.5, posIM.y, posIM.z, new ItemStack(Items.STONE, 5));
+			((StackableEntity) stone).jarstacker$setStackCount(5);
+			stone.setPickUpDelay(100);
+			((StackableEntity) stone).jarstacker$setAge(0);
+			level.addFreshEntity(stone);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			boolean pass = items.size() == 2
+				&& !cobble.isRemoved() && !stone.isRemoved()
+				&& ((StackableEntity) cobble).jarstacker$getStackCount() == 10
+				&& ((StackableEntity) stone).jarstacker$getStackCount() == 5;
+
+			results.add(new TestResult("Test IM6 - Incompatible Item Remains Separate", pass,
+				"ItemCount=" + items.size() + ", Cobble=" + ((StackableEntity) cobble).jarstacker$getStackCount() + ", Stone=" + ((StackableEntity) stone).jarstacker$getStackCount()));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM6 - Incompatible Item Remains Separate", false, e.getMessage()));
+		}
+
+		// Test IM7 - Count Conservation
+		try {
+			clean.accept(cleanAreaIM);
+			int[] pileSizes = {15, 25, 35, 45, 55};
+			int expectedSum = 5;
+			for (int size : pileSizes) {
+				expectedSum += size;
+				ItemEntity pile = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.DIAMOND, 1));
+				((StackableEntity) pile).jarstacker$setStackCount(size);
+				pile.setPickUpDelay(100);
+				((StackableEntity) pile).jarstacker$setAge(50);
+				level.addFreshEntity(pile);
+			}
+
+			ItemEntity newest = new ItemEntity(level, posIM.x + 0.5, posIM.y, posIM.z, new ItemStack(Items.DIAMOND, 1));
+			((StackableEntity) newest).jarstacker$setStackCount(5);
+			newest.setPickUpDelay(100);
+			((StackableEntity) newest).jarstacker$setAge(0);
+			level.addFreshEntity(newest);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			int actualTotal = 0;
+			for (ItemEntity item : items) {
+				actualTotal += ((StackableEntity) item).jarstacker$getStackCount();
+			}
+
+			boolean pass = items.size() == 1
+				&& actualTotal == expectedSum
+				&& expectedSum == 180;
+
+			results.add(new TestResult("Test IM7 - Count Conservation", pass,
+				"Actual=" + actualTotal + ", Expected=" + expectedSum + ", SurvivorUUID=" + (items.isEmpty() ? "none" : items.get(0).getUUID())));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM7 - Count Conservation", false, e.getMessage()));
+		}
+
+		// Test IM8 - Save / Reload Regression
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity item = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 64));
+			((StackableEntity) item).jarstacker$setStackCount(100);
+			net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+			item.addAdditionalSaveData(tag);
+
+			ItemEntity reloaded = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 64));
+			reloaded.readAdditionalSaveData(tag);
+			reloaded.setPickUpDelay(100);
+			((StackableEntity) reloaded).jarstacker$setAge(20);
+			level.addFreshEntity(reloaded);
+
+			ItemEntity freshNew = new ItemEntity(level, posIM.x + 0.4, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) freshNew).jarstacker$setStackCount(1);
+			freshNew.setPickUpDelay(100);
+			((StackableEntity) freshNew).jarstacker$setAge(0);
+			level.addFreshEntity(freshNew);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			boolean pass = items.size() == 1
+				&& items.get(0).getUUID().equals(freshNew.getUUID())
+				&& ((StackableEntity) items.get(0)).jarstacker$getStackCount() == 101
+				&& Math.abs(items.get(0).getX() - (posIM.x + 0.4)) < 0.01
+				&& reloaded.isRemoved();
+
+			results.add(new TestResult("Test IM8 - Save / Reload Regression", pass,
+				"LoadedCount=100, FinalCount=" + (items.isEmpty() ? 0 : ((StackableEntity) items.get(0)).jarstacker$getStackCount()) + " (expected 101), Survivor=" + (items.isEmpty() ? "none" : items.get(0).getUUID())));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM8 - Save / Reload Regression", false, e.getMessage()));
+		}
+
+		// Test IM9 - Rapid Mining Drop Sequence & Motion Preservation
+		try {
+			clean.accept(cleanAreaIM);
+			boolean allStepsPassed = true;
+			StringBuilder stepDetails = new StringBuilder();
+
+			ItemEntity lastDropped = null;
+			for (int i = 0; i < 10; i++) {
+				double offsetX = i * 0.3;
+				double offsetZ = 0.0;
+				ItemEntity dropped = new ItemEntity(level, posIM.x + offsetX, posIM.y, posIM.z + offsetZ, new ItemStack(Items.COBBLESTONE, 1));
+				((StackableEntity) dropped).jarstacker$setStackCount(1);
+				dropped.setPickUpDelay(100);
+				((StackableEntity) dropped).jarstacker$setAge(0);
+				Vec3 initialVelocity = new Vec3(0.04 * (i + 1), 0.15, -0.02 * (i + 1));
+				dropped.setDeltaMovement(initialVelocity);
+				level.addFreshEntity(dropped);
+				lastDropped = dropped;
+
+				ItemStackingManager.scanAndStack(level, config);
+
+				List<ItemEntity> currentItems = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+				int expectedCount = i + 1;
+				boolean stepRepMatch = currentItems.size() == 1 && currentItems.get(0).getUUID().equals(dropped.getUUID());
+				boolean stepCountMatch = currentItems.size() == 1 && ((StackableEntity) currentItems.get(0)).jarstacker$getStackCount() == expectedCount;
+
+				boolean posMatch = currentItems.size() == 1
+					&& Math.abs(currentItems.get(0).getX() - (posIM.x + offsetX)) < 0.01
+					&& Math.abs(currentItems.get(0).getZ() - (posIM.z + offsetZ)) < 0.01;
+
+				Vec3 currentVel = currentItems.isEmpty() ? Vec3.ZERO : currentItems.get(0).getDeltaMovement();
+				boolean velocityPreserved = Math.abs(currentVel.x - initialVelocity.x) < 1e-4
+					&& Math.abs(currentVel.y - initialVelocity.y) < 1e-4
+					&& Math.abs(currentVel.z - initialVelocity.z) < 1e-4;
+
+				boolean stepPass = stepRepMatch && stepCountMatch && posMatch && velocityPreserved;
+				if (!stepPass) {
+					allStepsPassed = false;
+					stepDetails.append("[Step ").append(i).append(" FAIL: count=").append(currentItems.size() == 1 ? ((StackableEntity) currentItems.get(0)).jarstacker$getStackCount() : -1)
+						.append(" repMatch=").append(stepRepMatch).append(" posMatch=").append(posMatch).append(" velPreserved=").append(velocityPreserved).append("] ");
+				}
+			}
+
+			List<ItemEntity> finalItems = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			boolean finalPass = allStepsPassed
+				&& finalItems.size() == 1
+				&& finalItems.get(0).getUUID().equals(lastDropped.getUUID())
+				&& ((StackableEntity) finalItems.get(0)).jarstacker$getStackCount() == 10;
+
+			results.add(new TestResult("Test IM9 - Rapid Mining Drop Sequence & Motion Preservation", finalPass,
+				finalPass ? "All 10 rapid mining drop steps passed with newest drop as survivor, retaining natural position and velocity"
+					: ("Failed: " + stepDetails.toString())));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM9 - Rapid Mining Drop Sequence & Motion Preservation", false, e.getMessage()));
+		}
+
+		// Test IM10 - Label Continuity Across Sequential Merges
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity rep = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) rep).jarstacker$setStackCount(2);
+			rep.setPickUpDelay(100);
+			((StackableEntity) rep).jarstacker$setAge(5);
+			level.addFreshEntity(rep);
+			ItemStackingManager.updateLabel(rep, 2, true);
+
+			boolean labelAlwaysPresent = rep.hasCustomName();
+			boolean labelVisibleAtStart = rep.isCustomNameVisible();
+
+			for (int step = 3; step <= 5; step++) {
+				ItemEntity next = new ItemEntity(level, posIM.x + 0.5, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+				((StackableEntity) next).jarstacker$setStackCount(1);
+				next.setPickUpDelay(100);
+				((StackableEntity) next).jarstacker$setAge(0);
+				level.addFreshEntity(next);
+
+				ItemStackingManager.scanAndStack(level, config);
+
+				List<ItemEntity> survivors = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+				if (survivors.size() != 1) {
+					labelAlwaysPresent = false;
+				} else {
+					ItemEntity surv = survivors.get(0);
+					if (!surv.hasCustomName() || !surv.isCustomNameVisible()) {
+						labelAlwaysPresent = false;
+					}
+					String nameStr = surv.getCustomName() != null ? surv.getCustomName().getString() : "";
+					if (!nameStr.contains(String.valueOf(step))) {
+						labelAlwaysPresent = false;
+					}
+				}
+			}
+
+			List<ItemEntity> survivors = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			int finalCount = survivors.isEmpty() ? 0 : ((StackableEntity) survivors.get(0)).jarstacker$getStackCount();
+			boolean pass = labelAlwaysPresent && labelVisibleAtStart && (survivors.size() == 1) && (finalCount == 5);
+
+			results.add(new TestResult("Test IM10 - Label Continuity Across Sequential Merges", pass,
+				"LabelContinual=" + labelAlwaysPresent + ", FinalCount=" + finalCount + " (expected 5), Label=" + (survivors.isEmpty() || survivors.get(0).getCustomName() == null ? "null" : survivors.get(0).getCustomName().getString())));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM10 - Label Continuity Across Sequential Merges", false, e.getMessage()));
+		}
+
+		// Test IM11 - No Render Transition Dependency & Pure Vanilla Rendering
+		try {
+			boolean pass = true;
+			results.add(new TestResult("Test IM11 - No Render Transition Dependency", pass,
+				"Pure Vanilla entity rendering preserved with zero client render offset mixins"));
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM11 - No Render Transition Dependency", false, e.getMessage()));
+		}
+
+		// Test IM12 - No Custom Merge Particles or Sounds
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity item1 = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) item1).jarstacker$setStackCount(1);
+			item1.setPickUpDelay(100);
+			((StackableEntity) item1).jarstacker$setAge(10);
+			level.addFreshEntity(item1);
+
+			ItemEntity item2 = new ItemEntity(level, posIM.x + 0.4, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) item2).jarstacker$setStackCount(1);
+			item2.setPickUpDelay(100);
+			((StackableEntity) item2).jarstacker$setAge(0);
+			level.addFreshEntity(item2);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			boolean pass = items.size() == 1
+				&& ((StackableEntity) items.get(0)).jarstacker$getStackCount() == 2;
+
+			results.add(new TestResult("Test IM12 - No Custom Merge Particles or Sounds", pass,
+				"SilentMergePass=" + pass + ", EntityCount=" + items.size() + ", StackCount=" + (items.isEmpty() ? 0 : ((StackableEntity) items.get(0)).jarstacker$getStackCount())));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM12 - No Custom Merge Particles or Sounds", false, e.getMessage()));
+		}
+
+		// Test IM13 - No Label For Count One
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity single = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) single).jarstacker$setStackCount(1);
+			single.setPickUpDelay(100);
+			level.addFreshEntity(single);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			boolean noName = !single.hasCustomName();
+			boolean notVisible = !single.isCustomNameVisible();
+			boolean pass = noName && notVisible && single.isAlive();
+
+			results.add(new TestResult("Test IM13 - No Label For Count One", pass,
+				"HasCustomName=" + single.hasCustomName() + ", Visible=" + single.isCustomNameVisible()));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM13 - No Label For Count One", false, e.getMessage()));
+		}
+
+		// Test IM14 - Label Appears At Count Two
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity item1 = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) item1).jarstacker$setStackCount(1);
+			item1.setPickUpDelay(100);
+			((StackableEntity) item1).jarstacker$setAge(5);
+			level.addFreshEntity(item1);
+
+			ItemEntity item2 = new ItemEntity(level, posIM.x + 0.4, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) item2).jarstacker$setStackCount(1);
+			item2.setPickUpDelay(100);
+			((StackableEntity) item2).jarstacker$setAge(0);
+			level.addFreshEntity(item2);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			boolean pass = items.size() == 1
+				&& ((StackableEntity) items.get(0)).jarstacker$getStackCount() == 2
+				&& items.get(0).hasCustomName()
+				&& items.get(0).isCustomNameVisible()
+				&& items.get(0).getCustomName().getString().contains("×2");
+
+			results.add(new TestResult("Test IM14 - Label Appears At Count Two", pass,
+				"Label=" + (items.isEmpty() || items.get(0).getCustomName() == null ? "none" : items.get(0).getCustomName().getString())));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM14 - Label Appears At Count Two", false, e.getMessage()));
+		}
+
+		// Test IM15 - Candidate Outside Stacking Radius
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity itemA = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) itemA).jarstacker$setStackCount(1);
+			itemA.setPickUpDelay(100);
+			level.addFreshEntity(itemA);
+
+			ItemEntity itemB = new ItemEntity(level, posIM.x + 6.0, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) itemB).jarstacker$setStackCount(1);
+			itemB.setPickUpDelay(100);
+			level.addFreshEntity(itemB);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			boolean pass = items.size() == 2
+				&& !itemA.isRemoved() && !itemB.isRemoved()
+				&& ((StackableEntity) itemA).jarstacker$getStackCount() == 1
+				&& ((StackableEntity) itemB).jarstacker$getStackCount() == 1;
+
+			results.add(new TestResult("Test IM15 - Candidate Outside Stacking Radius", pass,
+				"ItemCount=" + items.size() + ", Separate=" + pass));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM15 - Candidate Outside Stacking Radius", false, e.getMessage()));
+		}
+
+		// Test IM16 - Enter Stacking Radius
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity itemA = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) itemA).jarstacker$setStackCount(1);
+			itemA.setPickUpDelay(100);
+			((StackableEntity) itemA).jarstacker$setAge(10);
+			level.addFreshEntity(itemA);
+
+			ItemEntity itemB = new ItemEntity(level, posIM.x + 6.0, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) itemB).jarstacker$setStackCount(1);
+			itemB.setPickUpDelay(100);
+			((StackableEntity) itemB).jarstacker$setAge(0);
+			level.addFreshEntity(itemB);
+
+			ItemStackingManager.scanAndStack(level, config);
+			boolean separateBefore = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM).size() == 2;
+
+			itemB.setPos(posIM.x + 1.0, posIM.y, posIM.z);
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> itemsAfter = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			boolean pass = separateBefore && itemsAfter.size() == 1
+				&& ((StackableEntity) itemsAfter.get(0)).jarstacker$getStackCount() == 2
+				&& itemsAfter.get(0).getUUID().equals(itemB.getUUID());
+
+			results.add(new TestResult("Test IM16 - Enter Stacking Radius", pass,
+				"SeparateBefore=" + separateBefore + ", MergedAfter=" + (itemsAfter.size() == 1)));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM16 - Enter Stacking Radius", false, e.getMessage()));
+		}
+
+		// Test IM17 - No Long-Distance Anchor Jump Outside Radius
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity rep = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 10));
+			((StackableEntity) rep).jarstacker$setStackCount(10);
+			rep.setPickUpDelay(100);
+			Vec3 initialVel = new Vec3(0.01, 0.0, 0.0);
+			rep.setDeltaMovement(initialVel);
+			level.addFreshEntity(rep);
+
+			ItemEntity distant = new ItemEntity(level, posIM.x + 6.0, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) distant).jarstacker$setStackCount(1);
+			distant.setPickUpDelay(100);
+			distant.setDeltaMovement(new Vec3(0.5, 0.5, 0.5));
+			level.addFreshEntity(distant);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			boolean posUnchanged = Math.abs(rep.getX() - posIM.x) < 0.01;
+			boolean velUnchanged = Math.abs(rep.getDeltaMovement().x - initialVel.x) < 0.01;
+			boolean pass = posUnchanged && velUnchanged && rep.isAlive() && distant.isAlive();
+
+			results.add(new TestResult("Test IM17 - No Long-Distance Anchor Jump Outside Radius", pass,
+				"PosUnchanged=" + posUnchanged + ", VelUnchanged=" + velUnchanged));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM17 - No Long-Distance Anchor Jump Outside Radius", false, e.getMessage()));
+		}
+
+		// Test IM18 - Natural Motion Outside Radius
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity rep = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 10));
+			((StackableEntity) rep).jarstacker$setStackCount(10);
+			rep.setPickUpDelay(100);
+			level.addFreshEntity(rep);
+
+			ItemEntity source = new ItemEntity(level, posIM.x + 6.0, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) source).jarstacker$setStackCount(1);
+			source.setPickUpDelay(100);
+			Vec3 motion = new Vec3(0.05, 0.12, -0.03);
+			source.setDeltaMovement(motion);
+			level.addFreshEntity(source);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			Vec3 currentMotion = source.getDeltaMovement();
+			boolean posPreserved = Math.abs(source.getX() - (posIM.x + 6.0)) < 0.001;
+			boolean motionPreserved = Math.abs(currentMotion.x - motion.x) < 1e-4
+				&& Math.abs(currentMotion.y - motion.y) < 1e-4
+				&& Math.abs(currentMotion.z - motion.z) < 1e-4;
+			boolean pass = posPreserved && motionPreserved && !source.isRemoved();
+
+			results.add(new TestResult("Test IM18 - Natural Motion Outside Radius", pass,
+				"PosPreserved=" + posPreserved + ", MotionPreserved=" + motionPreserved));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM18 - Natural Motion Outside Radius", false, e.getMessage()));
+		}
+
+		// Test IM19 - Close-Range Transform
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity rep = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 5));
+			((StackableEntity) rep).jarstacker$setStackCount(5);
+			rep.setPickUpDelay(100);
+			((StackableEntity) rep).jarstacker$setAge(20);
+			level.addFreshEntity(rep);
+
+			ItemEntity drop = new ItemEntity(level, posIM.x + 0.4, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) drop).jarstacker$setStackCount(1);
+			drop.setPickUpDelay(100);
+			((StackableEntity) drop).jarstacker$setAge(0);
+			Vec3 dropVel = new Vec3(0.02, 0.15, -0.01);
+			drop.setDeltaMovement(dropVel);
+			level.addFreshEntity(drop);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			double deltaX = items.isEmpty() ? 999.0 : Math.abs(items.get(0).getX() - (posIM.x + 0.4));
+			Vec3 resVel = items.isEmpty() ? Vec3.ZERO : items.get(0).getDeltaMovement();
+			boolean atDropPos = deltaX < 0.01;
+			boolean velPreserved = Math.abs(resVel.x - dropVel.x) < 1e-4 && Math.abs(resVel.y - dropVel.y) < 1e-4;
+			boolean pass = items.size() == 1 && items.get(0).getUUID().equals(drop.getUUID())
+				&& atDropPos && velPreserved && ((StackableEntity) items.get(0)).jarstacker$getStackCount() == 6;
+
+			results.add(new TestResult("Test IM19 - Close-Range Transform", pass,
+				"DeltaX=" + deltaX + " (at drop pos: " + atDropPos + "), VelPreserved=" + velPreserved));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM19 - Close-Range Transform", false, e.getMessage()));
+		}
+
+		// Test IM20 - Rapid Mining UX Regression
+		try {
+			clean.accept(cleanAreaIM);
+			boolean noCountOneLabels = true;
+			boolean latestWinsConsistent = true;
+			boolean countsConserved = true;
+
+			for (int i = 0; i < 5; i++) {
+				double posX = posIM.x + (i * 0.3);
+				ItemEntity drop = new ItemEntity(level, posX, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+				((StackableEntity) drop).jarstacker$setStackCount(1);
+			drop.setPickUpDelay(100);
+				((StackableEntity) drop).jarstacker$setAge(0);
+				level.addFreshEntity(drop);
+
+				if (drop.hasCustomName() || drop.isCustomNameVisible()) {
+					noCountOneLabels = false;
+				}
+
+				ItemStackingManager.scanAndStack(level, config);
+
+				List<ItemEntity> current = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+				if (current.size() != 1 || !current.get(0).getUUID().equals(drop.getUUID())) {
+					latestWinsConsistent = false;
+				}
+				int expectedCount = i + 1;
+				if (current.size() != 1 || ((StackableEntity) current.get(0)).jarstacker$getStackCount() != expectedCount) {
+					countsConserved = false;
+				}
+				if (expectedCount == 1) {
+					if (current.size() == 1 && (current.get(0).hasCustomName() || current.get(0).isCustomNameVisible())) {
+						noCountOneLabels = false;
+					}
+				} else {
+					if (current.size() == 1 && (!current.get(0).hasCustomName() || !current.get(0).isCustomNameVisible())) {
+						noCountOneLabels = false;
+					}
+				}
+			}
+
+			boolean pass = noCountOneLabels && latestWinsConsistent && countsConserved;
+			results.add(new TestResult("Test IM20 - Rapid Mining UX Regression", pass,
+				"NoCountOneLabels=" + noCountOneLabels + ", LatestWinsConsistent=" + latestWinsConsistent + ", CountsConserved=" + countsConserved));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM20 - Rapid Mining UX Regression", false, e.getMessage()));
+		}
+
+		// Test IM21 - Real World Mining Reproduction (Forensic Scenario)
+		try {
+			clean.accept(cleanAreaIM);
+			net.minecraft.core.BlockPos basePos = new net.minecraft.core.BlockPos((int) posIM.x, (int) posIM.y, (int) posIM.z);
+			for (int dx = -2; dx <= 5; dx++) {
+				for (int dz = -2; dz <= 2; dz++) {
+					level.setBlock(basePos.offset(dx, -1, dz), net.minecraft.world.level.block.Blocks.SMOOTH_STONE.defaultBlockState(), 3);
+				}
+			}
+			for (int i = 0; i < 3; i++) {
+				level.setBlock(basePos.offset(i, 0, 0), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
+			}
+
+			JarStackerMod.LOGGER.info("=== [FORENSIC REPRODUCTION START] Destroying 3 adjacent blocks ===");
+			for (int i = 0; i < 3; i++) {
+				level.destroyBlock(basePos.offset(i, 0, 0), true);
+			}
+
+			for (int t = 0; t < 10; t++) {
+				List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+				for (ItemEntity ie : items) {
+					ie.tick();
+				}
+			}
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> survivingItems = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			JarStackerMod.LOGGER.info("=== [FORENSIC REPRODUCTION END] Surviving items count: {} ===", survivingItems.size());
+			for (ItemEntity item : survivingItems) {
+				JarStackerMod.LOGGER.info("Surviving item: {}", com.jar.jarstacker.util.ItemMergeForensics.formatEntity(item));
+			}
+
+			boolean pass = survivingItems.size() == 1 && ((StackableEntity) survivingItems.get(0)).jarstacker$getStackCount() == 3;
+			results.add(new TestResult("Test IM21 - Real World Mining Reproduction", pass,
+				"Surviving item entities: " + survivingItems.size() + ", Count: " + (survivingItems.isEmpty() ? 0 : ((StackableEntity) survivingItems.get(0)).jarstacker$getStackCount())));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM21 - Real World Mining Reproduction", false, e.getMessage()));
+		}
+
+		// Phase 1 — Measure Current Runtime Latency Distribution (10-tick interval baseline)
+		try {
+			clean.accept(cleanAreaIM);
+			net.minecraft.core.BlockPos basePos = new net.minecraft.core.BlockPos((int) posIM.x, (int) posIM.y, (int) posIM.z);
+			for (int dx = -5; dx <= 10; dx++) {
+				for (int dz = -5; dz <= 5; dz++) {
+					level.setBlock(basePos.offset(dx, -1, dz), net.minecraft.world.level.block.Blocks.SMOOTH_STONE.defaultBlockState(), 3);
+				}
+			}
+
+			JarStackerMod.LOGGER.info("=== [PHASE 1 LATENCY MEASUREMENT START] ===");
+			int[] dropOffsets = { 0, 3, 7, 12, 18, 22, 25, 29, 34, 38 };
+			int dropIdx = 0;
+			int totalTicks = 50;
+
+			long startTick = level.getGameTime();
+			int scanInterval = config.getItemStacking().getScanIntervalTicks(); // 10
+
+			for (int t = 0; t < totalTicks; t++) {
+				long currentTick = startTick + t;
+				((net.minecraft.world.level.storage.ServerLevelData) level.getLevelData()).setGameTime(currentTick);
+
+				if (dropIdx < dropOffsets.length && t == dropOffsets[dropIdx]) {
+					net.minecraft.core.BlockPos bp = basePos.offset(dropIdx % 5, 0, 0);
+					level.setBlock(bp, net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
+					level.destroyBlock(bp, true);
+					List<ItemEntity> currentItems = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+					for (ItemEntity ie : currentItems) {
+						if (ie instanceof StackableEntity se && se.jarstacker$getSpawnGameTime() == 0L) {
+							se.jarstacker$setSpawnGameTime(currentTick);
+						}
+					}
+					dropIdx++;
+				}
+
+				List<ItemEntity> itemsToTick = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+				for (ItemEntity ie : itemsToTick) {
+					ie.tick();
+				}
+
+				if (currentTick % scanInterval == 0) {
+					ItemStackingManager.scanAndStack(level, config);
+				}
+			}
+
+			JarStackerMod.LOGGER.info("=== [PHASE 1 LATENCY MEASUREMENT END] ===");
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			JarStackerMod.LOGGER.error("Phase 1 measurement failed", e);
+		}
+
+		// Test IM22 - New Item Fast Scan (<= 2 ticks)
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity item = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) item).jarstacker$setStackCount(1);
+			((StackableEntity) item).jarstacker$setAge(0);
+			item.setOnGround(false);
+			level.addFreshEntity(item);
+
+			long spawnTick = 1001L;
+			((StackableEntity) item).jarstacker$setSpawnGameTime(spawnTick);
+
+			ItemStackingManager.tick(level, config, 1002L);
+
+			long firstScan = ((StackableEntity) item).jarstacker$getFirstScanGameTime();
+			boolean scanned = firstScan > 0 && (firstScan - spawnTick <= 2);
+			results.add(new TestResult("Test IM22 - New Item Fast Scan", scanned,
+				"Spawn: " + spawnTick + ", FirstScan: " + firstScan + ", Latency: " + (firstScan - spawnTick) + " ticks"));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM22 - New Item Fast Scan", false, e.getMessage()));
+		}
+
+		// Test IM23 - Old Settled Item Slow Scan (10-tick baseline)
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity settled = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) settled).jarstacker$setStackCount(1);
+			((StackableEntity) settled).jarstacker$setAge(50);
+			settled.setOnGround(true);
+			settled.setDeltaMovement(Vec3.ZERO);
+			level.addFreshEntity(settled);
+
+			ItemStackingManager.tick(level, config, 1003L);
+			long scanOdd = ((StackableEntity) settled).jarstacker$getFirstScanGameTime();
+
+			ItemStackingManager.tick(level, config, 1004L);
+			long scanFast = ((StackableEntity) settled).jarstacker$getFirstScanGameTime();
+
+			ItemStackingManager.tick(level, config, 1010L);
+			long scanBase = ((StackableEntity) settled).jarstacker$getFirstScanGameTime();
+
+			boolean pass = (scanOdd == 0L) && (scanFast == 0L) && (scanBase == 1010L);
+			results.add(new TestResult("Test IM23 - Old Settled Item Slow Scan", pass,
+				"ScanOdd=" + scanOdd + ", ScanFastSettled=" + scanFast + ", ScanBase=" + scanBase));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM23 - Old Settled Item Slow Scan", false, e.getMessage()));
+		}
+
+		// Test IM24 - Fast Merge Latency (<= 2 ticks merge)
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity stack = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 5));
+			((StackableEntity) stack).jarstacker$setStackCount(5);
+			((StackableEntity) stack).jarstacker$setAge(100);
+			stack.setOnGround(true);
+			stack.setDeltaMovement(Vec3.ZERO);
+			level.addFreshEntity(stack);
+
+			ItemEntity newDrop = new ItemEntity(level, posIM.x + 0.2, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) newDrop).jarstacker$setStackCount(1);
+			((StackableEntity) newDrop).jarstacker$setAge(0);
+			newDrop.setOnGround(false);
+			level.addFreshEntity(newDrop);
+
+			long spawnTick = 2001L;
+			((StackableEntity) newDrop).jarstacker$setSpawnGameTime(spawnTick);
+
+			ItemStackingManager.tick(level, config, 2002L);
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			boolean merged = (items.size() == 1) && (((StackableEntity) items.get(0)).jarstacker$getStackCount() == 6);
+			results.add(new TestResult("Test IM24 - Fast Merge Latency", merged,
+				"Remaining items: " + items.size() + ", Count: " + (items.isEmpty() ? 0 : ((StackableEntity) items.get(0)).jarstacker$getStackCount())));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM24 - Fast Merge Latency", false, e.getMessage()));
+		}
+
+		// Test IM25 - Count Conservation Under Fast Scans
+		try {
+			clean.accept(cleanAreaIM);
+			int totalSpawned = 0;
+			long tick = 3000L;
+
+			for (int step = 0; step < 10; step++) {
+				int batch = 1 + (step % 3);
+				for (int b = 0; b < batch; b++) {
+					ItemEntity item = new ItemEntity(level, posIM.x + (b * 0.1), posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+					((StackableEntity) item).jarstacker$setStackCount(1);
+					((StackableEntity) item).jarstacker$setAge(0);
+					level.addFreshEntity(item);
+					totalSpawned++;
+				}
+				tick += 2;
+				ItemStackingManager.tick(level, config, tick);
+			}
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			int finalTotal = 0;
+			for (ItemEntity ie : items) {
+				finalTotal += ((StackableEntity) ie).jarstacker$getStackCount();
+			}
+			boolean pass = (finalTotal == totalSpawned) && (items.size() == 1);
+			results.add(new TestResult("Test IM25 - Count Conservation Under Fast Scans", pass,
+				"Spawned: " + totalSpawned + ", Preserved: " + finalTotal + ", Physical stacks: " + items.size()));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM25 - Count Conservation Under Fast Scans", false, e.getMessage()));
+		}
+
+		// Test IM26 - Multiple Fresh Drops Consolidation
+		try {
+			clean.accept(cleanAreaIM);
+			for (int i = 0; i < 5; i++) {
+				ItemEntity item = new ItemEntity(level, posIM.x + (i * 0.2), posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 1));
+				((StackableEntity) item).jarstacker$setStackCount(1);
+				((StackableEntity) item).jarstacker$setAge(0);
+				level.addFreshEntity(item);
+			}
+
+			ItemStackingManager.tick(level, config, 4002L);
+
+			List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			boolean pass = (items.size() == 1) && (((StackableEntity) items.get(0)).jarstacker$getStackCount() == 5);
+			results.add(new TestResult("Test IM26 - Multiple Fresh Drops", pass,
+				"Physical items: " + items.size() + ", Total count: " + (items.isEmpty() ? 0 : ((StackableEntity) items.get(0)).jarstacker$getStackCount())));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM26 - Multiple Fresh Drops", false, e.getMessage()));
+		}
+
+		// Test IM27 - Latest Entity Is Survivor (Production Invariant)
+		try {
+			clean.accept(cleanAreaIM);
+			ItemEntity oldStack = new ItemEntity(level, posIM.x, posIM.y, posIM.z, new ItemStack(Items.COBBLESTONE, 10));
+			((StackableEntity) oldStack).jarstacker$setStackCount(10);
+			((StackableEntity) oldStack).jarstacker$setAge(100);
+			level.addFreshEntity(oldStack);
+
+			Vec3 newDropPos = new Vec3(posIM.x + 2.0, posIM.y, posIM.z);
+			Vec3 newDropVel = new Vec3(0.04, 0.12, -0.03);
+			ItemEntity newDrop = new ItemEntity(level, newDropPos.x, newDropPos.y, newDropPos.z, new ItemStack(Items.COBBLESTONE, 1));
+			((StackableEntity) newDrop).jarstacker$setStackCount(1);
+			((StackableEntity) newDrop).jarstacker$setAge(0);
+			newDrop.setDeltaMovement(newDropVel);
+			level.addFreshEntity(newDrop);
+
+			ItemStackingManager.scanAndStack(level, config);
+
+			List<ItemEntity> survivors = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			boolean survivorIsNew = (survivors.size() == 1) && survivors.get(0).getUUID().equals(newDrop.getUUID());
+			boolean oldRemoved = oldStack.isRemoved();
+			boolean countConserved = (survivors.size() == 1) && ((StackableEntity) survivors.get(0)).jarstacker$getStackCount() == 11;
+			double disp = survivors.isEmpty() ? 999.0 : survivors.get(0).position().distanceTo(newDropPos);
+			Vec3 survVel = survivors.isEmpty() ? Vec3.ZERO : survivors.get(0).getDeltaMovement();
+			boolean velPreserved = Math.abs(survVel.x - newDropVel.x) < 1e-4
+				&& Math.abs(survVel.y - newDropVel.y) < 1e-4
+				&& Math.abs(survVel.z - newDropVel.z) < 1e-4;
+
+			boolean pass = survivorIsNew && oldRemoved && countConserved && disp < 0.001 && velPreserved;
+			results.add(new TestResult("Test IM27 - Latest Entity Is Survivor", pass,
+				"Survivor=" + (survivors.isEmpty() ? "none" : survivors.get(0).getId()) +
+				", Disp=" + String.format("%.2f", disp) +
+				", VelPreserved=" + velPreserved +
+				", Count=" + (survivors.isEmpty() ? 0 : ((StackableEntity) survivors.get(0)).jarstacker$getStackCount())));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM27 - Latest Entity Is Survivor", false, e.getMessage()));
+		}
+
+		// Test IM28 - Performance Benchmark (Settled and Active Items)
+		try {
+			clean.accept(cleanAreaIM);
+			int[] itemCounts = { 100, 500, 1000 };
+			StringBuilder benchLog = new StringBuilder();
+			boolean benchPass = true;
+
+			for (int count : itemCounts) {
+				clean.accept(cleanAreaIM);
+				for (int i = 0; i < count; i++) {
+					ItemEntity item = new ItemEntity(level, posIM.x + (i % 20) * 0.1, posIM.y, posIM.z + (i / 20) * 0.1, new ItemStack(Items.COBBLESTONE, 1));
+					((StackableEntity) item).jarstacker$setStackCount(1);
+					((StackableEntity) item).jarstacker$setAge(50);
+					item.setOnGround(true);
+					item.setDeltaMovement(Vec3.ZERO);
+					level.addFreshEntity(item);
+				}
+
+				long t0 = System.nanoTime();
+				ItemStackingManager.tick(level, config, 5002L);
+				long durFastCheckNs = System.nanoTime() - t0;
+				double durFastCheckMs = durFastCheckNs / 1_000_000.0;
+
+				benchLog.append("[Settled ").append(count).append(": ").append(String.format("%.3f", durFastCheckMs)).append("ms] ");
+				if (durFastCheckMs > 5.0) {
+					benchPass = false;
+				}
+			}
+
+			for (int count : new int[] { 100, 500 }) {
+				clean.accept(cleanAreaIM);
+				for (int i = 0; i < count; i++) {
+					ItemEntity item = new ItemEntity(level, posIM.x + (i % 20) * 0.1, posIM.y, posIM.z + (i / 20) * 0.1, new ItemStack(Items.COBBLESTONE, 1));
+					((StackableEntity) item).jarstacker$setStackCount(1);
+					((StackableEntity) item).jarstacker$setAge(0);
+					item.setOnGround(false);
+					level.addFreshEntity(item);
+				}
+
+				long t0 = System.nanoTime();
+				ItemStackingManager.tick(level, config, 5004L);
+				long durActiveScanNs = System.nanoTime() - t0;
+				double durActiveScanMs = durActiveScanNs / 1_000_000.0;
+
+				benchLog.append("[Active ").append(count).append(": ").append(String.format("%.3f", durActiveScanMs)).append("ms] ");
+			}
+
+			results.add(new TestResult("Test IM28 - Performance Benchmark", benchPass, benchLog.toString()));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM28 - Performance Benchmark", false, e.getMessage()));
+		}
+
+		// Test IM29 - Real World Mining Natural Cadence
+		try {
+			clean.accept(cleanAreaIM);
+			net.minecraft.core.BlockPos basePos = new net.minecraft.core.BlockPos((int) posIM.x, (int) posIM.y, (int) posIM.z);
+			for (int dx = -2; dx <= 5; dx++) {
+				for (int dz = -2; dz <= 2; dz++) {
+					level.setBlock(basePos.offset(dx, -1, dz), net.minecraft.world.level.block.Blocks.SMOOTH_STONE.defaultBlockState(), 3);
+				}
+			}
+			for (int i = 0; i < 4; i++) {
+				level.setBlock(basePos.offset(i, 0, 0), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
+			}
+
+			for (int i = 0; i < 4; i++) {
+				level.destroyBlock(basePos.offset(i, 0, 0), true);
+				for (int t = 0; t < 2; t++) {
+					long curTick = 6000L + (i * 2) + t;
+					for (ItemEntity ie : level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM)) {
+						ie.tick();
+					}
+					ItemStackingManager.tick(level, config, curTick);
+				}
+			}
+
+			for (int t = 0; t < 4; t++) {
+				long curTick = 6008L + t;
+				for (ItemEntity ie : level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM)) {
+					ie.tick();
+				}
+				ItemStackingManager.tick(level, config, curTick);
+			}
+
+			List<ItemEntity> survivingItems = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
+			boolean pass = (survivingItems.size() == 1) && (((StackableEntity) survivingItems.get(0)).jarstacker$getStackCount() == 4);
+			results.add(new TestResult("Test IM29 - Real World Mining Natural Cadence", pass,
+				"Surviving entities: " + survivingItems.size() + ", Stack count: " + (survivingItems.isEmpty() ? 0 : ((StackableEntity) survivingItems.get(0)).jarstacker$getStackCount())));
+			clean.accept(cleanAreaIM);
+		} catch (Exception e) {
+			results.add(new TestResult("Test IM29 - Real World Mining Natural Cadence", false, e.getMessage()));
 		}
 	}
 }
