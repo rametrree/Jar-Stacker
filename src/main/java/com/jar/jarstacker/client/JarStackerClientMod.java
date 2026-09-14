@@ -5,7 +5,11 @@ import com.jar.jarstacker.client.gui.JarStackerConfigScreenFactory;
 import com.jar.jarstacker.config.ModConfig;
 import com.jar.jarstacker.network.JarStackerPackets;
 import net.fabricmc.api.ClientModInitializer;
+//? if >=26.1 {
+/*import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
+*///?} else {
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+//?}
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -36,15 +40,24 @@ public class JarStackerClientMod implements ClientModInitializer {
 				if (Minecraft.getInstance().player != null) {
 					Component msg = Component.literal("[Jar Stacker] " + payload.message())
 						.withStyle(payload.success() ? ChatFormatting.GREEN : ChatFormatting.RED);
+					//? if >=26.1 {
+					/*Minecraft.getInstance().player.sendSystemMessage(msg);
+					*///?} else {
 					Minecraft.getInstance().player.displayClientMessage(msg, false);
+					//?}
 				}
 			});
 		});
 
 		// 3. Register client command: /jarstacker config
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+			//? if >=26.1 {
+			/*dispatcher.register(ClientCommands.literal("jarstacker")
+				.then(ClientCommands.literal("config")
+			*///?} else {
 			dispatcher.register(ClientCommandManager.literal("jarstacker")
 				.then(ClientCommandManager.literal("config")
+			//?}
 					.executes(context -> {
 						Minecraft mc = Minecraft.getInstance();
 						if (mc.isSingleplayer()) {

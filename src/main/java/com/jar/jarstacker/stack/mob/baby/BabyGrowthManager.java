@@ -212,7 +212,7 @@ public class BabyGrowthManager {
 		// Case: Singleton baby (count == 1)
 		if (count == 1) {
 			// Forward Vanilla interaction directly
-			InteractionResult res = player.interactOn(animal, hand);
+			InteractionResult res = com.jar.jarstacker.adapter.EntityAdapter.interactOn(player, animal, hand);
 			if (res.consumesAction()) {
 				int newAge = animal.getAge();
 				if (newAge >= 0) {
@@ -272,7 +272,7 @@ public class BabyGrowthManager {
 		// 3. Vanilla interaction handoff
 		InteractionResult handoffResult;
 		try {
-			handoffResult = player.interactOn(extracted, hand);
+			handoffResult = com.jar.jarstacker.adapter.EntityAdapter.interactOn(player, extracted, hand);
 		} finally {
 			// Handled
 			// Complete

@@ -40,7 +40,11 @@ public class JarStackerMod implements ModInitializer {
 			JarStackerCommands.register(dispatcher);
 		});
 
+		//? if >=26.1 {
+		/*ServerTickEvents.END_LEVEL_TICK.register(level -> {
+		*///?} else {
 		ServerTickEvents.END_WORLD_TICK.register(level -> {
+		//?}
 			ModConfig config = ModConfig.getInstance();
 			long gameTime = level.getGameTime();
 

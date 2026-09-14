@@ -153,12 +153,20 @@ public class JarStackerTestRunner {
 		for (int i = 0; i < 20; i++) {
 			level.getChunkSource().tick(() -> true, true);
 			while (level.getChunkSource().pollTask()) {}
+			//? if >=26.1 {
+			/*try {
+				java.lang.reflect.Method poll = net.minecraft.util.thread.BlockableEventLoop.class.getDeclaredMethod("pollTask");
+				poll.setAccessible(true);
+				while ((boolean) poll.invoke(level.getServer())) {}
+			} catch (Exception ignored) {}
+			*///?} else {
 			while (level.getServer().pollTask()) {}
+			//?}
 		}
 		if (level.getGameTime() < 100000) {
 			((net.minecraft.world.level.storage.ServerLevelData) level.getLevelData()).setGameTime(100000L);
 		}
-		level.setDayTime(18000L);
+		setDayTime(level, 18000L);
 
 		JarStackerMod.LOGGER.info("[AUDIT] INFESTED class=" + MobEffects.INFESTED.value().getClass().getName());
 		JarStackerMod.LOGGER.info("[AUDIT] OOZING class=" + MobEffects.OOZING.value().getClass().getName());
@@ -3467,7 +3475,7 @@ public class JarStackerTestRunner {
 			level.addFreshEntity(babyCow);
 
 			long gameTimeBefore = level.getGameTime();
-			long dayTimeBefore = level.getDayTime();
+			long dayTimeBefore = getDayTime(level);
 
 			com.jar.jarstacker.stack.mob.baby.BabyGrowthState state = new com.jar.jarstacker.stack.mob.baby.BabyGrowthState();
 			state.add(gameTimeBefore + 10000L);
@@ -3476,7 +3484,7 @@ public class JarStackerTestRunner {
 			((StackableEntity) babyCow).jarstacker$setBabyGrowthState(state);
 
 			// Simulate /time add 12000
-			level.setDayTime(dayTimeBefore + 12000L);
+			setDayTime(level, dayTimeBefore + 12000L);
 
 			long gameTimeAfter = level.getGameTime();
 			int matured = com.jar.jarstacker.stack.mob.baby.BabyGrowthManager.evaluatePromotion(level, babyCow);
@@ -7098,7 +7106,7 @@ Vec3 posH = pos.add(25, 0, 25);
 	public static InteractionResult simulateFeed(Player player, ServerLevel level, Animal animal) {
 		InteractionResult res = UseEntityCallback.EVENT.invoker().interact(player, level, InteractionHand.MAIN_HAND, animal, null);
 		if (res == InteractionResult.PASS) {
-			res = player.interactOn(animal, InteractionHand.MAIN_HAND);
+			res = com.jar.jarstacker.adapter.EntityAdapter.interactOn(player, animal, InteractionHand.MAIN_HAND);
 		}
 		return res;
 	}
@@ -7106,7 +7114,7 @@ Vec3 posH = pos.add(25, 0, 25);
 	public static InteractionResult simulateInteract(Player player, ServerLevel level, Entity entity) {
 		InteractionResult res = UseEntityCallback.EVENT.invoker().interact(player, level, InteractionHand.MAIN_HAND, entity, null);
 		if (res == InteractionResult.PASS) {
-			res = player.interactOn(entity, InteractionHand.MAIN_HAND);
+			res = com.jar.jarstacker.adapter.EntityAdapter.interactOn(player, entity, InteractionHand.MAIN_HAND);
 		}
 		return res;
 	}
@@ -11837,5 +11845,25 @@ Vec3 posH = pos.add(25, 0, 25);
 		} catch (Exception e) {
 			results.add(new TestResult("Test VR5 - Variant Copy Survives Extraction", false, e.getMessage()));
 		}
+	}
+
+	private static void setDayTime(ServerLevel level, long time) {
+		//? if >=26.1 {
+		/*level.dimensionTypeRegistration().value().defaultClock().ifPresent(clock -> {
+			level.getServer().clockManager().setTotalTicks(clock, time);
+		});
+		*///?} else {
+		level.setDayTime(time);
+		//?}
+	}
+
+	private static long getDayTime(ServerLevel level) {
+		//? if >=26.1 {
+		/*return level.dimensionTypeRegistration().value().defaultClock()
+			.map(clock -> level.getServer().clockManager().getTotalTicks(clock))
+			.orElse(0L);
+		*///?} else {
+		return level.getDayTime();
+		//?}
 	}
 }

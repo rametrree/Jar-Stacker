@@ -23,6 +23,22 @@ public final class EntityAdapter {
 		//?}
 	}
 
+	public static boolean isEntityType(EntityType<?> type, net.minecraft.tags.TagKey<EntityType<?>> tag) {
+		//? if >=26.1 {
+		/*return type.builtInRegistryHolder().is(tag);
+		*///?} else {
+		return type.is(tag);
+		//?}
+	}
+
+	public static net.minecraft.world.InteractionResult interactOn(net.minecraft.world.entity.player.Player player, Entity target, net.minecraft.world.InteractionHand hand) {
+		//? if >=26.1 {
+		/*return player.interactOn(target, hand, target.position());
+		*///?} else {
+		return player.interactOn(target, hand);
+		//?}
+	}
+
 	//? if >=1.21.11 {
 	/*public static void setMooshroomVariant(net.minecraft.world.entity.animal.cow.MushroomCow cow, boolean brown) {
 		if (cow == null) return;

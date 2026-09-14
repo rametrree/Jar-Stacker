@@ -102,6 +102,13 @@ public class JarStackerPackets {
 	}
 
 	public static void registerPayloads() {
+		//? if >=26.1 {
+		/*PayloadTypeRegistry.serverboundPlay().register(ConfigRequestPayload.TYPE, ConfigRequestPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(ConfigUpdatePayload.TYPE, ConfigUpdatePayload.CODEC);
+
+		PayloadTypeRegistry.clientboundPlay().register(ConfigDataPayload.TYPE, ConfigDataPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(ConfigResultPayload.TYPE, ConfigResultPayload.CODEC);
+		*///?} else {
 		// C2S (Play)
 		PayloadTypeRegistry.playC2S().register(ConfigRequestPayload.TYPE, ConfigRequestPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(ConfigUpdatePayload.TYPE, ConfigUpdatePayload.CODEC);
@@ -109,6 +116,7 @@ public class JarStackerPackets {
 		// S2C (Play)
 		PayloadTypeRegistry.playS2C().register(ConfigDataPayload.TYPE, ConfigDataPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(ConfigResultPayload.TYPE, ConfigResultPayload.CODEC);
+		//?}
 	}
 }
 

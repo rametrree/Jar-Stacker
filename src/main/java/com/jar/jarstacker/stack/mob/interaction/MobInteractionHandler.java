@@ -213,7 +213,7 @@ public class MobInteractionHandler {
 					HANDOFF_ACTIVE.set(true);
 					InteractionResult handoffResult;
 					try {
-						handoffResult = player.interactOn(extracted, hand);
+						handoffResult = com.jar.jarstacker.adapter.EntityAdapter.interactOn(player, extracted, hand);
 					} finally {
 						HANDOFF_ACTIVE.remove();
 					}

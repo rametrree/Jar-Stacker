@@ -27,7 +27,11 @@ public class JarStackerYaclScreen {
 					ModConfig.setInstance(model);
 					ModConfig.save();
 					if (mc.player != null) {
+						//? if >=26.1 {
+						/*mc.player.sendSystemMessage(Component.literal("[Jar Stacker] Configuration saved!"));
+						*///?} else {
 						mc.player.displayClientMessage(Component.literal("[Jar Stacker] Configuration saved!"), false);
+						//?}
 					}
 				} else {
 					ClientPlayNetworking.send(new JarStackerPackets.ConfigUpdatePayload(baseRevision, model.toJson()));

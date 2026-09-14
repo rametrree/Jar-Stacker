@@ -166,6 +166,21 @@ public class MobInteractionResolver {
 			}
 
 			// 3. Sheep Dyeing (EXTRACT_ONE)
+			//? if >=26.1 {
+			/*net.minecraft.world.item.DyeColor dyeColor = heldItem.get(net.minecraft.core.component.DataComponents.DYE);
+			if (dyeColor != null) {
+				if (!sheep.isSheared() && !sheep.isBaby()) {
+					if (sheep.getColor() != dyeColor) {
+						return StackInteractionDecision.extractOne("Sheep dyeing to " + dyeColor, 0);
+					} else {
+						// Same color dye is a Vanilla no-op; avoid unnecessary split
+						return new StackInteractionDecision(StackInteractionMode.PASS_THROUGH, "Same color dye is no-op", 0);
+					}
+				} else {
+					return new StackInteractionDecision(StackInteractionMode.PASS_THROUGH, "Sheared or baby sheep cannot be dyed", 0);
+				}
+			}
+			*///?} else {
 			if (heldItem.getItem() instanceof DyeItem dyeItem) {
 				if (!sheep.isSheared() && !sheep.isBaby()) {
 					if (sheep.getColor() != dyeItem.getDyeColor()) {
@@ -178,6 +193,7 @@ public class MobInteractionResolver {
 					return new StackInteractionDecision(StackInteractionMode.PASS_THROUGH, "Sheared or baby sheep cannot be dyed", 0);
 				}
 			}
+			//?}
 		}
 
 		// 4. Baby Animal Growth Feeding (EXTRACT_ONE)

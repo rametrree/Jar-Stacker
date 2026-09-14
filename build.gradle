@@ -41,13 +41,16 @@ base {
 processResources {
 	def modVer = project.mod_version
 	def mcDep = project.hasProperty("minecraft_dependency") ? project.property("minecraft_dependency") : "~${project.minecraft_version}"
+	def javaDep = project.hasProperty("java_dependency") ? project.property("java_dependency") : ">=21"
 	inputs.property "version", modVer
 	inputs.property "minecraft_dependency", mcDep
+	inputs.property "java_dependency", javaDep
 
 	filesMatching("fabric.mod.json") {
 		expand([
 			"version": modVer,
-			"minecraft_dependency": mcDep
+			"minecraft_dependency": mcDep,
+			"java_dependency": javaDep
 		])
 	}
 }

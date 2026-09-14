@@ -46,11 +46,11 @@ public class LogicalStatusRecord {
 		if (representative == null) {
 			return true;
 		}
-		if (representative.getType().is(EntityTypeTags.IMMUNE_TO_INFESTED)) {
+		if (com.jar.jarstacker.adapter.EntityAdapter.isEntityType(representative.getType(), EntityTypeTags.IMMUNE_TO_INFESTED)) {
 			return !effectInstance.is(MobEffects.INFESTED);
-		} else if (representative.getType().is(EntityTypeTags.IMMUNE_TO_OOZING)) {
+		} else if (com.jar.jarstacker.adapter.EntityAdapter.isEntityType(representative.getType(), EntityTypeTags.IMMUNE_TO_OOZING)) {
 			return !effectInstance.is(MobEffects.OOZING);
-		} else if (representative.getType().is(EntityTypeTags.IGNORES_POISON_AND_REGEN)) {
+		} else if (com.jar.jarstacker.adapter.EntityAdapter.isEntityType(representative.getType(), EntityTypeTags.IGNORES_POISON_AND_REGEN)) {
 			return !effectInstance.is(MobEffects.REGENERATION) && !effectInstance.is(MobEffects.POISON);
 		}
 		return true;

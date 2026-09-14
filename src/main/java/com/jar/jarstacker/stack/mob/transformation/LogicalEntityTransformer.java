@@ -363,7 +363,7 @@ public class LogicalEntityTransformer {
 				if (onPreShearSpawnHook != null) {
 					onPreShearSpawnHook.accept(level);
 				}
-				res = player.interactOn(sourceMob, hand);
+				res = com.jar.jarstacker.adapter.EntityAdapter.interactOn(player, sourceMob, hand);
 			} finally {
 				HANDOFF_ACTIVE.set(false);
 				CONTEXT_STACK.get().poll();
@@ -480,7 +480,7 @@ public class LogicalEntityTransformer {
 			if (onPreShearSpawnHook != null) {
 				onPreShearSpawnHook.accept(level);
 			}
-			res = player.interactOn(extracted, hand);
+			res = com.jar.jarstacker.adapter.EntityAdapter.interactOn(player, extracted, hand);
 		} finally {
 			HANDOFF_ACTIVE.set(false);
 			CONTEXT_STACK.get().poll();

@@ -4,7 +4,6 @@ import com.jar.jarstacker.config.ModConfig;
 import com.jar.jarstacker.network.JarStackerPackets;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -14,7 +13,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.*;
 
-public class JarStackerConfigScreen extends Screen {
+public class JarStackerConfigScreen extends BaseConfigScreen {
 	private final Screen parent;
 	private final ModConfig model;
 	private final long baseRevision;
@@ -84,7 +83,11 @@ public class JarStackerConfigScreen extends Screen {
 				ModConfig.setInstance(model);
 				ModConfig.save();
 				if (this.minecraft.player != null) {
+					//? if >=26.1 {
+					/*this.minecraft.player.sendSystemMessage(Component.literal("Jar Stacker configuration saved!"));
+					*///?} else {
 					this.minecraft.player.displayClientMessage(Component.literal("Jar Stacker configuration saved!"), false);
+					//?}
 				}
 			} else {
 				// Send update payload to multiplayer server
@@ -100,19 +103,17 @@ public class JarStackerConfigScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-		guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
+	protected void renderGui(BaseConfigScreen.GuiDrawer drawer, int mouseX, int mouseY, float partialTick) {
+		drawer.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
 		String revText = "Revision: " + baseRevision;
-		guiGraphics.drawString(this.font, revText, 10, this.height - 15, 0x888888);
-		super.render(guiGraphics, mouseX, mouseY, partialTick);
+		drawer.drawString(this.font, revText, 10, this.height - 15, 0x888888);
 	}
 
 	// =========================================================================
 	// SUB-SCREENS
 	// =========================================================================
 
-	public static class ItemConfigScreen extends Screen {
+	public static class ItemConfigScreen extends BaseConfigScreen {
 		private final Screen parent;
 		private final ModConfig model;
 		private EditBox radiusBox;
@@ -183,18 +184,16 @@ public class JarStackerConfigScreen extends Screen {
 		}
 
 		@Override
-		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-			guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
+		protected void renderGui(BaseConfigScreen.GuiDrawer drawer, int mouseX, int mouseY, float partialTick) {
+			drawer.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
 			int cx = this.width / 2 - 110;
-			guiGraphics.drawString(this.font, "Merge Radius (blocks):", cx, 69, 0xAAAAAA);
-			guiGraphics.drawString(this.font, "Scan Interval (ticks):", cx, 103, 0xAAAAAA);
-			guiGraphics.drawString(this.font, "Max Stack Size:", cx, 137, 0xAAAAAA);
-			super.render(guiGraphics, mouseX, mouseY, partialTick);
+			drawer.drawString(this.font, "Merge Radius (blocks):", cx, 69, 0xAAAAAA);
+			drawer.drawString(this.font, "Scan Interval (ticks):", cx, 103, 0xAAAAAA);
+			drawer.drawString(this.font, "Max Stack Size:", cx, 137, 0xAAAAAA);
 		}
 	}
 
-	public static class MobConfigScreen extends Screen {
+	public static class MobConfigScreen extends BaseConfigScreen {
 		private final Screen parent;
 		private final ModConfig model;
 		private EditBox radiusBox;
@@ -270,18 +269,16 @@ public class JarStackerConfigScreen extends Screen {
 		}
 
 		@Override
-		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-			guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
+		protected void renderGui(BaseConfigScreen.GuiDrawer drawer, int mouseX, int mouseY, float partialTick) {
+			drawer.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
 			int cx = this.width / 2 - 110;
-			guiGraphics.drawString(this.font, "Merge Radius (blocks):", cx, 69, 0xAAAAAA);
-			guiGraphics.drawString(this.font, "Scan Interval (ticks):", cx, 103, 0xAAAAAA);
-			guiGraphics.drawString(this.font, "Max Stack Size:", cx, 137, 0xAAAAAA);
-			super.render(guiGraphics, mouseX, mouseY, partialTick);
+			drawer.drawString(this.font, "Merge Radius (blocks):", cx, 69, 0xAAAAAA);
+			drawer.drawString(this.font, "Scan Interval (ticks):", cx, 103, 0xAAAAAA);
+			drawer.drawString(this.font, "Max Stack Size:", cx, 137, 0xAAAAAA);
 		}
 	}
 
-	public static class FiltersRulesMenuScreen extends Screen {
+	public static class FiltersRulesMenuScreen extends BaseConfigScreen {
 		private final Screen parent;
 		private final ModConfig model;
 
@@ -337,16 +334,9 @@ public class JarStackerConfigScreen extends Screen {
 			this.addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, b -> this.minecraft.setScreen(parent))
 				.bounds(cx - 100, this.height - 30, 200, 20).build());
 		}
-
-		@Override
-		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-			guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
-			super.render(guiGraphics, mouseX, mouseY, partialTick);
-		}
 	}
 
-	public static class ListEditorScreen extends Screen {
+	public static class ListEditorScreen extends BaseConfigScreen {
 		private final Screen parent;
 		private final String titleName;
 		private final List<String> list;
@@ -421,10 +411,9 @@ public class JarStackerConfigScreen extends Screen {
 		//?}
 
 		@Override
-		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-			guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
-			guiGraphics.drawString(this.font, "Type registry ID (e.g. " + (isItem ? "minecraft:diamond" : "minecraft:zombie") + "):", this.width / 2 - 110, 32, 0xAAAAAA);
+		protected void renderGui(BaseConfigScreen.GuiDrawer drawer, int mouseX, int mouseY, float partialTick) {
+			drawer.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
+			drawer.drawString(this.font, "Type registry ID (e.g. " + (isItem ? "minecraft:diamond" : "minecraft:zombie") + "):", this.width / 2 - 110, 32, 0xAAAAAA);
 
 			int cx = this.width / 2;
 			int startY = 75;
@@ -432,19 +421,17 @@ public class JarStackerConfigScreen extends Screen {
 			for (int i = 0; i < Math.min(10, list.size()); i++) {
 				String item = list.get(i);
 				int color = (i == selectedIndex) ? 0xFFFF55 : 0xFFFFFF;
-				guiGraphics.drawString(this.font, "• " + item, cx - 105, startY + i * rowH, color);
+				drawer.drawString(this.font, "• " + item, cx - 105, startY + i * rowH, color);
 			}
 			if (list.isEmpty()) {
-				guiGraphics.drawCenteredString(this.font, "(List is currently empty)", cx, startY + 20, 0x777777);
+				drawer.drawCenteredString(this.font, "(List is currently empty)", cx, startY + 20, 0x777777);
 			} else if (list.size() > 10) {
-				guiGraphics.drawString(this.font, "... and " + (list.size() - 10) + " more", cx - 105, startY + 10 * rowH, 0x888888);
+				drawer.drawString(this.font, "... and " + (list.size() - 10) + " more", cx - 105, startY + 10 * rowH, 0x888888);
 			}
-
-			super.render(guiGraphics, mouseX, mouseY, partialTick);
 		}
 	}
 
-	public static class ItemRulesScreen extends Screen {
+	public static class ItemRulesScreen extends BaseConfigScreen {
 		private final Screen parent;
 		private final ModConfig model;
 		private EditBox idBox;
@@ -486,28 +473,25 @@ public class JarStackerConfigScreen extends Screen {
 		}
 
 		@Override
-		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-			guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
-			guiGraphics.drawString(this.font, "Item ID (e.g. minecraft:cobblestone):", this.width / 2 - 110, 32, 0xAAAAAA);
-			guiGraphics.drawString(this.font, "Max Stack:", this.width / 2 + 35, 32, 0xAAAAAA);
+		protected void renderGui(BaseConfigScreen.GuiDrawer drawer, int mouseX, int mouseY, float partialTick) {
+			drawer.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
+			drawer.drawString(this.font, "Item ID (e.g. minecraft:cobblestone):", this.width / 2 - 110, 32, 0xAAAAAA);
+			drawer.drawString(this.font, "Max Stack:", this.width / 2 + 35, 32, 0xAAAAAA);
 
 			int cx = this.width / 2;
 			int startY = 100;
 			int count = 0;
 			for (Map.Entry<String, ModConfig.ItemRuleConfig> entry : model.getItemStacking().getRules().entrySet()) {
 				if (count++ >= 8) break;
-				guiGraphics.drawString(this.font, "• " + entry.getKey() + " -> max: " + entry.getValue().getMaxStackSize(), cx - 105, startY + (count - 1) * 12, 0xFFFFFF);
+				drawer.drawString(this.font, "• " + entry.getKey() + " -> max: " + entry.getValue().getMaxStackSize(), cx - 105, startY + (count - 1) * 12, 0xFFFFFF);
 			}
 			if (model.getItemStacking().getRules().isEmpty()) {
-				guiGraphics.drawCenteredString(this.font, "(No per-item rules defined)", cx, startY + 15, 0x777777);
+				drawer.drawCenteredString(this.font, "(No per-item rules defined)", cx, startY + 15, 0x777777);
 			}
-
-			super.render(guiGraphics, mouseX, mouseY, partialTick);
 		}
 	}
 
-	public static class MobRulesScreen extends Screen {
+	public static class MobRulesScreen extends BaseConfigScreen {
 		private final Screen parent;
 		private final ModConfig model;
 		private EditBox idBox;
@@ -549,28 +533,25 @@ public class JarStackerConfigScreen extends Screen {
 		}
 
 		@Override
-		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-			guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
-			guiGraphics.drawString(this.font, "Mob ID (e.g. minecraft:zombie):", this.width / 2 - 110, 32, 0xAAAAAA);
-			guiGraphics.drawString(this.font, "Max Stack:", this.width / 2 + 35, 32, 0xAAAAAA);
+		protected void renderGui(BaseConfigScreen.GuiDrawer drawer, int mouseX, int mouseY, float partialTick) {
+			drawer.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
+			drawer.drawString(this.font, "Mob ID (e.g. minecraft:zombie):", this.width / 2 - 110, 32, 0xAAAAAA);
+			drawer.drawString(this.font, "Max Stack:", this.width / 2 + 35, 32, 0xAAAAAA);
 
 			int cx = this.width / 2;
 			int startY = 100;
 			int count = 0;
 			for (Map.Entry<String, ModConfig.MobRuleConfig> entry : model.getMobStacking().getRules().entrySet()) {
 				if (count++ >= 8) break;
-				guiGraphics.drawString(this.font, "• " + entry.getKey() + " -> max: " + entry.getValue().getMaxStackSize(), cx - 105, startY + (count - 1) * 12, 0xFFFFFF);
+				drawer.drawString(this.font, "• " + entry.getKey() + " -> max: " + entry.getValue().getMaxStackSize(), cx - 105, startY + (count - 1) * 12, 0xFFFFFF);
 			}
 			if (model.getMobStacking().getRules().isEmpty()) {
-				guiGraphics.drawCenteredString(this.font, "(No per-mob rules defined)", cx, startY + 15, 0x777777);
+				drawer.drawCenteredString(this.font, "(No per-mob rules defined)", cx, startY + 15, 0x777777);
 			}
-
-			super.render(guiGraphics, mouseX, mouseY, partialTick);
 		}
 	}
 
-	public static class DisplayConfigScreen extends Screen {
+	public static class DisplayConfigScreen extends BaseConfigScreen {
 		private final Screen parent;
 		private final ModConfig model;
 
@@ -614,16 +595,9 @@ public class JarStackerConfigScreen extends Screen {
 			this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> this.minecraft.setScreen(parent))
 				.bounds(cx - 100, this.height - 30, 200, 20).build());
 		}
-
-		@Override
-		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-			guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
-			super.render(guiGraphics, mouseX, mouseY, partialTick);
-		}
 	}
 
-	public static class PerformanceConfigScreen extends Screen {
+	public static class PerformanceConfigScreen extends BaseConfigScreen {
 		private final Screen parent;
 		private final ModConfig model;
 
@@ -658,13 +632,6 @@ public class JarStackerConfigScreen extends Screen {
 			// Done button
 			this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> this.minecraft.setScreen(parent))
 				.bounds(cx - 100, this.height - 30, 200, 20).build());
-		}
-
-		@Override
-		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-			this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-			guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
-			super.render(guiGraphics, mouseX, mouseY, partialTick);
 		}
 	}
 }
