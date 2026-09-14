@@ -11378,8 +11378,6 @@ Vec3 posH = pos.add(25, 0, 25);
 
 				List<ItemEntity> current = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
 				if (current.size() != 1 || !current.get(0).getUUID().equals(drop.getUUID())) {
-					latestWi
-... [truncated for diff preview]
 					latestWinsConsistent = false;
 				}
 				int expectedCount = i + 1;
