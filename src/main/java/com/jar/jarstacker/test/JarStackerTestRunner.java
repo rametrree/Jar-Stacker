@@ -11981,7 +11981,8 @@ Vec3 posH = pos.add(25, 0, 25);
 			p.setProperty("zombieUuid", zombie.getUUID().toString());
 			p.setProperty("mooshroomUuid", mooshroom.getUUID().toString());
 			p.setProperty("itemUuid", item.getUUID().toString());
-			try (java.io.FileOutputStream fos = new java.io.FileOutputStream("run/save_fixture_coords.properties")) {
+			java.io.File propFile = new java.io.File("save_fixture_coords.properties");
+			try (java.io.FileOutputStream fos = new java.io.FileOutputStream(propFile)) {
 				p.store(fos, null);
 			}
 		} catch (Exception ignored) {}
@@ -12001,7 +12002,10 @@ Vec3 posH = pos.add(25, 0, 25);
 		UUID mooshroomUuid = null;
 		UUID itemUuid = null;
 		try {
-			java.io.File propFile = new java.io.File("run/save_fixture_coords.properties");
+			java.io.File propFile = new java.io.File("save_fixture_coords.properties");
+			if (!propFile.exists()) {
+				propFile = new java.io.File("run/save_fixture_coords.properties");
+			}
 			if (propFile.exists()) {
 				java.util.Properties p = new java.util.Properties();
 				try (java.io.FileInputStream fis = new java.io.FileInputStream(propFile)) {
