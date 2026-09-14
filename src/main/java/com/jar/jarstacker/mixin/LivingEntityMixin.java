@@ -527,7 +527,7 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 		if (!((Object) this instanceof Mob mob)) {
 			return;
 		}
-		if (mob.level().isClientSide) {
+		if (mob.level().isClientSide()) {
 			return;
 		}
 

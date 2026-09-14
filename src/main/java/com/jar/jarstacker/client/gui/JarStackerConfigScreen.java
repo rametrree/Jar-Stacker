@@ -388,6 +388,22 @@ public class JarStackerConfigScreen extends Screen {
 				.bounds(cx - 100, this.height - 30, 200, 20).build());
 		}
 
+		//? if >=1.21.9 {
+		/*@Override
+		public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean bl) {
+			int cx = this.width / 2;
+			int startY = 75;
+			int rowH = 12;
+			for (int i = 0; i < Math.min(10, list.size()); i++) {
+				int itemY = startY + i * rowH;
+				if (event.y() >= itemY && event.y() < itemY + rowH && event.x() >= cx - 110 && event.x() <= cx + 110) {
+					selectedIndex = i;
+					return true;
+				}
+			}
+			return super.mouseClicked(event, bl);
+		}
+		*///?} else {
 		@Override
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
 			int cx = this.width / 2;
@@ -402,6 +418,7 @@ public class JarStackerConfigScreen extends Screen {
 			}
 			return super.mouseClicked(mouseX, mouseY, button);
 		}
+		//?}
 
 		@Override
 		public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {

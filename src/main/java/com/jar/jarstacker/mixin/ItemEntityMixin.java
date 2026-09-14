@@ -144,7 +144,7 @@ public abstract class ItemEntityMixin extends Entity implements StackableEntity 
 	@Inject(method = "playerTouch", at = @At("HEAD"), cancellable = true)
 	private void jarstacker$onPlayerTouch(Player player, CallbackInfo ci) {
 		ItemEntity self = (ItemEntity) (Object) this;
-		if (self.level().isClientSide) {
+		if (self.level().isClientSide()) {
 			return;
 		}
 

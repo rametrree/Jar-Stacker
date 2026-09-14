@@ -144,7 +144,7 @@ public class LogicalHealthManager {
 	}
 
 	public static void onDamageApplied(LivingEntity entity, DamageSource damageSource, float damageAmount) {
-		if (entity.level().isClientSide || !entity.isAlive() || entity.isRemoved() || damageAmount <= 0.0f) {
+		if (entity.level().isClientSide() || !entity.isAlive() || entity.isRemoved() || damageAmount <= 0.0f) {
 			return;
 		}
 
@@ -250,7 +250,7 @@ public class LogicalHealthManager {
 	}
 
 	public static void applySweepToPrimary(LivingEntity primaryEntity, float sweepDamage) {
-		if (primaryEntity == null || primaryEntity.level().isClientSide || !primaryEntity.isAlive() || primaryEntity.isRemoved() || sweepDamage <= 0.0f) {
+		if (primaryEntity == null || primaryEntity.level().isClientSide() || !primaryEntity.isAlive() || primaryEntity.isRemoved() || sweepDamage <= 0.0f) {
 			return;
 		}
 
@@ -343,7 +343,7 @@ public class LogicalHealthManager {
 	}
 
 	public static boolean handleDie(LivingEntity entity, DamageSource damageSource) {
-		if (entity.level().isClientSide) {
+		if (entity.level().isClientSide()) {
 			return false;
 		}
 
@@ -455,7 +455,7 @@ public class LogicalHealthManager {
 	}
 
 	public static boolean applyLogicalDirectDamage(LivingEntity entity, int memberIndex, DamageSource damageSource, float amount) {
-		if (entity == null || entity.level().isClientSide || !entity.isAlive() || entity.isRemoved() || amount <= 0.0f) {
+		if (entity == null || entity.level().isClientSide() || !entity.isAlive() || entity.isRemoved() || amount <= 0.0f) {
 			return false;
 		}
 
@@ -512,7 +512,7 @@ public class LogicalHealthManager {
 	}
 
 	public static void healMember(LivingEntity entity, int memberIndex, float amount) {
-		if (entity == null || entity.level().isClientSide || amount <= 0.0f) {
+		if (entity == null || entity.level().isClientSide() || amount <= 0.0f) {
 			return;
 		}
 		LogicalHealthState state = getOrCreateState(entity);

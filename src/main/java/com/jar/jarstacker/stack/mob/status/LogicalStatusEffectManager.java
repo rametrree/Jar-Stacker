@@ -74,7 +74,7 @@ public class LogicalStatusEffectManager {
 	}
 
 	public static void tick(LivingEntity entity) {
-		if (entity == null || entity.level().isClientSide || !entity.isAlive() || entity.isRemoved()) {
+		if (entity == null || entity.level().isClientSide() || !entity.isAlive() || entity.isRemoved()) {
 			return;
 		}
 
@@ -175,7 +175,7 @@ public class LogicalStatusEffectManager {
 	}
 
 	public static boolean applyEffect(LivingEntity entity, MobEffectInstance instance, Entity source) {
-		if (entity == null || entity.level().isClientSide || instance == null) {
+		if (entity == null || entity.level().isClientSide() || instance == null) {
 			return false;
 		}
 
@@ -277,7 +277,7 @@ public class LogicalStatusEffectManager {
 	}
 
 	public static void applyInstantEffect(LivingEntity entity, Holder<MobEffect> effect, int amplifier, double factor, LogicalEffectScopeResolver.Scope scope) {
-		if (entity == null || entity.level().isClientSide || effect == null) {
+		if (entity == null || entity.level().isClientSide() || effect == null) {
 			return;
 		}
 
@@ -305,7 +305,7 @@ public class LogicalStatusEffectManager {
 	}
 
 	public static void projectActiveMember(LivingEntity entity) {
-		if (entity == null || entity.level().isClientSide) {
+		if (entity == null || entity.level().isClientSide()) {
 			return;
 		}
 
@@ -336,7 +336,7 @@ public class LogicalStatusEffectManager {
 	}
 
 	public static void onActiveMemberSwitched(LivingEntity entity, LogicalStatusRecord oldRecord, LogicalStatusRecord newRecord) {
-		if (entity == null || entity.level().isClientSide) {
+		if (entity == null || entity.level().isClientSide()) {
 			return;
 		}
 

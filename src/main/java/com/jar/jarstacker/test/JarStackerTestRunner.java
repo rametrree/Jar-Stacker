@@ -115,7 +115,7 @@ public class JarStackerTestRunner {
 		com.jar.jarstacker.stack.mob.MovementDiagnostics.enabled = true;
 
 		// Use the world's shared spawn position where chunks are loaded
-		net.minecraft.core.BlockPos spawnPos = level.getSharedSpawnPos();
+		net.minecraft.core.BlockPos spawnPos = com.jar.jarstacker.adapter.EntityAdapter.getSharedSpawnPos(level);
 		pos = new Vec3(spawnPos.getX() + 0.5, spawnPos.getY() + 1.0, spawnPos.getZ() + 0.5);
 		int baseChunkX = spawnPos.getX() >> 4;
 		int baseChunkZ = spawnPos.getZ() >> 4;
@@ -124,6 +124,11 @@ public class JarStackerTestRunner {
 				level.setChunkForced(baseChunkX + dx, baseChunkZ + dz, true);
 				level.getChunk(baseChunkX + dx, baseChunkZ + dz);
 			}
+		}
+		for (int i = 0; i < 20; i++) {
+			level.getChunkSource().tick(() -> true, true);
+			while (level.getChunkSource().pollTask()) {}
+			while (level.getServer().pollTask()) {}
 		}
 		if (level.getGameTime() < 100000) {
 			((net.minecraft.world.level.storage.ServerLevelData) level.getLevelData()).setGameTime(100000L);
@@ -5022,7 +5027,11 @@ public class JarStackerTestRunner {
 			Strider strider = createEntity(EntityType.STRIDER, level);
 			Strider babyPassenger = createEntity(EntityType.STRIDER, level);
 			babyPassenger.setBaby(true);
+			//? if >=1.21.9 {
+			/*babyPassenger.startRiding(strider, true, false);
+			*///?} else {
 			babyPassenger.startRiding(strider, true);
+			//?}
 
 			boolean excluded = MobCompatibility.isExcluded(strider);
 

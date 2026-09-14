@@ -464,4 +464,12 @@ public final class EntityAdapter {
 		}
 		//?}
 	}
+
+	public static net.minecraft.core.BlockPos getSharedSpawnPos(net.minecraft.server.level.ServerLevel level) {
+		//? if >=1.21.9 {
+		/*return level.getRespawnData().pos();
+		*///?} else {
+		return level.getSharedSpawnPos();
+		//?}
+	}
 }
