@@ -10676,6 +10676,11 @@ Vec3 posH = pos.add(25, 0, 25);
 
 		java.util.function.Consumer<AABB> clean = area -> {
 			for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, area)) item.discard();
+			List<ItemEntity> extra = new java.util.ArrayList<>();
+			for (Entity e : level.getAllEntities()) {
+				if (e instanceof ItemEntity item) extra.add(item);
+			}
+			for (ItemEntity item : extra) item.discard();
 		};
 
 		// Test IM1 - Old xN + New x1 -> Latest Entity Survives with Natural Transform
