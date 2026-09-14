@@ -32,6 +32,9 @@ Jar Stacker is engineered around four core tenets:
 | **1.21.9** | `1.21.9` (Dedicated) | `jarstacker-0.7.0+mc1.21.9.jar` | `7E68BB6D2D451F38E990614AB73F8FCEC881FFA4915F38090B6F00FA702E0952` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Compatibility Band Anchor) |
 | **1.21.10** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.9.jar` (Exact Binary) | `7E68BB6D2D451F38E990614AB73F8FCEC881FFA4915F38090B6F00FA702E0952` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (1.21.9–1.21.10) |
 | **1.21.11** | `1.21.11` (Dedicated) | `jarstacker-0.7.0+mc1.21.11.jar` | `17AB8A871A38D4CA3C2604022BD83D9D6566AAEE12FBEE730AB6844529B81221` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Sweeping Attack, Entity Package & Permissions Overhaul) |
+| **26.1** | `26.1` (Dedicated) | `jarstacker-0.7.0+mc26.1.jar` | `478A4B71D6B1861E61247EC7112739353582972DFCD79B4BD889C3123DBFBC70` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Java 25, No-Remap Loom, Compatibility Band Anchor) |
+| **26.1.1** | None (Runtime Harness) | `jarstacker-0.7.0+mc26.1.jar` (Exact Binary) | `478A4B71D6B1861E61247EC7112739353582972DFCD79B4BD889C3123DBFBC70` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (26.1–26.1.2) |
+| **26.1.2** | None (Runtime Harness) | `jarstacker-0.7.0+mc26.1.jar` (Exact Binary) | `478A4B71D6B1861E61247EC7112739353582972DFCD79B4BD889C3123DBFBC70` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (26.1–26.1.2) |
 
 *Note: For all supported versions and compatibility bands, client verification confirmed the title screen reached with no fatal Mixin/linkage/entrypoint errors.*
 
@@ -152,6 +155,60 @@ Minecraft 1.21.11 introduced major structural breaking changes across multiple M
    Rejection occurred purely at dependency resolution time without Mixin or linkage crashes.
 7. **Verification**: Dedicated compile target `1.21.11` compiled cleanly, **348 / 348 automated tests passed**, and title screen reached with no fatal Mixin/linkage/entrypoint errors.
 
+### 1.21.11 vs 26.1: Hard Generation Boundary (Java 25, Unobfuscated Minecraft, and Build Architecture)
+Minecraft 26.1 marks a hard generation boundary from the 1.21.x series:
+1. **Unobfuscated Runtime**: Mojang ceased obfuscating Minecraft class and method names in 26.1. Fabric Loader runs mods directly against official Mojang names without intermediary runtime remapping. Pre-26.1 mods interacting with Minecraft code require recompilation.
+2. **Java 25 Runtime**: The minimum JVM requirement shifted from Java 21 to Java 25 (bytecode major version 69).
+3. **Probe Before Port Empirical Boundary**:
+   - Launching the unmodified 1.21.11 artifact on 26.1 produces expected Fabric Loader dependency rejection:
+     ```text
+     Mod 'Jar Stacker' (jarstacker) 0.7.0 requires version 1.21.11 of 'Minecraft' (minecraft), but only the wrong version is present: 26.1!
+     ```
+   - Launching a metadata-widened copy (`>=1.21.11 <=26.1`) fails during early Knot launch due to intermediary refmap mismatches and Java 21 vs 25 runtime differences, confirming the hard boundary.
+4. **Dual Build Architecture**:
+   - `build.gradle` (<=1.21.11): `net.fabricmc.fabric-loom-remap`, `mappings loom.officialMojangMappings()`, `modImplementation`, `modCompileOnly`, `modLocalRuntime`, `remapJar`, release target 21.
+   - `build-26.gradle` (>=26.1): `net.fabricmc.fabric-loom`, no mappings block (compiles directly against Mojang names), standard `implementation`, `compileOnly`, `runtimeOnly`, `jar` task, release target 25.
+   - Configured via Stonecutter `settings.gradle`: `version("26.1").buildscript("build-26.gradle")`.
+
+### 26.1 vs 26.1.1 & 26.1.2: Verified Same-Binary Compatibility Band (26.1–26.1.2)
+Minecraft 26.1.1 and 26.1.2 are official hotfix releases that maintain 100% binary and semantic compatibility with 26.1 for all classes, methods, and Mixin injection points touched by Jar Stacker:
+- **Dependencies** (from `versions/26.1/gradle.properties`):
+  - Minecraft: `26.1` (with runtime support for `26.1.1` and `26.1.2`)
+  - Fabric Loader: `0.19.3`
+  - Fabric API: `0.145.1+26.1` (26.1), `0.145.4+26.1.1` (26.1.1), `0.145.4+26.1.2` (26.1.2)
+  - YACL: `3.9.6+26.1-fabric`
+  - Mod Menu: `18.0.1`
+- **Probe-Before-Port Protocol on 26.1.1**:
+  - Unmodified 26.1 artifact rejected at dependency resolution:
+    ```text
+    Mod 'Jar Stacker' (jarstacker) 0.7.0 requires version 26.1 of 'Minecraft' (minecraft), but only the wrong version is present: 26.1.1!
+    ```
+  - Metadata-widened probe executed on `runtime-test-26.1.1`: **348 / 348 tests PASS**, title screen reached with no fatal Mixin/linkage/entrypoint errors.
+- **Sequential Probe-Before-Port Protocol on 26.1.2**:
+  - Unmodified 26.1 artifact rejected at dependency resolution:
+    ```text
+    Mod 'Jar Stacker' (jarstacker) 0.7.0 requires version 26.1 of 'Minecraft' (minecraft), but only the wrong version is present: 26.1.2!
+    ```
+  - Metadata-widened probe executed on `runtime-test-26.1.2`: **348 / 348 tests PASS**, title screen reached with no fatal Mixin/linkage/entrypoint errors.
+- **Band Finalization**:
+  - Predicate set to `"minecraft": ">=26.1 <=26.1.2"` in `versions/26.1/gradle.properties`.
+  - Rebuilt packaged artifact: `versions/26.1/build/libs/jarstacker-0.7.0+mc26.1.jar` (SHA-256: `478A4B71D6B1861E61247EC7112739353582972DFCD79B4BD889C3123DBFBC70`).
+  - Both band endpoints re-verified with final artifact:
+    - `:26.1:runServer -PrunTests`: **348 / 348 PASS**
+    - `:runtime-test-26.1.2:runServer -PrunTests`: **348 / 348 PASS**
+- **World Save Upgrade Smoke Test**:
+  - World generated, populated with stacked entities, and saved in Minecraft 1.21.11 was upgraded directly to Minecraft 26.1.
+  - Server booted cleanly, DataFixerUpper successfully upgraded chunk data, and all **348 / 348 tests passed** with zero state loss or data corruption.
+- **Declared Band**: `VERIFIED BINARY BAND: Minecraft 26.1–26.1.2`.
+
+### 26.1.2 vs 26.2: Negative Metadata Boundary Probe
+To ensure release safety and verify that the 26.1 artifact cannot accidentally run on unverified subsequent versions:
+- Launching the final unmodified `jarstacker-0.7.0+mc26.1.jar` on a Minecraft 26.2 harness resulted in clean early rejection by Fabric Loader:
+  ```text
+  Mod 'Jar Stacker' (jarstacker) 0.7.0 requires any version between 26.1 (inclusive) and 26.1.2 (inclusive) of 'Minecraft' (minecraft), but only the wrong version is present: 26.2!
+  ```
+- Binary probing and porting of Minecraft 26.2 are deferred to Milestone 5.
+
 ---
 
 ## 4. Full Mixin Audit
@@ -208,26 +265,35 @@ Jar Stacker declares 24 mixins and accessors in `jarstacker.mixins.json` with `i
 | **Persistence / Codecs** | `net.minecraft.world.level.storage.ValueOutput` | **Adapter / Conditional Mixin** | 1.21.6+ adopts `ValueOutput` / `ValueInput`. Encapsulated in `EntityAdapter` with automatic `JarStackerData` packing and unpacking. | **Low**: Isolated in adapter and mixin layers. |
 | **ProjectileUtil** | `net.minecraft.world.entity.projectile.ProjectileUtil` | **Adapter** | `getEntityHitResult` signature changed in 1.21.6. Abstracted in `EntityAdapter.getEntityHitResult`. | **Low**: Isolated in adapter. |
 | **Permissions** | `net.minecraft.commands.CommandSourceStack` | **Adapter / Conditional** | Numeric permissions (`hasPermission(2)`) replaced in 1.21.11 by `Permissions.COMMANDS_GAMEMASTER`. | **Low**: Isolated in `JarStackerCommands.hasAdminPermission`. |
+| **GUI Rendering** | `net.minecraft.client.gui.screens.Screen` | **Adapter / Base Screen** | In 26.1+, `render(GuiGraphics, ...)` was replaced by `extractRenderState(GuiGraphicsExtractor, ...)`. Abstracted cleanly via `BaseConfigScreen` and `GuiDrawer`. | **Low**: Fully encapsulated in client GUI base hierarchy. |
+| **Player Interaction** | `net.minecraft.world.entity.player.Player` | **Adapter** | `interactAt` was renamed to `interactOn` taking `(Player, Hand, Vec3)` in 26.1+. Encapsulated in `EntityAdapter.interactOn`. | **Low**: Isolated in `EntityAdapter`. |
+| **Server Tick Lifecycle** | `net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents` | **Conditional** | In 26.1+ Fabric API, `END_WORLD_TICK` was renamed to `END_LEVEL_TICK`. Handled via Stonecutter conditional. | **Low**: Standard lifecycle hook. |
+| **Networking Payloads** | `net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry` | **Conditional** | In 26.1+ Fabric API, `playC2S()` and `playS2C()` were renamed to `serverboundPlay()` and `clientboundPlay()`. Handled via Stonecutter conditional. | **Low**: Handled at network setup. |
+| **Client Commands** | `net.fabricmc.fabric.api.client.command.v2.ClientCommands` | **Conditional** | In 26.1+ Fabric API, `ClientCommandManager` was renamed to `ClientCommands`. Handled via Stonecutter conditional. | **Low**: Client command registration. |
+| **Dye Data Component** | `net.minecraft.core.component.DataComponents` | **Conditional** | In 26.1+, dye component is `DataComponents.DYE` instead of `DataComponents.BASE_COLOR`. Handled via Stonecutter conditional. | **Low**: Sheep dyeing logic. |
 
 ---
 
 ## 6. Adapter Architecture and Source Reuse Analysis
 
 ### Adapter Design
-Version divergence is strictly contained within two dedicated adapter classes and targeted Stonecutter preprocessor blocks:
+Version divergence is strictly contained within two dedicated adapter classes, one client base screen, and targeted Stonecutter preprocessor blocks:
 1. `com.jar.jarstacker.adapter.EntityAdapter`:
    - `create(EntityType<T>, Level)`: Handles `EntitySpawnReason` shift.
    - `copyMooshroomVariant(MushroomCow, MushroomCow)`: Encapsulates variant access.
    - `createThrownPotion(Level, double, double, double)`: Creates splash potion across version hierarchies.
    - `getEntityHitResult(Player, Vec3, Vec3, AABB, Predicate)`: Bridges projectile raycast parameter shift.
    - `saveWithoutId`, `load`, `addAdditionalSaveData`, `readAdditionalSaveData`: Bridges NBT compound and `ValueOutput`/`ValueInput` serialization with bidirectional `JarStackerData` translation.
+   - `interactOn(Player, Entity, InteractionHand, Vec3)`: Bridges `interactAt` (<=1.21.11) and `interactOn` (>=26.1).
 2. `com.jar.jarstacker.adapter.EffectAdapter`:
    - Encapsulates addition of `ServerLevel` in effect ticks and event callbacks.
+3. `com.jar.jarstacker.client.gui.BaseConfigScreen` & `GuiDrawer`:
+   - Abstracts 2D GUI rendering differences between `<=1.21.11` (`render`, `drawString`, `drawCenteredString`, `renderBackground`) and `>=26.1` (`extractRenderState`, `text`, `centeredText`, `extractBackground`).
 
 ### Source Reuse Quantification
-- **Total Shared Java Source**: ~14,000 lines across core stacking, combat attribution, logical health, status effects, and test suite.
-- **Version-Specific Divergence**: ~280 lines in adapters and mixin conditional blocks across all 7 Stonecutter version projects.
-- **Shared Source Code Percentage**: **~98.0%** (substantially exceeding the >=90% requirement and >=95% preference).
+- **Total Shared Java Source**: ~14,000 lines across core stacking, combat attribution, logical health, status effects, config GUI, and test suite.
+- **Version-Specific Divergence**: ~350 lines in adapters, client base screen, and mixin conditional blocks across all 8 Stonecutter version projects.
+- **Shared Source Code Percentage**: **~97.5%** (substantially exceeding the >=90% requirement and >=95% preference).
 
 ### Reflection, Modded Entities & Fail-Safe Variant Policy
 To ensure peak server performance and eliminate runtime failure points:
@@ -241,6 +307,7 @@ To ensure peak server performance and eliminate runtime failure points:
 4. **Permitted Low-Frequency Bridges**: Reflection is restricted to isolated, non-hot-path bridges:
    - Client boot screen factory detection (`JarStackerConfigScreenFactory`) for optional YACL integration.
    - Integration test runner NBT serialization bridge (`addAdditionalSaveData`/`readAdditionalSaveData`) supporting both Mojang and Yarn dev mappings.
+   - Test runner event loop drain reflection (`MinecraftServer.pollTask`) required on Minecraft 26.1+.
 
 ---
 
@@ -256,11 +323,12 @@ To ensure peak server performance and eliminate runtime failure points:
 ./gradlew "Set active project to 1.21.6"
 ./gradlew "Set active project to 1.21.9"
 ./gradlew "Set active project to 1.21.11"
+./gradlew "Set active project to 26.1"
 ```
 
 ### Compiling and Building All Artifacts
 ```bash
-./gradlew :1.21.1:build :1.21.2:build :1.21.4:build :1.21.5:build :1.21.6:build :1.21.9:build :1.21.11:build
+./gradlew :1.21.1:build :1.21.2:build :1.21.4:build :1.21.5:build :1.21.6:build :1.21.9:build :1.21.11:build :26.1:build
 ```
 
 ### Running In-Game Automated Integration Test Suite (348 Tests Across All Targets)
@@ -276,25 +344,23 @@ To ensure peak server performance and eliminate runtime failure points:
 ./gradlew :1.21.9:runServer -PrunTests
 ./gradlew :runtime-test-1.21.10:runServer -PrunTests
 ./gradlew :1.21.11:runServer -PrunTests
+./gradlew :26.1:runServer -PrunTests
+./gradlew :runtime-test-26.1.1:runServer -PrunTests
+./gradlew :runtime-test-26.1.2:runServer -PrunTests
 ```
 
 ---
 
-## 8. Forward-Looking 26.1 Read-Only Audit
+## 8. Forward-Looking 26.2 Read-Only Audit (Milestone 5)
 
-### 1. Java Runtime Environment Requirement
-- **Java 25 Mandate**: Minecraft 26.1 moves the baseline Java runtime requirement from Java 21 (classfile version 65) to Java 25 (classfile version 69).
-- **Toolchain Impact**: Gradle JVM, Gradle toolchains, and GitHub Actions CI pipelines will require JDK 25 installed and configured once 26.1 development begins.
-- **Milestone 3 Policy**: Per project directives, Java 25 and 26.1 implementation are strictly prohibited during Milestone 3. The current project remains compiled under Java 21 (`sourceCompatibility = JavaVersion.VERSION_21`).
+### 1. Architectural Scope for Milestone 5
+- **Target**: Minecraft 26.2.
+- **Frozen Baseline**: Minecraft 1.21.1–26.1.2 is fully verified, tested, and frozen.
+- **Strict Prohibition**: Milestone 4 strictly ends at Minecraft 26.1.2. No implementation or binary widening to 26.2 may occur until Milestone 5 is officially authorized.
 
-### 2. Upstream Architectural Shifts Anticipated in 26.1
-- **Year-Based Versioning Scheme**: Mojang transitioned version nomenclature from `1.21.x` to calendar-based `26.1`.
-- **Entity Subsystem Restructuring**: Continuing the module-based package reorganization begun in 1.21.11, additional entity and projectile classes may see namespace or hierarchy shifts.
-- **Component and Codec Deepening**: Further phase-out of legacy NBT operations in favor of strict Data Components and Codec-driven serialization.
-- **Fabric Loader / Loom Compatibility**: Loom 1.17+ with updated game provider mappings and ASM versions capable of processing Java 25 bytecode will be required.
+### 2. Upstream Architectural Shifts Anticipated in 26.2
+- **Year-Based Versioning Scheme**: Mojang continues the calendar-based `26.x` cycle with 26.2.
+- **Further Unobfuscated Refinements**: Continued evolution of vanilla classes and Fabric API official mappings.
+- **Loom & Tooling**: Maintain no-remap pipeline under Java 25.
 
-### 3. Implementation Plan for Subsequent Milestone
-- Do not begin 26.1 branch until Milestone 3 is fully verified and frozen (no tags created).
-- Implement isolated `versions/26.1` Stonecutter subproject once JDK 25 environment is provisioned.
-- Apply Probe-Before-Port protocol to assess binary compatibility against 1.21.11 bytecode before writing dedicated adapters.
 
