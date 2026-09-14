@@ -10676,6 +10676,7 @@ Vec3 posH = pos.add(25, 0, 25);
 
 		java.util.function.Consumer<AABB> clean = area -> {
 			for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, area)) item.discard();
+			for (ItemEntity item : level.getEntities(EntityTypeTest.forClass(ItemEntity.class), Entity::isAlive)) item.discard();
 			List<ItemEntity> extra = new java.util.ArrayList<>();
 			for (Entity e : level.getAllEntities()) {
 				if (e instanceof ItemEntity item) extra.add(item);
@@ -11377,6 +11378,8 @@ Vec3 posH = pos.add(25, 0, 25);
 
 				List<ItemEntity> current = level.getEntitiesOfClass(ItemEntity.class, cleanAreaIM);
 				if (current.size() != 1 || !current.get(0).getUUID().equals(drop.getUUID())) {
+					latestWi
+... [truncated for diff preview]
 					latestWinsConsistent = false;
 				}
 				int expectedCount = i + 1;
