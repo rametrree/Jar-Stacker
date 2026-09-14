@@ -19,7 +19,15 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.animal.Animal;
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.animal.cow.MushroomCow;
+import net.minecraft.world.entity.animal.feline.Cat;
+import net.minecraft.world.entity.animal.golem.SnowGolem;
+*///?} else {
 import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.MushroomCow;
+import net.minecraft.world.entity.animal.SnowGolem;
+//?}
 //? if >=1.21.5 {
 /*import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.wolf.Wolf;
@@ -170,11 +178,11 @@ public class MobInteractionHandler {
 						sDst.setSheared(sSrc.isSheared());
 					}
 
-					if (mob instanceof net.minecraft.world.entity.animal.SnowGolem sgSrc && extracted instanceof net.minecraft.world.entity.animal.SnowGolem sgDst) {
+					if (mob instanceof SnowGolem sgSrc && extracted instanceof SnowGolem sgDst) {
 						sgDst.setPumpkin(sgSrc.hasPumpkin());
 					}
 
-					if (mob instanceof net.minecraft.world.entity.animal.MushroomCow mcSrc && extracted instanceof net.minecraft.world.entity.animal.MushroomCow mcDst) {
+					if (mob instanceof MushroomCow mcSrc && extracted instanceof MushroomCow mcDst) {
 						com.jar.jarstacker.adapter.EntityAdapter.setMooshroomVariant(mcDst, "brown".equals(mcSrc.getVariant().getSerializedName()));
 						net.minecraft.world.item.component.SuspiciousStewEffects effects =
 							((com.jar.jarstacker.mixin.MushroomCowAccessor) mcSrc).jarstacker$getStewEffects();

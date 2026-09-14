@@ -5,14 +5,25 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 
 public class JarStackerPackets {
 
+	private static <T extends CustomPacketPayload> CustomPacketPayload.Type<T> createType(String path) {
+		//? if >=1.21.11 {
+		/*return new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath("jarstacker", path));
+		*///?} else {
+		return new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("jarstacker", path));
+		//?}
+	}
+
 	// 1. ConfigRequestPayload (C2S)
 	public record ConfigRequestPayload() implements CustomPacketPayload {
-		public static final CustomPacketPayload.Type<ConfigRequestPayload> TYPE =
-			new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("jarstacker", "config_request"));
+		public static final CustomPacketPayload.Type<ConfigRequestPayload> TYPE = createType("config_request");
 
 		public static final StreamCodec<ByteBuf, ConfigRequestPayload> CODEC =
 			StreamCodec.unit(new ConfigRequestPayload());
@@ -25,8 +36,7 @@ public class JarStackerPackets {
 
 	// 2. ConfigDataPayload (S2C)
 	public record ConfigDataPayload(int configVersion, long revision, String configJson) implements CustomPacketPayload {
-		public static final CustomPacketPayload.Type<ConfigDataPayload> TYPE =
-			new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("jarstacker", "config_data"));
+		public static final CustomPacketPayload.Type<ConfigDataPayload> TYPE = createType("config_data");
 
 		public static final StreamCodec<ByteBuf, ConfigDataPayload> CODEC = StreamCodec.of(
 			(buf, payload) -> {
@@ -49,8 +59,7 @@ public class JarStackerPackets {
 
 	// 3. ConfigUpdatePayload (C2S)
 	public record ConfigUpdatePayload(long baseRevision, String configJson) implements CustomPacketPayload {
-		public static final CustomPacketPayload.Type<ConfigUpdatePayload> TYPE =
-			new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("jarstacker", "config_update"));
+		public static final CustomPacketPayload.Type<ConfigUpdatePayload> TYPE = createType("config_update");
 
 		public static final StreamCodec<ByteBuf, ConfigUpdatePayload> CODEC = StreamCodec.of(
 			(buf, payload) -> {
@@ -71,8 +80,7 @@ public class JarStackerPackets {
 
 	// 4. ConfigResultPayload (S2C)
 	public record ConfigResultPayload(boolean success, long newRevision, String message) implements CustomPacketPayload {
-		public static final CustomPacketPayload.Type<ConfigResultPayload> TYPE =
-			new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath("jarstacker", "config_result"));
+		public static final CustomPacketPayload.Type<ConfigResultPayload> TYPE = createType("config_result");
 
 		public static final StreamCodec<ByteBuf, ConfigResultPayload> CODEC = StreamCodec.of(
 			(buf, payload) -> {

@@ -3,17 +3,24 @@ package com.jar.jarstacker.stack.mob;
 import com.jar.jarstacker.config.ModConfig;
 import com.jar.jarstacker.stack.StackableEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
-//? if >=1.21.5 {
-/*import net.minecraft.world.entity.animal.sheep.Sheep;
-*///?} else {
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.animal.cow.MushroomCow;
+import net.minecraft.world.entity.animal.golem.SnowGolem;
+import net.minecraft.world.entity.animal.sheep.Sheep;
+*///? } else if >=1.21.5 {
+/*import net.minecraft.world.entity.animal.MushroomCow;
+import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.entity.animal.SnowGolem;
+*///? } else {
+import net.minecraft.world.entity.animal.MushroomCow;
 import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.world.entity.animal.SnowGolem;
 import net.minecraft.world.entity.VariantHolder;
-//?}
+//? }
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Shulker;
 import net.minecraft.world.entity.monster.Slime;
@@ -138,8 +145,7 @@ public class MobCompatibility {
 			return new MobInspection(false, "Entity is custom named");
 		}
 
-		ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
-		String mobId = key.toString();
+		String mobId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType()).toString();
 
 		if ("BLACKLIST".equalsIgnoreCase(config.getFilterMode())) {
 			if (config.getCachedBlacklist().contains(mobId)) {
@@ -160,8 +166,7 @@ public class MobCompatibility {
 	}
 
 	public static double getRadius(Mob mob, ModConfig.MobStackingConfig config) {
-		ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
-		String mobId = key.toString();
+		String mobId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType()).toString();
 		ModConfig.MobRuleConfig rule = config.getRules().get(mobId);
 		if (rule != null && rule.getRadius() != null && rule.getRadius() > 0) {
 			return rule.getRadius();
@@ -170,8 +175,7 @@ public class MobCompatibility {
 	}
 
 	public static int getMaxStackSize(Mob mob, ModConfig.MobStackingConfig config) {
-		ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
-		String mobId = key.toString();
+		String mobId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType()).toString();
 		ModConfig.MobRuleConfig rule = config.getRules().get(mobId);
 		if (rule != null && rule.getMaxStackSize() != null && rule.getMaxStackSize() > 0) {
 			return rule.getMaxStackSize();
@@ -201,8 +205,7 @@ public class MobCompatibility {
 			return false;
 		}
 
-		ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(a.getType());
-		String mobId = key.toString();
+		String mobId = BuiltInRegistries.ENTITY_TYPE.getKey(a.getType()).toString();
 
 		// Whitelist / Blacklist
 		if ("BLACKLIST".equalsIgnoreCase(config.getFilterMode())) {
@@ -245,14 +248,14 @@ public class MobCompatibility {
 		}
 
 		// Snow Golem pumpkin state
-		if (a instanceof net.minecraft.world.entity.animal.SnowGolem sgA && b instanceof net.minecraft.world.entity.animal.SnowGolem sgB) {
+		if (a instanceof SnowGolem sgA && b instanceof SnowGolem sgB) {
 			if (sgA.hasPumpkin() != sgB.hasPumpkin()) {
 				return false;
 			}
 		}
 
 		// Mooshroom stew effects state
-		if (a instanceof net.minecraft.world.entity.animal.MushroomCow mcA && b instanceof net.minecraft.world.entity.animal.MushroomCow mcB) {
+		if (a instanceof MushroomCow mcA && b instanceof MushroomCow mcB) {
 			if (mcA.getVariant() != mcB.getVariant()) {
 				return false;
 			}
@@ -330,7 +333,7 @@ public class MobCompatibility {
 		if (variantResult == com.jar.jarstacker.adapter.EntityAdapter.VariantCompatibilityResult.UNKNOWN) {
 			return "UNKNOWN_VARIANT_COMPATIBILITY";
 		}
-		if (a instanceof net.minecraft.world.entity.animal.MushroomCow mcA && b instanceof net.minecraft.world.entity.animal.MushroomCow mcB) {
+		if (a instanceof MushroomCow mcA && b instanceof MushroomCow mcB) {
 			if (mcA.getVariant() != mcB.getVariant()) return "MOOSHROOM_VARIANT_MISMATCH";
 			net.minecraft.world.item.component.SuspiciousStewEffects stewA =
 				((com.jar.jarstacker.mixin.MushroomCowAccessor) mcA).jarstacker$getStewEffects();
@@ -345,7 +348,7 @@ public class MobCompatibility {
 			if (sA.getColor() != sB.getColor()) return "SHEEP_COLOR_MISMATCH";
 			if (sA.isSheared() != sB.isSheared()) return "SHEEP_SHEARED_MISMATCH";
 		}
-		if (a instanceof net.minecraft.world.entity.animal.SnowGolem sgA && b instanceof net.minecraft.world.entity.animal.SnowGolem sgB) {
+		if (a instanceof SnowGolem sgA && b instanceof SnowGolem sgB) {
 			if (sgA.hasPumpkin() != sgB.hasPumpkin()) return "SNOW_GOLEM_PUMPKIN_MISMATCH";
 		}
 		if (a instanceof net.minecraft.world.entity.monster.Strider stA && b instanceof net.minecraft.world.entity.monster.Strider stB) {

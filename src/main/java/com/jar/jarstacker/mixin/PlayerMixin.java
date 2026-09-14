@@ -20,6 +20,26 @@ public abstract class PlayerMixin {
 		CombatContext.beginAttack(player, target);
 	}
 
+	//? if >=1.21.11 {
+	/*@Inject(method = "doSweepAttack", at = @At("HEAD"))
+	private void jarstacker$onSweepStart(Entity target, float baseDamage, net.minecraft.world.damagesource.DamageSource damageSource, float sweepRatio, CallbackInfo ci) {
+		Player player = (Player) (Object) this;
+		float ratio = (float) player.getAttributeValue(Attributes.SWEEPING_DAMAGE_RATIO);
+		float sweepDamage = 1.0f + ratio * baseDamage;
+
+		CombatContext.setSweepAuthorized(sweepDamage);
+		CombatContext.setSecondarySweep(true);
+
+		if (target instanceof LivingEntity livingTarget) {
+			LogicalHealthManager.applySweepToPrimary(livingTarget, sweepDamage);
+		}
+	}
+
+	@Inject(method = "doSweepAttack", at = @At("RETURN"))
+	private void jarstacker$onSweepEnd(Entity target, float baseDamage, net.minecraft.world.damagesource.DamageSource damageSource, float sweepRatio, CallbackInfo ci) {
+		CombatContext.setSecondarySweep(false);
+	}
+	*///?} else {
 	@Inject(
 		method = "attack",
 		at = @At(
@@ -51,6 +71,7 @@ public abstract class PlayerMixin {
 	private void jarstacker$onSweepEnd(Entity target, CallbackInfo ci) {
 		CombatContext.setSecondarySweep(false);
 	}
+	//?}
 
 	@Inject(method = "attack", at = @At("RETURN"))
 	private void jarstacker$onAttackEnd(Entity target, CallbackInfo ci) {

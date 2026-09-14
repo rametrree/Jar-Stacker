@@ -2,7 +2,6 @@ package com.jar.jarstacker.stack.mob.status;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 
@@ -16,7 +15,7 @@ import java.util.Map;
  */
 public class LogicalEffectClassifier {
 
-	private static final Map<ResourceLocation, LogicalEffectBehaviorClass> OVERRIDES = new HashMap<>();
+	private static final Map<String, LogicalEffectBehaviorClass> OVERRIDES = new HashMap<>();
 
 	static {
 		// ATTRIBUTE_ONLY: Modifiers applied to entity attributes
@@ -61,6 +60,7 @@ public class LogicalEffectClassifier {
 		register("bad_omen", LogicalEffectBehaviorClass.PASSIVE_SAFE);
 		register("trial_omen", LogicalEffectBehaviorClass.PASSIVE_SAFE);
 		register("raid_omen", LogicalEffectBehaviorClass.PASSIVE_SAFE);
+		register("breath_of_the_nautilus", LogicalEffectBehaviorClass.PASSIVE_SAFE);
 
 		// PERIODIC_VANILLA: Generic recurring tick callbacks
 		register("hunger", LogicalEffectBehaviorClass.PERIODIC_VANILLA);
@@ -79,34 +79,28 @@ public class LogicalEffectClassifier {
 	}
 
 	private static void register(String path, LogicalEffectBehaviorClass behaviorClass) {
-		OVERRIDES.put(ResourceLocation.fromNamespaceAndPath("minecraft", path), behaviorClass);
+		OVERRIDES.put(path, behaviorClass);
 	}
 
 	public static LogicalEffectBehaviorClass classify(Holder<MobEffect> holder) {
 		if (holder == null) {
 			return LogicalEffectBehaviorClass.UNSUPPORTED;
 		}
-		ResourceLocation id = BuiltInRegistries.MOB_EFFECT.getKey(holder.value());
-		if (id == null) {
+		var key = BuiltInRegistries.MOB_EFFECT.getKey(holder.value());
+		if (key == null || !"minecraft".equals(key.getNamespace())) {
 			return LogicalEffectBehaviorClass.UNSUPPORTED;
 		}
-		return classify(id);
+		LogicalEffectBehaviorClass overridden = OVERRIDES.get(key.getPath());
+		return overridden != null ? overridden : LogicalEffectBehaviorClass.UNSUPPORTED;
 	}
 
-	public static LogicalEffectBehaviorClass classify(ResourceLocation id) {
-		if (id == null) {
+	public static LogicalEffectBehaviorClass classify(String pathOrId) {
+		if (pathOrId == null) {
 			return LogicalEffectBehaviorClass.UNSUPPORTED;
 		}
-		LogicalEffectBehaviorClass overridden = OVERRIDES.get(id);
-		if (overridden != null) {
-			return overridden;
-		}
-		// Any effect outside "minecraft" namespace defaults to UNSUPPORTED
-		if (!"minecraft".equals(id.getNamespace())) {
-			return LogicalEffectBehaviorClass.UNSUPPORTED;
-		}
-		// If an unclassified Vanilla effect is encountered, default to UNSUPPORTED
-		return LogicalEffectBehaviorClass.UNSUPPORTED;
+		String path = pathOrId.contains(":") ? pathOrId.substring(pathOrId.indexOf(':') + 1) : pathOrId;
+		LogicalEffectBehaviorClass overridden = OVERRIDES.get(path);
+		return overridden != null ? overridden : LogicalEffectBehaviorClass.UNSUPPORTED;
 	}
 
 	public static boolean isSupported(Holder<MobEffect> holder) {
@@ -128,10 +122,10 @@ public class LogicalEffectClassifier {
 		}
 
 		for (MobEffect effect : BuiltInRegistries.MOB_EFFECT) {
-			ResourceLocation key = BuiltInRegistries.MOB_EFFECT.getKey(effect);
+			var key = BuiltInRegistries.MOB_EFFECT.getKey(effect);
 			if (key != null && "minecraft".equals(key.getNamespace())) {
 				total++;
-				LogicalEffectBehaviorClass behavior = OVERRIDES.get(key);
+				LogicalEffectBehaviorClass behavior = OVERRIDES.get(key.getPath());
 				if (behavior == null) {
 					unknown++;
 				} else {

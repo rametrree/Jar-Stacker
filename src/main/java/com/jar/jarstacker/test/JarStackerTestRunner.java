@@ -26,22 +26,39 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Cow;
-import net.minecraft.world.entity.animal.MushroomCow;
-//? if >=1.21.5 {
-/*import net.minecraft.world.entity.animal.sheep.Sheep;
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.animal.cow.MushroomCow;
+import net.minecraft.world.entity.animal.golem.SnowGolem;
+import net.minecraft.world.entity.animal.pig.Pig;
+import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.wolf.Wolf;
-*///?} else {
-import net.minecraft.world.entity.animal.Sheep;
-import net.minecraft.world.entity.animal.Wolf;
-//?}
+import net.minecraft.world.entity.monster.skeleton.Skeleton;
+import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.entity.npc.villager.Villager;
+*///? } else if >=1.21.5 {
+/*import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.animal.MushroomCow;
 import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.SnowGolem;
-import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Skeleton;
-import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.npc.Villager;
+*///? } else {
+import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.animal.MushroomCow;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.world.entity.animal.SnowGolem;
+import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.npc.Villager;
+//? }
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -57,7 +74,11 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.monster.Creeper;
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.projectile.arrow.Arrow;
+*///?} else {
 import net.minecraft.world.entity.projectile.Arrow;
+//?}
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.enchantment.Enchantments;
 import com.jar.jarstacker.stack.mob.equipment.RuntimeCombatStateTransitionHandler;
@@ -65,7 +86,11 @@ import com.jar.jarstacker.stack.mob.death.CombatDeathContext;
 import com.jar.jarstacker.stack.mob.health.CombatContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.entity.EntityTypeTest;
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrowableItemProjectile;
+*///?} else {
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
+//?}
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
@@ -6480,7 +6505,7 @@ Vec3 posH = pos.add(25, 0, 25);
 			LogicalHealthState state = LogicalHealthManager.getOrCreateState(zombie);
 
 			ServerPlayer player = createMockPlayer(level, new Vec3(posH.x, posH.y, posH.z - 2.0), GameType.SURVIVAL);
-			net.minecraft.world.entity.projectile.Arrow arrow = new net.minecraft.world.entity.projectile.Arrow(level, posH.x, posH.y, posH.z, new ItemStack(Items.ARROW), null);
+			Arrow arrow = new Arrow(level, posH.x, posH.y, posH.z, new ItemStack(Items.ARROW), null);
 			arrow.setRemainingFireTicks(100);
 
 			DamageSource arrowSource = level.damageSources().arrow(arrow, player);
@@ -9606,9 +9631,15 @@ Vec3 posH = pos.add(25, 0, 25);
 		// Test GE6 - All Vanilla MobEffects classified
 		try {
 			LogicalEffectClassifier.AuditReport report = LogicalEffectClassifier.auditAll();
+			//? if >=1.21.11 {
+			/*boolean pass = report.unknownCount() == 0 && report.totalVanilla() == 40
+				&& report.counts().get(LogicalEffectBehaviorClass.UNSUPPORTED) == 0
+				&& report.counts().get(LogicalEffectBehaviorClass.EVENT_DRIVEN_LOGICAL) == 4;
+			*///?} else {
 			boolean pass = report.unknownCount() == 0 && report.totalVanilla() == 39
 				&& report.counts().get(LogicalEffectBehaviorClass.UNSUPPORTED) == 0
 				&& report.counts().get(LogicalEffectBehaviorClass.EVENT_DRIVEN_LOGICAL) == 4;
+			//?}
 			results.add(new TestResult("Test GE6 - Vanilla Effect Registry Audit UNKNOWN == 0", pass,
 				"TotalVanilla=" + report.totalVanilla() + ", Unknown=" + report.unknownCount() + ", Counts=" + report.counts()));
 		} catch (Exception e) {

@@ -6,8 +6,19 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.animal.Animal;
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.animal.feline.Cat;
+import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.animal.cow.MushroomCow;
+import net.minecraft.world.entity.animal.golem.SnowGolem;
+import net.minecraft.world.entity.animal.pig.Pig;
+*///?} else {
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.animal.MushroomCow;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.SnowGolem;
+//?}
 //? if >=1.21.5 {
 /*import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.wolf.Wolf;
@@ -16,8 +27,13 @@ import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.entity.animal.Wolf;
 //?}
 import net.minecraft.world.entity.animal.camel.Camel;
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.animal.equine.Llama;
+*///?} else {
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.animal.horse.Llama;
+//?}
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
@@ -44,7 +60,7 @@ public class MobInteractionResolver {
 		// Mooshroom shearing transforms the entity type (MushroomCow -> Cow)
 		// and requires Jar Stacker transformation management (normalization & destination merging)
 		// even when count == 1.
-		if (mob instanceof net.minecraft.world.entity.animal.MushroomCow mc && heldItem.is(Items.SHEARS)) {
+		if (mob instanceof MushroomCow mc && heldItem.is(Items.SHEARS)) {
 			if (mc.readyForShearing()) {
 				return StackInteractionDecision.transformOne("Mooshroom shearing to cow");
 			} else {
@@ -67,7 +83,7 @@ public class MobInteractionResolver {
 		}
 
 		// 0. Mooshroom interactions (Bowl, Flower, and Shears)
-		if (mob instanceof net.minecraft.world.entity.animal.MushroomCow mc) {
+		if (mob instanceof MushroomCow mc) {
 			if (heldItem.is(Items.BOWL)) {
 				if (mc.isBaby()) {
 					return new StackInteractionDecision(StackInteractionMode.PASS_THROUGH, "Baby mooshroom cannot be milked for stew", 0);
@@ -107,7 +123,7 @@ public class MobInteractionResolver {
 		}
 
 		// Snow Golem Shearing (EXTRACT_ONE)
-		if (mob instanceof net.minecraft.world.entity.animal.SnowGolem snowGolem) {
+		if (mob instanceof SnowGolem snowGolem) {
 			if (heldItem.is(Items.SHEARS)) {
 				if (snowGolem.readyForShearing()) {
 					return StackInteractionDecision.extractOne("Snow Golem pumpkin shearing", 0);
@@ -118,7 +134,7 @@ public class MobInteractionResolver {
 		}
 
 		// Pig Saddling (EXTRACT_ONE)
-		if (mob instanceof net.minecraft.world.entity.animal.Pig pig) {
+		if (mob instanceof Pig pig) {
 			if (heldItem.is(Items.SADDLE)) {
 				if (com.jar.jarstacker.adapter.EntityAdapter.isSaddleable(pig) && !com.jar.jarstacker.adapter.EntityAdapter.isSaddled(pig)) {
 					return StackInteractionDecision.extractOne("Pig saddling", 0);

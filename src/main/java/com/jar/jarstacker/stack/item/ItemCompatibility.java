@@ -2,7 +2,6 @@ package com.jar.jarstacker.stack.item;
 
 import com.jar.jarstacker.config.ModConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 
@@ -33,8 +32,7 @@ public class ItemCompatibility {
 			return new ItemInspection(false, "Item is damaged");
 		}
 
-		ResourceLocation key = BuiltInRegistries.ITEM.getKey(stack.getItem());
-		String itemId = key.toString();
+		String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
 
 		if ("BLACKLIST".equalsIgnoreCase(config.getFilterMode())) {
 			if (config.getCachedBlacklist().contains(itemId)) {
@@ -55,8 +53,7 @@ public class ItemCompatibility {
 	}
 
 	public static int getMaxStackSize(ItemStack stack, ModConfig.ItemStackingConfig config) {
-		ResourceLocation key = BuiltInRegistries.ITEM.getKey(stack.getItem());
-		String itemId = key.toString();
+		String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
 		ModConfig.ItemRuleConfig rule = config.getRules().get(itemId);
 		if (rule != null && rule.getMaxStackSize() != null && rule.getMaxStackSize() > 0) {
 			return rule.getMaxStackSize();
@@ -90,8 +87,7 @@ public class ItemCompatibility {
 			return false;
 		}
 
-		ResourceLocation key = BuiltInRegistries.ITEM.getKey(stackA.getItem());
-		String itemId = key.toString();
+		String itemId = BuiltInRegistries.ITEM.getKey(stackA.getItem()).toString();
 
 		if ("BLACKLIST".equalsIgnoreCase(config.getFilterMode())) {
 			if (config.getCachedBlacklist().contains(itemId)) {

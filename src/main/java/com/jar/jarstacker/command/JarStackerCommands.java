@@ -25,7 +25,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.monster.zombie.Zombie;
+*///?} else {
 import net.minecraft.world.entity.monster.Zombie;
+//?}
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -51,31 +55,31 @@ public class JarStackerCommands {
 					.executes(ctx -> inspectEntity(ctx.getSource()))
 				)
 				.then(Commands.literal("reload")
-					.requires(src -> src.hasPermission(2))
+					.requires(JarStackerCommands::hasAdminPermission)
 					.executes(ctx -> reloadConfig(ctx.getSource()))
 				)
 				.then(Commands.literal("items")
 					.then(Commands.literal("on")
-						.requires(src -> src.hasPermission(2))
+						.requires(JarStackerCommands::hasAdminPermission)
 						.executes(ctx -> setItemState(ctx.getSource(), true))
 					)
 					.then(Commands.literal("off")
-						.requires(src -> src.hasPermission(2))
+						.requires(JarStackerCommands::hasAdminPermission)
 						.executes(ctx -> setItemState(ctx.getSource(), false))
 					)
 				)
 				.then(Commands.literal("mobs")
 					.then(Commands.literal("on")
-						.requires(src -> src.hasPermission(2))
+						.requires(JarStackerCommands::hasAdminPermission)
 						.executes(ctx -> setMobState(ctx.getSource(), true))
 					)
 					.then(Commands.literal("off")
-						.requires(src -> src.hasPermission(2))
+						.requires(JarStackerCommands::hasAdminPermission)
 						.executes(ctx -> setMobState(ctx.getSource(), false))
 					)
 				)
 				.then(Commands.literal("debug")
-					.requires(src -> src.hasPermission(2))
+					.requires(JarStackerCommands::hasAdminPermission)
 					.executes(ctx -> toggleDebug(ctx.getSource()))
 					.then(Commands.literal("state")
 						.executes(ctx -> debugState(ctx.getSource()))
@@ -85,7 +89,7 @@ public class JarStackerCommands {
 					)
 				)
 				.then(Commands.literal("test")
-					.requires(src -> src.hasPermission(2))
+					.requires(JarStackerCommands::hasAdminPermission)
 					.then(Commands.literal("runAll")
 						.executes(ctx -> runAllTests(ctx.getSource()))
 					)
@@ -104,6 +108,14 @@ public class JarStackerCommands {
 					)
 				)
 		);
+	}
+
+	private static boolean hasAdminPermission(CommandSourceStack src) {
+		//? if >=1.21.11 {
+		/*return src.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER);
+		*///? } else {
+		return src.hasPermission(2);
+		//? }
 	}
 
 	private static int openConfigGui(CommandSourceStack source) {
@@ -214,6 +226,20 @@ public class JarStackerCommands {
 				sb.append("Color: ").append(com.jar.jarstacker.adapter.EntityAdapter.getSheepColorName(mob)).append("\n");
 				sb.append("Sheared: ").append(com.jar.jarstacker.adapter.EntityAdapter.isSheepSheared(mob) ? "YES" : "NO").append("\n");
 			}
+			//? if >=1.21.11 {
+			/*if (mob instanceof net.minecraft.world.entity.animal.cow.MushroomCow mc) {
+				sb.append("Variant: ").append(mc.getVariant().name()).append("\n");
+				net.minecraft.world.item.component.SuspiciousStewEffects stew =
+					((com.jar.jarstacker.mixin.MushroomCowAccessor) mc).jarstacker$getStewEffects();
+				sb.append("Stew State: ").append(stew != null ? "PRESENT" : "NONE").append("\n");
+				if (stew != null) {
+					sb.append("Stew Effect Signature: ").append(stew.effects()).append("\n");
+				}
+			}
+			if (mob instanceof net.minecraft.world.entity.animal.golem.SnowGolem snowGolem) {
+				sb.append("Pumpkin: ").append(snowGolem.hasPumpkin() ? "YES" : "NO").append("\n");
+			}
+			*///?} else {
 			if (mob instanceof net.minecraft.world.entity.animal.MushroomCow mc) {
 				sb.append("Variant: ").append(mc.getVariant().name()).append("\n");
 				net.minecraft.world.item.component.SuspiciousStewEffects stew =
@@ -226,6 +252,7 @@ public class JarStackerCommands {
 			if (mob instanceof net.minecraft.world.entity.animal.SnowGolem snowGolem) {
 				sb.append("Pumpkin: ").append(snowGolem.hasPumpkin() ? "YES" : "NO").append("\n");
 			}
+			//?}
 			sb.append("Saddled: ").append(com.jar.jarstacker.adapter.EntityAdapter.isSaddled(mob) ? "YES" : "NO").append("\n");
 			if (mob instanceof net.minecraft.world.entity.TamableAnimal tamable) {
 				sb.append("Tamed: ").append(tamable.isTame() ? "YES" : "NO").append("\n");

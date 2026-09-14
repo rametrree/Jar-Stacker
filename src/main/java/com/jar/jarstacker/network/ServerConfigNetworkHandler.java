@@ -25,7 +25,11 @@ public class ServerConfigNetworkHandler {
 				ServerPlayer player = context.player();
 
 				// 1. Permission check (level 2 operator)
+				//? if >=1.21.11 {
+				/*if (!player.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER)) {
+				*///? } else {
 				if (!player.hasPermissions(2)) {
+				//? }
 					ServerPlayNetworking.send(player, new JarStackerPackets.ConfigResultPayload(
 						false,
 						ModConfig.getConfigRevision(),

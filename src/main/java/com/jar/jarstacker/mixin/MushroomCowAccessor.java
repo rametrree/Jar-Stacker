@@ -1,6 +1,10 @@
 package com.jar.jarstacker.mixin;
 
+//? if >=1.21.11 {
+/*import net.minecraft.world.entity.animal.cow.MushroomCow;
+*///?} else {
 import net.minecraft.world.entity.animal.MushroomCow;
+//?}
 import net.minecraft.world.item.component.SuspiciousStewEffects;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
