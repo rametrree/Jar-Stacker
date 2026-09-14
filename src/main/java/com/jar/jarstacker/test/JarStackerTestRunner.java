@@ -9604,7 +9604,10 @@ Vec3 posH = pos.add(25, 0, 25);
 			// Real environmental hazard: lava block at feet
 			net.minecraft.core.BlockPos hazardPos = stacked.blockPosition();
 			level.setBlock(hazardPos, net.minecraft.world.level.block.Blocks.LAVA.defaultBlockState(), 3);
-			stacked.tick();
+			for (int t = 0; t < 10; t++) {
+				stacked.tick();
+				if (bState.get(0) != null && bState.get(0).isBurning()) break;
+			}
 			level.setBlock(hazardPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
 
 			boolean pass = bState.size() == 3
