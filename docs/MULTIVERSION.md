@@ -164,7 +164,7 @@ Minecraft 26.1 marks a hard generation boundary from the 1.21.x series:
      ```text
      Mod 'Jar Stacker' (jarstacker) 0.7.0 requires version 1.21.11 of 'Minecraft' (minecraft), but only the wrong version is present: 26.1!
      ```
-   - Launching a metadata-widened copy (`>=1.21.11 <=26.1`) fails during early Knot launch due to intermediary refmap mismatches and Java 21 vs 25 runtime differences, confirming the hard boundary.
+   - Launching a metadata-widened copy (`>=1.21.11 <=26.1`) fails during early Knot launch due to the unobfuscated/no-remap generation change, intermediary refmap and Mixin target incompatibilities, and recompilation requirements, confirming the hard boundary.
 4. **Dual Build Architecture**:
    - `build.gradle` (<=1.21.11): `net.fabricmc.fabric-loom-remap`, `mappings loom.officialMojangMappings()`, `modImplementation`, `modCompileOnly`, `modLocalRuntime`, `remapJar`, release target 21.
    - `build-26.gradle` (>=26.1): `net.fabricmc.fabric-loom`, no mappings block (compiles directly against Mojang names), standard `implementation`, `compileOnly`, `runtimeOnly`, `jar` task, release target 25.
