@@ -2,6 +2,23 @@
 
 All notable changes to Jar Stacker will be documented in this file.
 
+## [0.7.0] - Unreleased
+
+### Added
+- **Minecraft 26.2 Support (Milestone 5)**:
+  - Added dedicated Stonecutter compile target `versions/26.2` utilizing Java 25 (`--release 25`) and unobfuscated Minecraft Loom pipeline.
+  - Extended verified multi-version baseline to cover **Minecraft 1.21.1 through 26.2** across 15 runtimes (9 compiled targets + 6 same-binary runtime verification harnesses).
+  - Empirical boundary probe confirmed incompatible `NoSuchFieldError: ZOMBIE` when running 26.1 bytecode on 26.2, establishing necessity of a dedicated compile target.
+  - Adapted 26.2 upstream API shifts:
+    - Entity type constants relocated from `EntityType` to `net.minecraft.world.entity.EntityTypes`.
+    - Dye and wool items relocated to accessor methods (`Items.WOOL.white()`, `Items.DYE.red()`, `Items.DYE.blue()`).
+    - Slime monster relocated to `net.minecraft.world.entity.monster.cubemob.Slime`.
+    - Dimension timeline/clock and environment attribute cache invalidation synchronized in test harness.
+  - Verified 40 vanilla status effects in 26.2 registry with 0 unknown/unsupported effects.
+  - Verified cross-version world upgrade fidelity (`26.1.2` -> `26.2`) via automated save-upgrade fixture: multi-member health, status effects, variants, and items preserved with `logicalCount == logicalStateRecordCount` intact.
+  - Client verified: OpenGL display, textures, sound, YACL 3.9.6+26.2-fabric, and ModMenu 20.0.2 boot cleanly to title screen without Mixin errors.
+  - All 15 runtimes verified with 100% test pass rate (**360 / 360 tests × 15 runtimes = 5,400 / 5,400 PASS**).
+
 ## [0.6.0] - 2026-09-13
 
 ### Added

@@ -12501,8 +12501,10 @@ Vec3 posH = pos.add(25, 0, 25);
 		/*level.dimensionTypeRegistration().value().defaultClock().ifPresent(clock -> {
 			level.getServer().clockManager().setTotalTicks(clock, time);
 		});
+		level.updateSkyBrightness();
 		*///?} else {
 		level.setDayTime(time);
+		level.updateSkyBrightness();
 		//?}
 	}
 
@@ -12513,6 +12515,8 @@ Vec3 posH = pos.add(25, 0, 25);
 		level.setThunderLevel(0.0f);
 		*///?} else {
 		level.setWeatherParameters(60000, 0, false, false);
+		level.setRainLevel(0.0f);
+		level.setThunderLevel(0.0f);
 		//?}
 	}
 

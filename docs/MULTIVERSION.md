@@ -12,7 +12,7 @@ To ensure clarity across multi-version development, compatibility is categorized
 Jar Stacker is engineered around four core tenets:
 - **One Codebase**: Unified source tree in `src/main/java` utilizing Stonecutter directives (`//? if >=1.21.6 { ... } else { ... }`).
 - **One Feature Set**: Full feature parity across all supported versions (item stacking, mob stacking, single-death mode, status effects, config synchronization, YACL/vanilla GUI).
-- **One Test Suite**: The 348-test automated in-game integration suite runs identically on each version project.
+- **One Test Suite**: The 360-test automated in-game integration suite runs identically on each version project.
 - **Minimum Safe Number of JARs**: Dedicated binaries are compiled only across binary-incompatible boundaries, maximizing compatibility bands where safe.
 
 ---
@@ -21,20 +21,21 @@ Jar Stacker is engineered around four core tenets:
 
 | Minecraft Version | Compile Target | Artifact Used | SHA-256 Checksum | Automated Tests | Client Boot | Compatibility Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **1.21.1** | `1.21.1` (Dedicated) | `jarstacker-0.7.0+mc1.21.1.jar` | `9B0A34C8CB9D54B3B13FD93A32CCF8AA5EF4D290DF63C829EF9BE3E9BEA9AA25` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Independent Binary) |
-| **1.21.2** | `1.21.2` (Dedicated) | `jarstacker-0.7.0+mc1.21.2.jar` | `9F2D9CCB7FD6B24A76B6C023E2FF40F290DCABA288FC0B91AFB79F4A2A60D246` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Compatibility Band Anchor) |
-| **1.21.3** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.2.jar` (Exact Binary) | `9F2D9CCB7FD6B24A76B6C023E2FF40F290DCABA288FC0B91AFB79F4A2A60D246` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (1.21.2–1.21.3) |
-| **1.21.4** | `1.21.4` (Dedicated) | `jarstacker-0.7.0+mc1.21.4.jar` | `5E5955F026331C5A2B891CF8978742608BDDC7ED7BA9050073E5C906C99AE238` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Source-Compatible with 1.21.2) |
-| **1.21.5** | `1.21.5` (Dedicated) | `jarstacker-0.7.0+mc1.21.5.jar` | `481BC9832B1582B47D2DAC935105D352244EDE0A0817394B7F7F4A495067CBFB` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Entity Potion & Accessor Changes) |
-| **1.21.6** | `1.21.6` (Dedicated) | `jarstacker-0.7.0+mc1.21.6.jar` | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Compatibility Band Anchor) |
-| **1.21.7** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (1.21.6–1.21.8) |
-| **1.21.8** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (1.21.6–1.21.8) |
-| **1.21.9** | `1.21.9` (Dedicated) | `jarstacker-0.7.0+mc1.21.9.jar` | `7E68BB6D2D451F38E990614AB73F8FCEC881FFA4915F38090B6F00FA702E0952` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Compatibility Band Anchor) |
-| **1.21.10** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.9.jar` (Exact Binary) | `7E68BB6D2D451F38E990614AB73F8FCEC881FFA4915F38090B6F00FA702E0952` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (1.21.9–1.21.10) |
-| **1.21.11** | `1.21.11` (Dedicated) | `jarstacker-0.7.0+mc1.21.11.jar` | `17AB8A871A38D4CA3C2604022BD83D9D6566AAEE12FBEE730AB6844529B81221` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Sweeping Attack, Entity Package & Permissions Overhaul) |
-| **26.1** | `26.1` (Dedicated) | `jarstacker-0.7.0+mc26.1.jar` | `478A4B71D6B1861E61247EC7112739353582972DFCD79B4BD889C3123DBFBC70` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Java 25, No-Remap Loom, Compatibility Band Anchor) |
-| **26.1.1** | None (Runtime Harness) | `jarstacker-0.7.0+mc26.1.jar` (Exact Binary) | `478A4B71D6B1861E61247EC7112739353582972DFCD79B4BD889C3123DBFBC70` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (26.1–26.1.2) |
-| **26.1.2** | None (Runtime Harness) | `jarstacker-0.7.0+mc26.1.jar` (Exact Binary) | `478A4B71D6B1861E61247EC7112739353582972DFCD79B4BD889C3123DBFBC70` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (26.1–26.1.2) |
+| **1.21.1** | `1.21.1` (Dedicated) | `jarstacker-0.7.0+mc1.21.1.jar` | `15EFBB140D5AB753BFA827642A39234C1E9C6C78294FED473F016A745F33E65B` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Independent Binary) |
+| **1.21.2** | `1.21.2` (Dedicated) | `jarstacker-0.7.0+mc1.21.2.jar` | `ACA7CE316971CA2CB809E741D394FBA1E77839D97DA85819A5DD22EF9FD5D4B6` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Compatibility Band Anchor) |
+| **1.21.3** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.2.jar` (Exact Binary) | `ACA7CE316971CA2CB809E741D394FBA1E77839D97DA85819A5DD22EF9FD5D4B6` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (1.21.2–1.21.3) |
+| **1.21.4** | `1.21.4` (Dedicated) | `jarstacker-0.7.0+mc1.21.4.jar` | `D1A1A601030C2F3CD84069429E7C335BE19E34156F9503AC340C683D192B71C4` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Source-Compatible with 1.21.2) |
+| **1.21.5** | `1.21.5` (Dedicated) | `jarstacker-0.7.0+mc1.21.5.jar` | `75CB4939B4540E3DDF6CED13BC22051EFF849D95141DE4FCF87EBFF5B36E2DAC` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Entity Potion & Accessor Changes) |
+| **1.21.6** | `1.21.6` (Dedicated) | `jarstacker-0.7.0+mc1.21.6.jar` | `A1653F6C06E56B3BE2A0E61158897AF8FFBD49C43303B809DD5354718A059977` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Compatibility Band Anchor) |
+| **1.21.7** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `A1653F6C06E56B3BE2A0E61158897AF8FFBD49C43303B809DD5354718A059977` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (1.21.6–1.21.8) |
+| **1.21.8** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `A1653F6C06E56B3BE2A0E61158897AF8FFBD49C43303B809DD5354718A059977` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (1.21.6–1.21.8) |
+| **1.21.9** | `1.21.9` (Dedicated) | `jarstacker-0.7.0+mc1.21.9.jar` | `DD702AABFD562CBB3D053FD043B7DE715B7A130FF91333928FCCD60F2B7EEDC4` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Compatibility Band Anchor) |
+| **1.21.10** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.9.jar` (Exact Binary) | `DD702AABFD562CBB3D053FD043B7DE715B7A130FF91333928FCCD60F2B7EEDC4` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (1.21.9–1.21.10) |
+| **1.21.11** | `1.21.11` (Dedicated) | `jarstacker-0.7.0+mc1.21.11.jar` | `187BD65A0D2C3B5470A5D78DB2E328944B98706ACFC1A9758CFEC6E9BEE87A64` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Sweeping Attack, Entity Package & Permissions Overhaul) |
+| **26.1** | `26.1` (Dedicated) | `jarstacker-0.7.0+mc26.1.jar` | `1A0FD41BD54D0480623CCCC6D23764EB3688682CAC1DA49A1040A3C2C64242DD` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Java 25, No-Remap Loom, Compatibility Band Anchor) |
+| **26.1.1** | None (Runtime Harness) | `jarstacker-0.7.0+mc26.1.jar` (Exact Binary) | `1A0FD41BD54D0480623CCCC6D23764EB3688682CAC1DA49A1040A3C2C64242DD` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (26.1–26.1.2) |
+| **26.1.2** | None (Runtime Harness) | `jarstacker-0.7.0+mc26.1.jar` (Exact Binary) | `1A0FD41BD54D0480623CCCC6D23764EB3688682CAC1DA49A1040A3C2C64242DD` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (26.1–26.1.2) |
+| **26.2** | `26.2` (Dedicated) | `jarstacker-0.7.0+mc26.2.jar` | `9B41478D9FEE7170549FB8CBBA13AA02C7F2A47A6FA6177246BB66818D9D91B3` | **360 / 360 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Java 25, No-Remap Loom, EntityTypes & Item Accessors) |
 
 *Note: For all supported versions and compatibility bands, client verification confirmed the title screen reached with no fatal Mixin/linkage/entrypoint errors.*
 
@@ -324,14 +325,15 @@ To ensure peak server performance and eliminate runtime failure points:
 ./gradlew "Set active project to 1.21.9"
 ./gradlew "Set active project to 1.21.11"
 ./gradlew "Set active project to 26.1"
+./gradlew "Set active project to 26.2"
 ```
 
 ### Compiling and Building All Artifacts
 ```bash
-./gradlew :1.21.1:build :1.21.2:build :1.21.4:build :1.21.5:build :1.21.6:build :1.21.9:build :1.21.11:build :26.1:build
+./gradlew :1.21.1:build :1.21.2:build :1.21.4:build :1.21.5:build :1.21.6:build :1.21.9:build :1.21.11:build :26.1:build :26.2:build
 ```
 
-### Running In-Game Automated Integration Test Suite (348 Tests Across All Targets)
+### Running In-Game Automated Integration Test Suite (360 Tests Across All Targets)
 ```bash
 ./gradlew :1.21.1:runServer -PrunTests
 ./gradlew :1.21.2:runServer -PrunTests
@@ -347,20 +349,79 @@ To ensure peak server performance and eliminate runtime failure points:
 ./gradlew :26.1:runServer -PrunTests
 ./gradlew :runtime-test-26.1.1:runServer -PrunTests
 ./gradlew :runtime-test-26.1.2:runServer -PrunTests
+./gradlew :26.2:runServer -PrunTests
 ```
 
 ---
 
-## 8. Forward-Looking 26.2 Read-Only Audit (Milestone 5)
+## 8. Milestone 5 — Minecraft 26.2 Support Verification
 
-### 1. Architectural Scope for Milestone 5
-- **Target**: Minecraft 26.2.
-- **Frozen Baseline**: Minecraft 1.21.1–26.1.2 is fully verified, tested, and frozen.
-- **Strict Prohibition**: Milestone 4 strictly ends at Minecraft 26.1.2. No implementation or binary widening to 26.2 may occur until Milestone 5 is officially authorized.
+### 1. Architectural Scope & Milestone Status
+- **Milestone 5 Status**: **VERIFIED**
+- **Supported Baseline**: Extended from `1.21.1–26.1.2` to `1.21.1–26.2`.
+- **Target**: Minecraft Java Edition 26.2.
+- **Java Requirement**: Java 25 (`--release 25`), unobfuscated Minecraft, no-remap build pipeline.
+- **Fabric Tooling**: Loom 1.17.20, Fabric Loader 0.19.3, Fabric API 0.160.0+26.2, YACL 3.9.6+26.2-fabric, ModMenu 20.0.2.
+- **Release Status**: Jar Stacker 0.7.0 development version. **NOT YET RELEASED** (awaiting separate release freeze).
 
-### 2. Upstream Architectural Shifts Anticipated in 26.2
-- **Year-Based Versioning Scheme**: Mojang continues the calendar-based `26.x` cycle with 26.2.
-- **Further Unobfuscated Refinements**: Continued evolution of vanilla classes and Fabric API official mappings.
-- **Loom & Tooling**: Maintain no-remap pipeline under Java 25.
+### 2. Empirical Compatibility Probe (26.1 -> 26.2)
+1. **Normal 26.1 JAR on 26.2**:
+   - Fabric Loader rejected the 26.1 artifact due to declared dependency `">=26.1 <=26.1.2"`:
+     ```text
+     Mod 'Jar Stacker' (jarstacker) 0.7.0 requires version 26.1 of 'Minecraft' (minecraft), but only the wrong version is present: 26.2!
+     ```
+2. **Metadata-Widened 26.1 Bytecode on 26.2**:
+   - Launched temporary widened bytecode without recompilation.
+   - Resulted in immediate runtime failure:
+     ```text
+     java.lang.NoSuchFieldError: ZOMBIE
+         at com.jar.jarstacker.test.JarStackerTestRunner.<clinit>(JarStackerTestRunner.java)
+     ```
+   - **Root Cause**: Mojang relocated all entity type constants from `net.minecraft.world.entity.EntityType` to `net.minecraft.world.entity.EntityTypes` in 26.2.
+   - **Conclusion**: Same-binary compatibility across 26.1 -> 26.2 is impossible. A dedicated Stonecutter compile target (`versions/26.2`) is strictly required.
+
+### 3. Key Upstream 26.2 API & Behavioral Adaptations
+- **EntityTypes Constant Relocation**: Entity constants moved to `net.minecraft.world.entity.EntityTypes`. Abstracted in `JarStackerTestRunner` via compile-time inner class and adapter methods.
+- **Item Accessors**: `Items.WHITE_WOOL` and dye items migrated to accessor methods (`Items.WOOL.white()`, `Items.DYE.red()`, `Items.DYE.blue()`).
+- **Slime Package Move**: Relocated to `net.minecraft.world.entity.monster.cubemob.Slime`.
+- **Knockback Parameters**: Abstracted in `EntityAdapter.knockback`.
+- **World Clocks & Environment Attributes**: 26.2 introduced `clockManager()` and `EnvironmentAttributes.MONSTERS_BURN` timeline sampling. `setDayTime` and `setClearWeather` adapted to invalidate tick cache and synchronize sky brightness.
+- **MobEffects Registry Audit**: Exactly 40 vanilla status effects present in 26.2 (identical count to 26.1). `LogicalEffectClassifier.auditAll()` verifies `UNKNOWN == 0` and `UNSUPPORTED == 0`.
+
+### 4. Save-Upgrade Fixture Verification (26.1.2 -> 26.2)
+- **Fixture Generation**: Created world on `runtime-test-26.1.2` containing:
+  - Stacked Zombie $\times 4$ with non-uniform health `[15.0, 12.0, 18.0, 10.0]` and status effects (Infested, Oozing, Weaving, Wind-Charged).
+  - Stacked Brown Mooshroom $\times 3$.
+  - Stacked Item (Cobblestone $\times 128$).
+- **Upgrade Execution**: World upgraded to 26.2 via Anvil upgrade pipeline (`Upgrading progress: 100%`).
+- **Fixture Result**: `[SAVE_UPGRADE_FIXTURE RESULT: PASS]`.
+- **Invariant Confirmed**: `logicalCount == logicalStateRecordCount` preserved with 100% data fidelity across the major 26.1.2 -> 26.2 version boundary.
+
+### 5. Client Smoke Test Verification
+- Ran `:26.2:runClient`.
+- YACL 3.9.6+26.2-fabric and ModMenu 20.0.2 loaded cleanly.
+- OpenGL display, textures, sound, and models initialized without Mixin/injection errors. Title screen reached.
+
+### 6. Full 15-Runtime Server Matrix (5,400 / 5,400 Tests Passed, 100%)
+- All 15 runtimes passed **360 / 360 automated in-game tests**:
+  1. `1.21.1`: **360 / 360 PASS**
+  2. `1.21.2`: **360 / 360 PASS**
+  3. `runtime-test-1.21.3`: **360 / 360 PASS**
+  4. `1.21.4`: **360 / 360 PASS**
+  5. `1.21.5`: **360 / 360 PASS**
+  6. `1.21.6`: **360 / 360 PASS**
+  7. `runtime-test-1.21.7`: **360 / 360 PASS**
+  8. `runtime-test-1.21.8`: **360 / 360 PASS**
+  9. `1.21.9`: **360 / 360 PASS**
+  10. `runtime-test-1.21.10`: **360 / 360 PASS**
+  11. `1.21.11`: **360 / 360 PASS**
+  12. `26.1`: **360 / 360 PASS**
+  13. `runtime-test-26.1.1`: **360 / 360 PASS**
+  14. `runtime-test-26.1.2`: **360 / 360 PASS**
+  15. `26.2`: **360 / 360 PASS**
+
+### 7. Source Reuse Quantification
+- **Shared Source Code Percentage**: **>98%**.
+- Only 13 files contain Stonecutter conditional blocks for 26.2. Core stacking logic, transaction handling, state invariants, and combat systems remain 100% unified.
 
 
