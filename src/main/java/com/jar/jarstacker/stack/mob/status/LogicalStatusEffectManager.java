@@ -197,7 +197,11 @@ public class LogicalStatusEffectManager {
 		LogicalStatusEffectState statusState = getOrCreateStatusState(entity);
 		LogicalEffectScopeResolver.Scope scope = LogicalEffectScopeResolver.resolve(source);
 
+		//? if >=26.2 {
+		/*if (instance.getEffect().value().isInstantaneous()) {
+		*///?} else {
 		if (instance.getEffect().value().isInstantenous()) {
+		//?}
 			double intensity = LogicalEffectScopeResolver.isInSplash() ? LogicalEffectScopeResolver.getSplashIntensity() : 1.0;
 			applyInstantEffect(entity, instance.getEffect(), instance.getAmplifier(), intensity, scope);
 			return true;

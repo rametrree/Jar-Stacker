@@ -33,6 +33,33 @@ public abstract class BaseConfigScreen extends Screen {
 		drawer.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
 	}
 
+	public static void setScreen(net.minecraft.client.Minecraft mc, Screen screen) {
+		if (mc == null) return;
+		//? if >=26.2 {
+		/*mc.gui.setScreen(screen);
+		*///?} else {
+		mc.setScreen(screen);
+		//?}
+	}
+
+	public static Screen getScreen(net.minecraft.client.Minecraft mc) {
+		if (mc == null) return null;
+		//? if >=26.2 {
+		/*return mc.gui.screen();
+		*///?} else {
+		return mc.screen;
+		//?}
+	}
+
+	public static boolean isSingleplayer(net.minecraft.client.Minecraft mc) {
+		if (mc == null) return false;
+		//? if >=26.2 {
+		/*return mc.hasSingleplayerServer();
+		*///?} else {
+		return mc.isSingleplayer();
+		//?}
+	}
+
 	public static class GuiDrawer {
 		//? if >=26.1 {
 		/*private final net.minecraft.client.gui.GuiGraphicsExtractor g;

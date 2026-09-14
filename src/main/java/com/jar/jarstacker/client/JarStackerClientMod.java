@@ -1,5 +1,6 @@
 package com.jar.jarstacker.client;
 
+import com.jar.jarstacker.client.gui.BaseConfigScreen;
 import com.jar.jarstacker.client.gui.JarStackerConfigScreen;
 import com.jar.jarstacker.client.gui.JarStackerConfigScreenFactory;
 import com.jar.jarstacker.config.ModConfig;
@@ -25,8 +26,8 @@ public class JarStackerClientMod implements ClientModInitializer {
 			context.client().execute(() -> {
 				ModConfig serverConfig = ModConfig.fromJson(payload.configJson());
 				if (serverConfig != null) {
-					Minecraft.getInstance().setScreen(JarStackerConfigScreenFactory.createScreen(
-						Minecraft.getInstance().screen,
+					BaseConfigScreen.setScreen(Minecraft.getInstance(), JarStackerConfigScreenFactory.createScreen(
+						BaseConfigScreen.getScreen(Minecraft.getInstance()),
 						serverConfig,
 						payload.revision()
 					));
@@ -60,9 +61,9 @@ public class JarStackerClientMod implements ClientModInitializer {
 			//?}
 					.executes(context -> {
 						Minecraft mc = Minecraft.getInstance();
-						if (mc.isSingleplayer()) {
-							mc.execute(() -> mc.setScreen(JarStackerConfigScreenFactory.createScreen(
-								mc.screen,
+						if (BaseConfigScreen.isSingleplayer(mc)) {
+							mc.execute(() -> BaseConfigScreen.setScreen(mc, JarStackerConfigScreenFactory.createScreen(
+								BaseConfigScreen.getScreen(mc),
 								ModConfig.getInstance(),
 								ModConfig.getConfigRevision()
 							)));

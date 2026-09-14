@@ -107,7 +107,11 @@ public class MobInteractionResolver {
 				}
 			}
 
+			//? if >=26.2 {
+			/*if ("brown".equals(mc.getVariant().getSerializedName()) && heldItem.is(net.minecraft.tags.BlockItemTags.SMALL_FLOWERS.item())) {
+			*///?} else {
 			if ("brown".equals(mc.getVariant().getSerializedName()) && heldItem.is(net.minecraft.tags.ItemTags.SMALL_FLOWERS)) {
+			//?}
 				return StackInteractionDecision.extractOne("Brown mooshroom flower feeding", 0);
 			}
 		}

@@ -216,7 +216,11 @@ public class LogicalEntityTransformer {
 
 	public static EntityType<?> getExpectedDestinationType(Mob sourceMob) {
 		if (sourceMob instanceof MushroomCow) {
+			//? if >=26.2 {
+			/*return net.minecraft.world.entity.EntityTypes.COW;
+			*///?} else {
 			return EntityType.COW;
+			//?}
 		}
 		return null;
 	}

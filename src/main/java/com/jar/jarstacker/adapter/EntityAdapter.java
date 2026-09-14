@@ -82,7 +82,11 @@ public final class EntityAdapter {
 	//? }
 
 	public static ThrowableItemProjectile createThrownPotion(Level level, double x, double y, double z) {
-		//? if >=1.21.11 {
+		//? if >=26.2 {
+		/*net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownSplashPotion potion = new net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownSplashPotion(net.minecraft.world.entity.EntityTypes.SPLASH_POTION, level);
+		potion.setPos(x, y, z);
+		return potion;
+		*///? } else if >=1.21.11 {
 		/*net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownSplashPotion potion = new net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownSplashPotion(EntityType.SPLASH_POTION, level);
 		potion.setPos(x, y, z);
 		return potion;
@@ -95,6 +99,15 @@ public final class EntityAdapter {
 		potion.setPos(x, y, z);
 		return potion;
 		//? }
+	}
+
+	public static void knockback(net.minecraft.world.entity.LivingEntity entity, double strength, double x, double z) {
+		if (entity == null) return;
+		//? if >=26.2 {
+		/*entity.knockback(strength, x, z, null, 0.0f);
+		*///?} else {
+		entity.knockback(strength, x, z);
+		//?}
 	}
 
 	public static boolean isThrownPotion(Entity source) {

@@ -579,7 +579,11 @@ public class JarStackerCommands {
 		ServerLevel level = source.getLevel();
 		Vec3 pos = source.getPosition();
 		for (int i = 0; i < count; i++) {
+			//? if >=26.2 {
+			/*Zombie z = com.jar.jarstacker.adapter.EntityAdapter.create(net.minecraft.world.entity.EntityTypes.ZOMBIE, level);
+			*///?} else {
 			Zombie z = com.jar.jarstacker.adapter.EntityAdapter.create(EntityType.ZOMBIE, level);
+			//?}
 			if (z != null) {
 				z.setPos(pos.x, pos.y, pos.z);
 				level.addFreshEntity(z);

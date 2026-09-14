@@ -23,7 +23,7 @@ public class JarStackerYaclScreen {
 			.save(() -> {
 				model.validate();
 				Minecraft mc = Minecraft.getInstance();
-				if (mc.isSingleplayer() || mc.level == null) {
+				if (BaseConfigScreen.isSingleplayer(mc) || mc.level == null) {
 					ModConfig.setInstance(model);
 					ModConfig.save();
 					if (mc.player != null) {
@@ -129,42 +129,42 @@ public class JarStackerYaclScreen {
 				.option(ButtonOption.createBuilder()
 					.name(Component.literal("Item Blacklist (" + model.getItemStacking().getBlacklist().size() + " entries)"))
 					.description(OptionDescription.of(Component.literal("Configure items explicitly excluded from stacking.")))
-					.action((screen, opt) -> Minecraft.getInstance().setScreen(
+					.action((screen, opt) -> BaseConfigScreen.setScreen(Minecraft.getInstance(), 
 						new JarStackerConfigScreen.ListEditorScreen(screen, "Item Blacklist", model.getItemStacking().getBlacklist(), true)
 					))
 					.build())
 				.option(ButtonOption.createBuilder()
 					.name(Component.literal("Item Whitelist (" + model.getItemStacking().getWhitelist().size() + " entries)"))
 					.description(OptionDescription.of(Component.literal("Configure items explicitly permitted when filter is WHITELIST.")))
-					.action((screen, opt) -> Minecraft.getInstance().setScreen(
+					.action((screen, opt) -> BaseConfigScreen.setScreen(Minecraft.getInstance(), 
 						new JarStackerConfigScreen.ListEditorScreen(screen, "Item Whitelist", model.getItemStacking().getWhitelist(), true)
 					))
 					.build())
 				.option(ButtonOption.createBuilder()
 					.name(Component.literal("Mob Blacklist (" + model.getMobStacking().getBlacklist().size() + " entries)"))
 					.description(OptionDescription.of(Component.literal("Configure mobs explicitly excluded from stacking.")))
-					.action((screen, opt) -> Minecraft.getInstance().setScreen(
+					.action((screen, opt) -> BaseConfigScreen.setScreen(Minecraft.getInstance(), 
 						new JarStackerConfigScreen.ListEditorScreen(screen, "Mob Blacklist", model.getMobStacking().getBlacklist(), false)
 					))
 					.build())
 				.option(ButtonOption.createBuilder()
 					.name(Component.literal("Mob Whitelist (" + model.getMobStacking().getWhitelist().size() + " entries)"))
 					.description(OptionDescription.of(Component.literal("Configure mobs explicitly permitted when filter is WHITELIST.")))
-					.action((screen, opt) -> Minecraft.getInstance().setScreen(
+					.action((screen, opt) -> BaseConfigScreen.setScreen(Minecraft.getInstance(), 
 						new JarStackerConfigScreen.ListEditorScreen(screen, "Mob Whitelist", model.getMobStacking().getWhitelist(), false)
 					))
 					.build())
 				.option(ButtonOption.createBuilder()
 					.name(Component.literal("Per-Item Rules (" + model.getItemStacking().getRules().size() + " rules)"))
 					.description(OptionDescription.of(Component.literal("Configure custom maximum stack caps and limits for specific item IDs.")))
-					.action((screen, opt) -> Minecraft.getInstance().setScreen(
+					.action((screen, opt) -> BaseConfigScreen.setScreen(Minecraft.getInstance(), 
 						new JarStackerConfigScreen.ItemRulesScreen(screen, model)
 					))
 					.build())
 				.option(ButtonOption.createBuilder()
 					.name(Component.literal("Per-Mob Rules (" + model.getMobStacking().getRules().size() + " rules)"))
 					.description(OptionDescription.of(Component.literal("Configure custom maximum stack caps and limits for specific mob IDs.")))
-					.action((screen, opt) -> Minecraft.getInstance().setScreen(
+					.action((screen, opt) -> BaseConfigScreen.setScreen(Minecraft.getInstance(), 
 						new JarStackerConfigScreen.MobRulesScreen(screen, model)
 					))
 					.build())

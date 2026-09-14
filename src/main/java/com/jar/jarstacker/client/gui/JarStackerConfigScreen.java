@@ -44,41 +44,41 @@ public class JarStackerConfigScreen extends BaseConfigScreen {
 
 		// 1. Item Stacking Submenu
 		this.addRenderableWidget(Button.builder(Component.literal("Item Stacking Options"),
-			b -> this.minecraft.setScreen(new ItemConfigScreen(this, model))
+			b -> setScreen(this.minecraft, new ItemConfigScreen(this, model))
 		).bounds(centerX - buttonWidth / 2, startY, buttonWidth, buttonHeight).build());
 
 		// 2. Mob Stacking Submenu
 		this.addRenderableWidget(Button.builder(Component.literal("Mob Stacking Options"),
-			b -> this.minecraft.setScreen(new MobConfigScreen(this, model))
+			b -> setScreen(this.minecraft, new MobConfigScreen(this, model))
 		).bounds(centerX - buttonWidth / 2, startY + spacing, buttonWidth, buttonHeight).build());
 
 		// 3. Filters & Rules Submenu
 		this.addRenderableWidget(Button.builder(Component.literal("Filters & Rules"),
-			b -> this.minecraft.setScreen(new FiltersRulesMenuScreen(this, model))
+			b -> setScreen(this.minecraft, new FiltersRulesMenuScreen(this, model))
 		).bounds(centerX - buttonWidth / 2, startY + spacing * 2, buttonWidth, buttonHeight).build());
 
 		// 4. Display Submenu
 		this.addRenderableWidget(Button.builder(Component.literal("Display Settings"),
-			b -> this.minecraft.setScreen(new DisplayConfigScreen(this, model))
+			b -> setScreen(this.minecraft, new DisplayConfigScreen(this, model))
 		).bounds(centerX - buttonWidth / 2, startY + spacing * 3, buttonWidth, buttonHeight).build());
 
 		// 5. Performance Submenu
 		this.addRenderableWidget(Button.builder(Component.literal("Performance & Metrics"),
-			b -> this.minecraft.setScreen(new PerformanceConfigScreen(this, model))
+			b -> setScreen(this.minecraft, new PerformanceConfigScreen(this, model))
 		).bounds(centerX - buttonWidth / 2, startY + spacing * 4, buttonWidth, buttonHeight).build());
 
 		// 6. Reset to Defaults
 		this.addRenderableWidget(Button.builder(Component.literal("Reset to Defaults"), b -> {
 			ModConfig def = new ModConfig();
 			def.validate();
-			this.minecraft.setScreen(new JarStackerConfigScreen(parent, def, baseRevision));
+			setScreen(this.minecraft, new JarStackerConfigScreen(parent, def, baseRevision));
 		}).bounds(centerX - buttonWidth / 2, startY + spacing * 5 + 4, buttonWidth, buttonHeight).build());
 
 		// 7. Save and Cancel
 		int bottomY = this.height - 32;
 		this.addRenderableWidget(Button.builder(Component.literal("Save"), b -> {
 			model.validate();
-			if (this.minecraft.isSingleplayer()) {
+			if (isSingleplayer(this.minecraft)) {
 				// Apply directly on integrated server
 				ModConfig.setInstance(model);
 				ModConfig.save();
@@ -93,12 +93,12 @@ public class JarStackerConfigScreen extends BaseConfigScreen {
 				// Send update payload to multiplayer server
 				ClientPlayNetworking.send(new JarStackerPackets.ConfigUpdatePayload(baseRevision, model.toJson()));
 			}
-			this.minecraft.setScreen(parent);
+			setScreen(this.minecraft, parent);
 		}).bounds(centerX - 105, bottomY, 100, buttonHeight).build());
 
 		this.addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, b -> {
 			// Cancel discards changes without sending any update
-			this.minecraft.setScreen(parent);
+			setScreen(this.minecraft, parent);
 		}).bounds(centerX + 5, bottomY, 100, buttonHeight).build());
 	}
 
@@ -179,7 +179,7 @@ public class JarStackerConfigScreen extends BaseConfigScreen {
 					model.getItemStacking().setMaxStackSize(Integer.parseInt(maxStackBox.getValue()));
 				} catch (Exception ignored) {}
 				model.validate();
-				this.minecraft.setScreen(parent);
+				setScreen(this.minecraft, parent);
 			}).bounds(cx - 100, this.height - 30, 200, 20).build());
 		}
 
@@ -264,7 +264,7 @@ public class JarStackerConfigScreen extends BaseConfigScreen {
 					model.getMobStacking().setMaxStackSize(Integer.parseInt(maxStackBox.getValue()));
 				} catch (Exception ignored) {}
 				model.validate();
-				this.minecraft.setScreen(parent);
+				setScreen(this.minecraft, parent);
 			}).bounds(cx - 100, this.height - 30, 200, 20).build());
 		}
 
@@ -297,41 +297,41 @@ public class JarStackerConfigScreen extends BaseConfigScreen {
 
 			// Item Blacklist
 			this.addRenderableWidget(Button.builder(Component.literal("Edit Item Blacklist (" + model.getItemStacking().getBlacklist().size() + ")"),
-				b -> this.minecraft.setScreen(new ListEditorScreen(this, "Item Blacklist", model.getItemStacking().getBlacklist(), true))
+				b -> setScreen(this.minecraft, new ListEditorScreen(this, "Item Blacklist", model.getItemStacking().getBlacklist(), true))
 			).bounds(cx - w / 2, y, w, h).build());
 			y += 26;
 
 			// Item Whitelist
 			this.addRenderableWidget(Button.builder(Component.literal("Edit Item Whitelist (" + model.getItemStacking().getWhitelist().size() + ")"),
-				b -> this.minecraft.setScreen(new ListEditorScreen(this, "Item Whitelist", model.getItemStacking().getWhitelist(), true))
+				b -> setScreen(this.minecraft, new ListEditorScreen(this, "Item Whitelist", model.getItemStacking().getWhitelist(), true))
 			).bounds(cx - w / 2, y, w, h).build());
 			y += 26;
 
 			// Mob Blacklist
 			this.addRenderableWidget(Button.builder(Component.literal("Edit Mob Blacklist (" + model.getMobStacking().getBlacklist().size() + ")"),
-				b -> this.minecraft.setScreen(new ListEditorScreen(this, "Mob Blacklist", model.getMobStacking().getBlacklist(), false))
+				b -> setScreen(this.minecraft, new ListEditorScreen(this, "Mob Blacklist", model.getMobStacking().getBlacklist(), false))
 			).bounds(cx - w / 2, y, w, h).build());
 			y += 26;
 
 			// Mob Whitelist
 			this.addRenderableWidget(Button.builder(Component.literal("Edit Mob Whitelist (" + model.getMobStacking().getWhitelist().size() + ")"),
-				b -> this.minecraft.setScreen(new ListEditorScreen(this, "Mob Whitelist", model.getMobStacking().getWhitelist(), false))
+				b -> setScreen(this.minecraft, new ListEditorScreen(this, "Mob Whitelist", model.getMobStacking().getWhitelist(), false))
 			).bounds(cx - w / 2, y, w, h).build());
 			y += 26;
 
 			// Item Rules
 			this.addRenderableWidget(Button.builder(Component.literal("Item Rules (" + model.getItemStacking().getRules().size() + ")"),
-				b -> this.minecraft.setScreen(new ItemRulesScreen(this, model))
+				b -> setScreen(this.minecraft, new ItemRulesScreen(this, model))
 			).bounds(cx - w / 2, y, w, h).build());
 			y += 26;
 
 			// Mob Rules
 			this.addRenderableWidget(Button.builder(Component.literal("Mob Rules (" + model.getMobStacking().getRules().size() + ")"),
-				b -> this.minecraft.setScreen(new MobRulesScreen(this, model))
+				b -> setScreen(this.minecraft, new MobRulesScreen(this, model))
 			).bounds(cx - w / 2, y, w, h).build());
 
 			// Back
-			this.addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, b -> this.minecraft.setScreen(parent))
+			this.addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, b -> setScreen(this.minecraft, parent))
 				.bounds(cx - 100, this.height - 30, 200, 20).build());
 		}
 	}
@@ -374,7 +374,7 @@ public class JarStackerConfigScreen extends BaseConfigScreen {
 				}
 			}).bounds(cx - 100, this.height - 55, 200, 20).build());
 
-			this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> this.minecraft.setScreen(parent))
+			this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> setScreen(this.minecraft, parent))
 				.bounds(cx - 100, this.height - 30, 200, 20).build());
 		}
 
@@ -468,7 +468,7 @@ public class JarStackerConfigScreen extends BaseConfigScreen {
 				}
 			}).bounds(cx - 110, 70, 220, 20).build());
 
-			this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> this.minecraft.setScreen(parent))
+			this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> setScreen(this.minecraft, parent))
 				.bounds(cx - 100, this.height - 30, 200, 20).build());
 		}
 
@@ -528,7 +528,7 @@ public class JarStackerConfigScreen extends BaseConfigScreen {
 				}
 			}).bounds(cx - 110, 70, 220, 20).build());
 
-			this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> this.minecraft.setScreen(parent))
+			this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> setScreen(this.minecraft, parent))
 				.bounds(cx - 100, this.height - 30, 200, 20).build());
 		}
 
@@ -592,7 +592,7 @@ public class JarStackerConfigScreen extends BaseConfigScreen {
 			}).bounds(cx - w / 2, y, w, h).build());
 
 			// Done button
-			this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> this.minecraft.setScreen(parent))
+			this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> setScreen(this.minecraft, parent))
 				.bounds(cx - 100, this.height - 30, 200, 20).build());
 		}
 	}
@@ -630,7 +630,7 @@ public class JarStackerConfigScreen extends BaseConfigScreen {
 			}).bounds(cx - w / 2, y, w, h).build());
 
 			// Done button
-			this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> this.minecraft.setScreen(parent))
+			this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> setScreen(this.minecraft, parent))
 				.bounds(cx - 100, this.height - 30, 200, 20).build());
 		}
 	}

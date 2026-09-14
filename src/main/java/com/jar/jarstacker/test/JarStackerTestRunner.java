@@ -128,8 +128,48 @@ public class JarStackerTestRunner {
 		}
 	}
 
-	private static <T extends Entity> T createEntity(EntityType<T> type, net.minecraft.world.level.Level level) {
+	//? if >=26.2 {
+	/*private static final class EntityType {
+		public static final net.minecraft.world.entity.EntityType<Zombie> ZOMBIE = net.minecraft.world.entity.EntityTypes.ZOMBIE;
+		public static final net.minecraft.world.entity.EntityType<Skeleton> SKELETON = net.minecraft.world.entity.EntityTypes.SKELETON;
+		public static final net.minecraft.world.entity.EntityType<Cow> COW = net.minecraft.world.entity.EntityTypes.COW;
+		public static final net.minecraft.world.entity.EntityType<Sheep> SHEEP = net.minecraft.world.entity.EntityTypes.SHEEP;
+		public static final net.minecraft.world.entity.EntityType<Pig> PIG = net.minecraft.world.entity.EntityTypes.PIG;
+		public static final net.minecraft.world.entity.EntityType<Villager> VILLAGER = net.minecraft.world.entity.EntityTypes.VILLAGER;
+		public static final net.minecraft.world.entity.EntityType<Arrow> ARROW = net.minecraft.world.entity.EntityTypes.ARROW;
+		public static final net.minecraft.world.entity.EntityType<MushroomCow> MOOSHROOM = net.minecraft.world.entity.EntityTypes.MOOSHROOM;
+		public static final net.minecraft.world.entity.EntityType<Wolf> WOLF = net.minecraft.world.entity.EntityTypes.WOLF;
+		public static final net.minecraft.world.entity.EntityType<SnowGolem> SNOW_GOLEM = net.minecraft.world.entity.EntityTypes.SNOW_GOLEM;
+		public static final net.minecraft.world.entity.EntityType<Strider> STRIDER = net.minecraft.world.entity.EntityTypes.STRIDER;
+	}
+	*///?}
+
+	private static <T extends Entity> T createEntity(net.minecraft.world.entity.EntityType<T> type, net.minecraft.world.level.Level level) {
 		return com.jar.jarstacker.adapter.EntityAdapter.create(type, level);
+	}
+
+	private static net.minecraft.world.item.Item whiteWoolItem() {
+		//? if >=26.2 {
+		/*return Items.WOOL.white();
+		*///?} else {
+		return Items.WHITE_WOOL;
+		//?}
+	}
+
+	private static net.minecraft.world.item.Item redDyeItem() {
+		//? if >=26.2 {
+		/*return Items.DYE.red();
+		*///?} else {
+		return Items.RED_DYE;
+		//?}
+	}
+
+	private static net.minecraft.world.item.Item blueDyeItem() {
+		//? if >=26.2 {
+		/*return Items.DYE.blue();
+		*///?} else {
+		return Items.BLUE_DYE;
+		//?}
 	}
 
 	public static List<TestResult> runAllTests(ServerLevel level, Vec3 pos) {
@@ -2641,7 +2681,7 @@ public class JarStackerTestRunner {
 			}
 
 			List<ItemEntity> droppedItems = level.getEntitiesOfClass(ItemEntity.class, cleanAreaA);
-			boolean hasWoolDrop = droppedItems.stream().anyMatch(ie -> ie.getItem().is(Items.WHITE_WOOL));
+			boolean hasWoolDrop = droppedItems.stream().anyMatch(ie -> ie.getItem().is(whiteWoolItem()));
 
 			boolean pass = res.consumesAction()
 				&& sheepList.size() == 2
@@ -2730,7 +2770,7 @@ public class JarStackerTestRunner {
 			level.addFreshEntity(sheepStack);
 
 			ServerPlayer player = createMockPlayer(level, new Vec3(posA.x, posA.y, posA.z - 2.0), GameType.SURVIVAL);
-			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.RED_DYE, 10));
+			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(redDyeItem(), 10));
 			aimAt(player, sheepStack);
 
 			java.util.UUID initialUuid = sheepStack.getUUID();
@@ -2779,7 +2819,7 @@ public class JarStackerTestRunner {
 			level.addFreshEntity(sheepStack);
 
 			ServerPlayer player = createMockPlayer(level, new Vec3(posA.x, posA.y, posA.z - 2.0), GameType.SURVIVAL);
-			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.RED_DYE, 20));
+			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(redDyeItem(), 20));
 			aimAt(player, sheepStack);
 
 			Vec3 initialPos = sheepStack.position();
@@ -2830,7 +2870,7 @@ public class JarStackerTestRunner {
 			level.addFreshEntity(sheepStack);
 
 			ServerPlayer player = createMockPlayer(level, new Vec3(posA.x, posA.y, posA.z - 2.0), GameType.SURVIVAL);
-			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.RED_DYE, 10));
+			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(redDyeItem(), 10));
 			aimAt(player, sheepStack);
 
 			InteractionResult res = simulateInteract(player, level, sheepStack);
@@ -3124,7 +3164,7 @@ public class JarStackerTestRunner {
 			level.addFreshEntity(sheepStackC);
 
 			ServerPlayer creativePlayer = createMockPlayer(level, new Vec3(posA.x, posA.y, posA.z - 2.0), GameType.CREATIVE);
-			creativePlayer.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BLUE_DYE, 10));
+			creativePlayer.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(blueDyeItem(), 10));
 			aimAt(creativePlayer, sheepStackC);
 
 			simulateInteract(creativePlayer, level, sheepStackC);
@@ -3141,7 +3181,7 @@ public class JarStackerTestRunner {
 			level.addFreshEntity(sheepStackS);
 
 			ServerPlayer survivalPlayer = createMockPlayer(level, new Vec3(posA.x, posA.y, posA.z - 2.0), GameType.SURVIVAL);
-			survivalPlayer.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BLUE_DYE, 10));
+			survivalPlayer.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(blueDyeItem(), 10));
 			aimAt(survivalPlayer, sheepStackS);
 
 			simulateInteract(survivalPlayer, level, sheepStackS);
@@ -7055,8 +7095,8 @@ Vec3 posH = pos.add(25, 0, 25);
 			((StackableEntity) stackedZombie).jarstacker$setStackCount(50);
 			level.addFreshEntity(stackedZombie);
 
-			singleZombie.knockback(0.5, 1.0, 0.0);
-			stackedZombie.knockback(0.5, 1.0, 0.0);
+			EntityAdapter.knockback(singleZombie, 0.5, 1.0, 0.0);
+			EntityAdapter.knockback(stackedZombie, 0.5, 1.0, 0.0);
 
 			Vec3 deltaSingle = singleZombie.getDeltaMovement();
 			Vec3 deltaStacked = stackedZombie.getDeltaMovement();
@@ -11091,7 +11131,11 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			int deathCallbacks = LogicalHealthManager.testDeathCallbackCount;
 			int remainingCount = ((StackableEntity) stacked).jarstacker$getStackCount();
+			//? if >=26.2 {
+			/*List<net.minecraft.world.entity.monster.cubemob.Slime> slimes = level.getEntitiesOfClass(net.minecraft.world.entity.monster.cubemob.Slime.class, cleanAreaVA);
+			*///?} else {
 			List<net.minecraft.world.entity.monster.Slime> slimes = level.getEntitiesOfClass(net.minecraft.world.entity.monster.Slime.class, cleanAreaVA);
+			//?}
 
 			boolean pass = deathCallbacks == 1 && remainingCount == 1 && !slimes.isEmpty();
 			results.add(new TestResult("Test VA5 - Oozing Logical Death Parity", pass,
@@ -12447,7 +12491,13 @@ Vec3 posH = pos.add(25, 0, 25);
 	}
 
 	private static void setDayTime(ServerLevel level, long time) {
-		//? if >=26.1 {
+		//? if >=26.2 {
+		/*level.dimensionTypeRegistration().value().defaultClock().ifPresent(clock -> {
+			level.getServer().clockManager().setTotalTicks(clock, time);
+		});
+		level.environmentAttributes().invalidateTickCache();
+		level.updateSkyBrightness();
+		*///? } else if >=26.1 {
 		/*level.dimensionTypeRegistration().value().defaultClock().ifPresent(clock -> {
 			level.getServer().clockManager().setTotalTicks(clock, time);
 		});

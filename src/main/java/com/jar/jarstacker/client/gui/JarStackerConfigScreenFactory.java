@@ -11,7 +11,7 @@ public class JarStackerConfigScreenFactory {
 
 	public static Screen createConfigScreen(Screen parent) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.level != null && !mc.isSingleplayer()) {
+		if (mc.level != null && !BaseConfigScreen.isSingleplayer(mc)) {
 			// In multiplayer, request authoritative server config
 			ClientPlayNetworking.send(new JarStackerPackets.ConfigRequestPayload());
 		}

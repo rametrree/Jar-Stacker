@@ -72,7 +72,11 @@ public class SheepWoolManager {
 		}
 
 		if (!merged) {
+			//? if >=26.2 {
+			/*Sheep regrown = com.jar.jarstacker.adapter.EntityAdapter.create(net.minecraft.world.entity.EntityTypes.SHEEP, level);
+			*///?} else {
 			Sheep regrown = com.jar.jarstacker.adapter.EntityAdapter.create(EntityType.SHEEP, level);
+			//?}
 			if (regrown != null) {
 				Vec3 safePos = SplitPlacementResolver.findSafeSplitPosition(level, sheep, regrown, Collections.singleton(sheep.getBoundingBox()));
 				com.jar.jarstacker.adapter.EntityAdapter.moveTo(regrown, safePos.x, safePos.y, safePos.z, sheep.getYRot(), sheep.getXRot());

@@ -23,13 +23,27 @@ import net.minecraft.world.entity.VariantHolder;
 //? }
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Shulker;
+//? if >=26.2 {
+/*import net.minecraft.world.entity.monster.cubemob.Slime;
+*///?} else {
 import net.minecraft.world.entity.monster.Slime;
+//?}
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Objects;
 import java.util.Set;
 
 public class MobCompatibility {
+	//? if >=26.2 {
+	/*private static final Set<EntityType<?>> EXCLUDED_TYPES = Set.of(
+		net.minecraft.world.entity.EntityTypes.PLAYER,
+		net.minecraft.world.entity.EntityTypes.ENDER_DRAGON,
+		net.minecraft.world.entity.EntityTypes.WITHER,
+		net.minecraft.world.entity.EntityTypes.ARMOR_STAND,
+		net.minecraft.world.entity.EntityTypes.VILLAGER,
+		net.minecraft.world.entity.EntityTypes.WANDERING_TRADER
+	);
+	*///?} else {
 	private static final Set<EntityType<?>> EXCLUDED_TYPES = Set.of(
 		EntityType.PLAYER,
 		EntityType.ENDER_DRAGON,
@@ -38,6 +52,7 @@ public class MobCompatibility {
 		EntityType.VILLAGER,
 		EntityType.WANDERING_TRADER
 	);
+	//?}
 
 	public static class MobInspection {
 		public final boolean stackable;
