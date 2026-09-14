@@ -11974,6 +11974,19 @@ Vec3 posH = pos.add(25, 0, 25);
 		JarStackerMod.LOGGER.info("=== [SAVE_UPGRADE_FIXTURE BEFORE DATA END] ===");
 
 		try {
+			java.util.Properties p = new java.util.Properties();
+			p.setProperty("baseX", String.valueOf(basePos.getX()));
+			p.setProperty("baseY", String.valueOf(basePos.getY()));
+			p.setProperty("baseZ", String.valueOf(basePos.getZ()));
+			p.setProperty("zombieUuid", zombie.getUUID().toString());
+			p.setProperty("mooshroomUuid", mooshroom.getUUID().toString());
+			p.setProperty("itemUuid", item.getUUID().toString());
+			try (java.io.FileOutputStream fos = new java.io.FileOutputStream("run/save_fixture_coords.properties")) {
+				p.store(fos, null);
+			}
+		} catch (Exception ignored) {}
+
+		try {
 			level.save(null, true, false);
 		} catch (Exception e) {
 			JarStackerMod.LOGGER.error("Failed to flush save", e);
@@ -11983,8 +11996,32 @@ Vec3 posH = pos.add(25, 0, 25);
 
 	public static void executeSaveUpgradeVerify(ServerLevel level) {
 		JarStackerMod.LOGGER.info("========== EXECUTING SAVE-UPGRADE FIXTURE: VERIFY MODE ==========");
-		net.minecraft.core.BlockPos spawnPos = com.jar.jarstacker.adapter.EntityAdapter.getSharedSpawnPos(level);
-		net.minecraft.core.BlockPos basePos = spawnPos.offset(100, 5, 100);
+		net.minecraft.core.BlockPos basePos = null;
+		UUID zombieUuid = null;
+		UUID mooshroomUuid = null;
+		UUID itemUuid = null;
+		try {
+			java.io.File propFile = new java.io.File("run/save_fixture_coords.properties");
+			if (propFile.exists()) {
+				java.util.Properties p = new java.util.Properties();
+				try (java.io.FileInputStream fis = new java.io.FileInputStream(propFile)) {
+					p.load(fis);
+				}
+				int bx = Integer.parseInt(p.getProperty("baseX"));
+				int by = Integer.parseInt(p.getProperty("baseY"));
+				int bz = Integer.parseInt(p.getProperty("baseZ"));
+				basePos = new net.minecraft.core.BlockPos(bx, by, bz);
+				zombieUuid = UUID.fromString(p.getProperty("zombieUuid"));
+				mooshroomUuid = UUID.fromString(p.getProperty("mooshroomUuid"));
+				itemUuid = UUID.fromString(p.getProperty("itemUuid"));
+			}
+		} catch (Exception ignored) {}
+
+		if (basePos == null) {
+			net.minecraft.core.BlockPos spawnPos = com.jar.jarstacker.adapter.EntityAdapter.getSharedSpawnPos(level);
+			basePos = spawnPos.offset(100, 5, 100);
+		}
+
 		int chunkX = basePos.getX() >> 4;
 		int chunkZ = basePos.getZ() >> 4;
 		for (int dx = -2; dx <= 2; dx++) {
@@ -12003,14 +12040,28 @@ Vec3 posH = pos.add(25, 0, 25);
 		ItemEntity item = null;
 
 		for (Entity e : entities) {
-			if (e instanceof Zombie z && Math.abs(z.getX() - (basePos.getX() + 0.5)) < 2.0) {
+			if (e instanceof Zombie z && (z.getUUID().equals(zombieUuid) || Math.abs(z.getX() - (basePos.getX() + 0.5)) < 2.0)) {
 				zombie = z;
 			}
-			if (e instanceof MushroomCow m && Math.abs(m.getX() - (basePos.getX() + 5.5)) < 2.0) {
+			if (e instanceof MushroomCow m && (m.getUUID().equals(mooshroomUuid) || Math.abs(m.getX() - (basePos.getX() + 5.5)) < 2.0)) {
 				mooshroom = m;
 			}
-			if (e instanceof ItemEntity ie && Math.abs(ie.getX() - (basePos.getX() + 10.5)) < 2.0) {
+			if (e instanceof ItemEntity ie && (ie.getUUID().equals(itemUuid) || Math.abs(ie.getX() - (basePos.getX() + 10.5)) < 2.0)) {
 				item = ie;
+			}
+		}
+
+		if (zombie == null || mooshroom == null || item == null) {
+			for (Entity e : level.getAllEntities()) {
+				if (zombie == null && e instanceof Zombie z && (z.getUUID().equals(zombieUuid) || "jarstacker_fixture_mob".equals(z.getCustomName() != null ? z.getCustomName().getString() : ""))) {
+					zombie = z;
+				}
+				if (mooshroom == null && e instanceof MushroomCow m && (m.getUUID().equals(mooshroomUuid) || "jarstacker_fixture_variant".equals(m.getCustomName() != null ? m.getCustomName().getString() : ""))) {
+					mooshroom = m;
+				}
+				if (item == null && e instanceof ItemEntity ie && (ie.getUUID().equals(itemUuid) || "jarstacker_fixture_item".equals(ie.getCustomName() != null ? ie.getCustomName().getString() : ""))) {
+					item = ie;
+				}
 			}
 		}
 
