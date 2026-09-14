@@ -73,4 +73,23 @@ public class CombatContext {
 	public static void endAttack() {
 		ACTIVE_STATE.remove();
 	}
+
+	private static final ThreadLocal<Integer> DIRECT_ATTACK_DEPTH = ThreadLocal.withInitial(() -> 0);
+
+	public static void beginDirectAttack() {
+		DIRECT_ATTACK_DEPTH.set(DIRECT_ATTACK_DEPTH.get() + 1);
+	}
+
+	public static void endDirectAttack() {
+		int depth = DIRECT_ATTACK_DEPTH.get() - 1;
+		if (depth <= 0) {
+			DIRECT_ATTACK_DEPTH.remove();
+		} else {
+			DIRECT_ATTACK_DEPTH.set(depth);
+		}
+	}
+
+	public static boolean isDirectAttackActive() {
+		return ACTIVE_STATE.get() != null || DIRECT_ATTACK_DEPTH.get() > 0;
+	}
 }

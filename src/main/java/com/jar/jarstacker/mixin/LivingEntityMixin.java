@@ -560,6 +560,17 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 		}
 	}
 
+	@Inject(method = "igniteForTicks", at = @At("HEAD"))
+	private void jarstacker$onIgniteForTicks(int ticks, CallbackInfo ci) {
+		if (com.jar.jarstacker.stack.mob.status.LogicalStatusEffectManager.isLogicalTicking()) {
+			return;
+		}
+		LivingEntity entity = (LivingEntity) (Object) this;
+		if (this.jarstacker$stackCount > 1) {
+			com.jar.jarstacker.stack.mob.status.LogicalStatusEffectManager.handleIgnite(entity, ticks);
+		}
+	}
+
 	@Inject(method = "addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z", at = @At("HEAD"), cancellable = true)
 	private void jarstacker$addEffect(net.minecraft.world.effect.MobEffectInstance effectInstance, Entity source, CallbackInfoReturnable<Boolean> cir) {
 		if (com.jar.jarstacker.stack.mob.status.LogicalStatusEffectManager.isLogicalTicking()) {
@@ -583,6 +594,19 @@ public abstract class LivingEntityMixin extends Entity implements StackableEntit
 	@Override
 	public void jarstacker$setLastUnsupportedExtractionTime(long time) {
 		this.jarstacker$lastUnsupportedExtractionTime = time;
+	}
+
+	@Unique
+	private long jarstacker$lastFireDamageTick = -1L;
+
+	@Override
+	public long jarstacker$getLastFireDamageTick() {
+		return this.jarstacker$lastFireDamageTick;
+	}
+
+	@Override
+	public void jarstacker$setLastFireDamageTick(long tick) {
+		this.jarstacker$lastFireDamageTick = tick;
 	}
 
 	@Inject(method = "hasEffect(Lnet/minecraft/core/Holder;)Z", at = @At("HEAD"), cancellable = true)

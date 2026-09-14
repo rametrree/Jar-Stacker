@@ -90,6 +90,12 @@ public class LogicalStatusEffectManager {
 
 		IS_LOGICAL_TICKING.set(true);
 		try {
+			// Check if physical entity fire was extinguished by water/rain/powder snow
+			if (entity.isInWaterOrRain() || entity.wasInPowderSnow) {
+				burnState.extinguishAll();
+				stackable.jarstacker$setSharedIgnition(false);
+			}
+
 			// 1. Authoritative per-member status effect ticking
 			int memberCount = Math.min(statusState.size(), healthState.size());
 			for (int i = 0; i < memberCount; i++) {
@@ -133,10 +139,14 @@ public class LogicalStatusEffectManager {
 				burnRecord.decrementFireTicks();
 				// Deal fire damage every 20 ticks (1 second)
 				if (burnRecord.getRemainingFireTicks() % 20 == 0) {
-					LogicalStatusRecord statusRecord = statusState.get(i);
-					boolean hasFireResist = (statusRecord != null && statusRecord.hasEffect(MobEffects.FIRE_RESISTANCE)) || entity.fireImmune();
-					if (!hasFireResist) {
-						LogicalHealthManager.applyLogicalDirectDamage(entity, i, entity.damageSources().onFire(), 1.0f);
+					boolean alreadyHandledByVanilla = (stackable.jarstacker$getLastFireDamageTick() == entity.level().getGameTime())
+						&& (i == 0 || burnRecord.isSharedIgnition());
+					if (!alreadyHandledByVanilla) {
+						LogicalStatusRecord statusRecord = statusState.get(i);
+						boolean hasFireResist = (statusRecord != null && statusRecord.hasEffect(MobEffects.FIRE_RESISTANCE)) || entity.fireImmune();
+						if (!hasFireResist) {
+							LogicalHealthManager.applyLogicalDirectDamage(entity, i, entity.damageSources().onFire(), 1.0f);
+						}
 					}
 				}
 			}
@@ -329,9 +339,41 @@ public class LogicalStatusEffectManager {
 			entity.setGlowingTag(activeRecord.hasEffect(MobEffects.GLOWING));
 		}
 
-		// Synchronize representative burn timer
+		// Synchronize representative burn timer and shared ignition
 		if (burnState != null && !burnState.isEmpty()) {
-			entity.setRemainingFireTicks(burnState.get(0).getRemainingFireTicks());
+			LogicalBurnRecord rec0 = burnState.get(0);
+			int fireTicks = rec0 != null ? rec0.getRemainingFireTicks() : 0;
+			entity.setRemainingFireTicks(fireTicks);
+			if (entity instanceof StackableEntity stackable) {
+				stackable.jarstacker$setSharedIgnition(rec0 != null && rec0.isSharedIgnition());
+			}
+		}
+	}
+
+	public static void handleIgnite(LivingEntity entity, int ticks) {
+		if (entity == null || entity.level().isClientSide() || ticks <= 0) {
+			return;
+		}
+		StackableEntity stackable = (StackableEntity) entity;
+		LogicalBurnState burnState = getOrCreateBurnState(entity);
+		if (burnState == null) {
+			return;
+		}
+
+		boolean isDirect = com.jar.jarstacker.stack.mob.health.CombatContext.isDirectAttackActive()
+			|| com.jar.jarstacker.stack.mob.health.ProjectileImpactContext.isProjectileImpactActive();
+		if (isDirect) {
+			// Direct single-target attack (flaming arrow, Fire Aspect melee)
+			burnState.ignite(0, ticks);
+			LogicalBurnRecord record0 = burnState.get(0);
+			if (record0 != null) {
+				record0.setSharedIgnition(false);
+			}
+			stackable.jarstacker$setSharedIgnition(false);
+		} else {
+			// Position-wide / environmental hazard (sunlight, lava, fire block, campfire, lightning)
+			burnState.igniteAll(ticks, true);
+			stackable.jarstacker$setSharedIgnition(true);
 		}
 	}
 

@@ -157,6 +157,10 @@ public class LogicalHealthManager {
 			stackable.jarstacker$setSharedIgnition(true);
 		}
 
+		if (damageSource.is(DamageTypes.ON_FIRE)) {
+			stackable.jarstacker$setLastFireDamageTick(entity.level().getGameTime());
+		}
+
 		LogicalHealthState state = getOrCreateState(entity);
 		LogicalDamageScope scope = LogicalDamageScopeResolver.resolve(entity, damageSource);
 

@@ -119,4 +119,11 @@ public interface StackableEntity {
 
 	default void jarstacker$setFirstScanGameTime(long time) {
 	}
+
+	default long jarstacker$getLastFireDamageTick() {
+		return -1L;
+	}
+
+	default void jarstacker$setLastFireDamageTick(long time) {
+	}
 }
