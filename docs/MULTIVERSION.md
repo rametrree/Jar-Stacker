@@ -29,6 +29,9 @@ Jar Stacker is engineered around four core tenets:
 | **1.21.6** | `1.21.6` (Dedicated) | `jarstacker-0.7.0+mc1.21.6.jar` | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
 | **1.21.7** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
 | **1.21.8** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
+| **1.21.9** | `1.21.9` (Dedicated) | `jarstacker-0.7.0+mc1.21.9.jar` | `7E68BB6D2D451F38E990614AB73F8FCEC881FFA4915F38090B6F00FA702E0952` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
+| **1.21.10** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.9.jar` (Exact Binary) | `7E68BB6D2D451F38E990614AB73F8FCEC881FFA4915F38090B6F00FA702E0952` | **348 / 348 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.9–1.21.10) |
+| **1.21.11** | `1.21.11` (Dedicated) | `jarstacker-0.7.0+mc1.21.11.jar` | `17AB8A871A38D4CA3C2604022BD83D9D6566AAEE12FBEE730AB6844529B81221` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Sweeping Attack, Entity Package & Permissions Overhaul) |
 
 ---
 
@@ -86,6 +89,43 @@ Minecraft 1.21.6 introduced major Vanilla serialization overhaul:
 - **Runtime Verification on 1.21.8**: Exact 1.21.6 binary executed in isolated 1.21.8 environment: **348 / 348 tests PASS**, client title screen reached.
 - **Declared Band**: `VERIFIED BINARY BAND: Minecraft 1.21.6–1.21.8`.
 
+### 1.21.9 Status: Dedicated Compile Target & Compatibility Band Anchor
+Minecraft 1.21.9 introduced internal refmap, Yarn, and Mojang mapping divergence from the 1.21.6–1.21.8 series:
+- Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.9.jar`) declaring `"minecraft": ">=1.21.9 <=1.21.10"`.
+- Automated in-game test suite: **348 / 348 PASS**.
+- Client boot verification: Title screen reached cleanly with 0 errors.
+
+### 1.21.9 vs 1.21.10: Verified Same-Binary Compatibility Band (1.21.9–1.21.10)
+Minecraft 1.21.10 is a minor maintenance release that maintains 100% binary compatibility with 1.21.9 for all classes, methods, and Mixins used by Jar Stacker:
+- **Runtime Verification**: The exact 1.21.9 binary was executed in an isolated Minecraft 1.21.10 runtime environment (`runtime-test-1.21.10`).
+- **Server Result**: Server booted cleanly, Mixins applied without error, and **348 / 348 automated tests passed**.
+- **Client Result**: Client booted cleanly, reaching the title screen with 0 errors or warnings.
+- **Declared Band**: `VERIFIED BINARY BAND: Minecraft 1.21.9–1.21.10`.
+
+### 1.21.10 vs 1.21.11: Verified Binary Boundary (Incompatible)
+Minecraft 1.21.11 introduced major structural breaking changes across multiple Mojang Vanilla subsystems:
+1. **Player Sweeping Attack Split**: `Player.attack()` no longer performs sweep attacks inline. Mojang extracted sweep combat into a private method `doSweepAttack(Entity, DamageSource, float, float)`. The 1.21.9 bytecode attempting to inject into `Player.attack()` for sweep handling fails at mixin application time, requiring a dedicated `@Inject` on `doSweepAttack` for `>=1.21.11`.
+2. **Entity Class Hierarchy Reorganization**: Mojang subdivided and moved major entity classes into domain-specific subpackages:
+   - `Horse`, `Llama`, `AbstractHorse` -> `net.minecraft.world.entity.animal.equine.*`
+   - `Cat` -> `net.minecraft.world.entity.animal.feline.Cat`, `feline.CatVariant`
+   - `MushroomCow`, `Cow` -> `net.minecraft.world.entity.animal.cow.*`
+   - `Pig`, `PigVariant` -> `net.minecraft.world.entity.animal.pig.*`
+   - `SnowGolem` -> `net.minecraft.world.entity.animal.golem.SnowGolem`
+   - `Fox` -> `net.minecraft.world.entity.animal.fox.Fox`
+   - `Parrot` -> `net.minecraft.world.entity.animal.parrot.Parrot`
+   - `Rabbit` -> `net.minecraft.world.entity.animal.rabbit.Rabbit`
+   - `Salmon`, `TropicalFish` -> `net.minecraft.world.entity.animal.fish.*`
+   - `Skeleton` -> `net.minecraft.world.entity.monster.skeleton.Skeleton`
+   - `Zombie` -> `net.minecraft.world.entity.monster.zombie.Zombie`
+   - `Villager` -> `net.minecraft.world.entity.npc.villager.Villager`
+   - `Arrow` -> `net.minecraft.world.entity.projectile.arrow.Arrow`
+   - `ThrowableItemProjectile`, `ThrownSplashPotion` -> `net.minecraft.world.entity.projectile.throwableitemprojectile.*`
+3. **Identifier Overhaul**: Mojang replaced `net.minecraft.resources.ResourceLocation` with `net.minecraft.resources.Identifier`.
+4. **Permissions Subsystem Refactor**: Numeric permission checks (e.g. `src.hasPermission(2)`) were replaced by `src.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)` from `net.minecraft.server.permissions.Permissions`.
+5. **New Vanilla Effect**: Added `BREATH_OF_THE_NAUTILUS` (beneficial, categorized as `PASSIVE_SAFE`, increasing the total Vanilla effect registry from 39 to 40).
+6. **Mod Menu Update**: Upgraded Mod Menu to `17.0.0` for 1.21.11 client support.
+- **Verification**: Dedicated compile target `1.21.11` compiled cleanly, **348 / 348 automated tests passed**, and client reached title screen cleanly.
+
 ---
 
 ## 4. Full Mixin Audit
@@ -137,11 +177,12 @@ Jar Stacker declares 24 mixins and accessors in `jarstacker.mixins.json` with `i
 | **BreedGoal** | `net.minecraft.world.entity.ai.goal.BreedGoal` | **Shared** | None. `canUse()` and `breed()` signatures and logic are identical across 1.21.1–1.21.8. | **Low**: Stable AI goal. |
 | **Sheep** | `net.minecraft.world.entity.animal.Sheep` | **Shared** | None. `ate()` signature is identical across 1.21.1–1.21.8. | **Low**: Standard animal logic. |
 | **MushroomCow** | `net.minecraft.world.entity.animal.MushroomCow` | **Adapter / Conditional Mixin** | Variant handling encapsulated via `EntityAdapter` and `MushroomCowAccessor`. | **Low**: Fully isolated. |
-| **Player** | `net.minecraft.world.entity.player.Player` | **Shared** | None. `attack(Entity)` and sweeping attack bytecodes are identical across 1.21.1–1.21.8. | **Medium**: Stable across 1.21.x. |
-| **ServerLevel** | `net.minecraft.server.level.ServerLevel` | **Shared** | None. `addFreshEntity(Entity)` is identical across 1.21.1–1.21.8. | **Low**: Core world method. |
-| **ItemStack / Components** | `net.minecraft.world.item.ItemStack` | **Shared** | Modern data components stable across 1.21.1–1.21.8. | **Low**: Modern component system. |
+| **Player** | `net.minecraft.world.entity.player.Player` | **Shared / Conditional Mixin** | Sweep logic refactored in 1.21.11: `attack(Entity)` sweeping split into private `doSweepAttack(...)`. Handled via `PlayerMixin`. | **Medium**: Stable across 1.21.1–1.21.10; dedicated injection for >=1.21.11. |
+| **ServerLevel** | `net.minecraft.server.level.ServerLevel` | **Shared** | None. `addFreshEntity(Entity)` is identical across 1.21.1–1.21.11. | **Low**: Core world method. |
+| **ItemStack / Components** | `net.minecraft.world.item.ItemStack` | **Shared** | Modern data components stable across 1.21.1–1.21.11. | **Low**: Modern component system. |
 | **Persistence / Codecs** | `net.minecraft.world.level.storage.ValueOutput` | **Adapter / Conditional Mixin** | 1.21.6+ adopts `ValueOutput` / `ValueInput`. Encapsulated in `EntityAdapter` with automatic `JarStackerData` packing and unpacking. | **Low**: Isolated in adapter and mixin layers. |
 | **ProjectileUtil** | `net.minecraft.world.entity.projectile.ProjectileUtil` | **Adapter** | `getEntityHitResult` signature changed in 1.21.6. Abstracted in `EntityAdapter.getEntityHitResult`. | **Low**: Isolated in adapter. |
+| **Permissions** | `net.minecraft.commands.CommandSourceStack` | **Adapter / Conditional** | Numeric permissions (`hasPermission(2)`) replaced in 1.21.11 by `Permissions.COMMANDS_GAMEMASTER`. | **Low**: Isolated in `JarStackerCommands.hasAdminPermission`. |
 
 ---
 
@@ -160,8 +201,8 @@ Version divergence is strictly contained within two dedicated adapter classes an
 
 ### Source Reuse Quantification
 - **Total Shared Java Source**: ~14,000 lines across core stacking, combat attribution, logical health, status effects, and test suite.
-- **Version-Specific Divergence**: ~130 lines in adapters and mixin conditional blocks.
-- **Shared Source Code Percentage**: **~99.1%** (substantially exceeding the >=90% requirement and >=95% preference).
+- **Version-Specific Divergence**: ~280 lines in adapters and mixin conditional blocks across all 7 Stonecutter version projects.
+- **Shared Source Code Percentage**: **~98.0%** (substantially exceeding the >=90% requirement and >=95% preference).
 
 ### Reflection, Modded Entities & Fail-Safe Variant Policy
 To ensure peak server performance and eliminate runtime failure points:
@@ -182,19 +223,22 @@ To ensure peak server performance and eliminate runtime failure points:
 
 ### Switching Active Project in IDE
 ```bash
+./gradlew "Reset active project" # Sets active to 1.21.1 (Required before commit)
 ./gradlew "Set active project to 1.21.1"
 ./gradlew "Set active project to 1.21.2"
 ./gradlew "Set active project to 1.21.4"
 ./gradlew "Set active project to 1.21.5"
 ./gradlew "Set active project to 1.21.6"
+./gradlew "Set active project to 1.21.9"
+./gradlew "Set active project to 1.21.11"
 ```
 
 ### Compiling and Building All Artifacts
 ```bash
-./gradlew :1.21.1:build :1.21.2:build :1.21.4:build :1.21.5:build :1.21.6:build
+./gradlew :1.21.1:build :1.21.2:build :1.21.4:build :1.21.5:build :1.21.6:build :1.21.9:build :1.21.11:build
 ```
 
-### Running In-Game Automated Integration Test Suite (348 Tests)
+### Running In-Game Automated Integration Test Suite (348 Tests Across All Targets)
 ```bash
 ./gradlew :1.21.1:runServer -PrunTests
 ./gradlew :1.21.2:runServer -PrunTests
@@ -204,4 +248,28 @@ To ensure peak server performance and eliminate runtime failure points:
 ./gradlew :1.21.6:runServer -PrunTests
 ./gradlew :runtime-test-1.21.7:runServer -PrunTests
 ./gradlew :runtime-test-1.21.8:runServer -PrunTests
+./gradlew :1.21.9:runServer -PrunTests
+./gradlew :runtime-test-1.21.10:runServer -PrunTests
+./gradlew :1.21.11:runServer -PrunTests
 ```
+
+---
+
+## 8. Forward-Looking 26.1 Read-Only Audit
+
+### 1. Java Runtime Environment Requirement
+- **Java 25 Mandate**: Minecraft 26.1 moves the baseline Java runtime requirement from Java 21 (classfile version 65) to Java 25 (classfile version 69).
+- **Toolchain Impact**: Gradle JVM, Gradle toolchains, and GitHub Actions CI pipelines will require JDK 25 installed and configured once 26.1 development begins.
+- **Milestone 3 Policy**: Per project directives, Java 25 and 26.1 implementation are strictly prohibited during Milestone 3. The current project remains compiled under Java 21 (`sourceCompatibility = JavaVersion.VERSION_21`).
+
+### 2. Upstream Architectural Shifts Anticipated in 26.1
+- **Year-Based Versioning Scheme**: Mojang transitioned version nomenclature from `1.21.x` to calendar-based `26.1`.
+- **Entity Subsystem Restructuring**: Continuing the module-based package reorganization begun in 1.21.11, additional entity and projectile classes may see namespace or hierarchy shifts.
+- **Component and Codec Deepening**: Further phase-out of legacy NBT operations in favor of strict Data Components and Codec-driven serialization.
+- **Fabric Loader / Loom Compatibility**: Loom 1.17+ with updated game provider mappings and ASM versions capable of processing Java 25 bytecode will be required.
+
+### 3. Implementation Plan for Subsequent Milestone
+- Do not begin 26.1 branch until Milestone 3 is fully closed and tagged.
+- Implement isolated `versions/26.1` Stonecutter subproject once JDK 25 environment is provisioned.
+- Apply Probe-Before-Port protocol to assess binary compatibility against 1.21.11 bytecode before writing dedicated adapters.
+
