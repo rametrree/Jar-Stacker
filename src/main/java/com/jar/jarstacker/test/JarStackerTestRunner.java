@@ -107,6 +107,8 @@ import java.util.List;
 
 public class JarStackerTestRunner {
 
+	public static boolean SUN_TRACE_ENABLED = false;
+
 	public static class ModdedUnsupportedEffect extends MobEffect {
 		public ModdedUnsupportedEffect() {
 			super(net.minecraft.world.effect.MobEffectCategory.NEUTRAL, 0x123456);
@@ -6186,6 +6188,7 @@ public class JarStackerTestRunner {
 		// -------------------------------------------------------------
 		runV060StatusTests(level, pos, results);
 		runV060BurnTests(level, pos, results);
+		runSunlightBurnRegressionTests(level, pos, results);
 		runV060ProjectionTests(level, pos, results);
 		runV060StressTests(level, pos, results);
 
@@ -6199,6 +6202,12 @@ public class JarStackerTestRunner {
 		runV060UnsupportedAreaTests(level, pos, results);
 		runV060VanillaAreaParityTests(level, pos, results);
 		runItemMergeTests(level, pos, results);
+
+		if ("true".equalsIgnoreCase(System.getProperty("jarstacker.trace_sun"))
+			|| new java.io.File("run/sun_trace.txt").exists()
+			|| new java.io.File("sun_trace.txt").exists()) {
+			executeSunlightDiagnosticTrace(level, pos);
+		}
 
 		// Print summary to log
 		JarStackerMod.LOGGER.info("========== JAR STACKER TEST SUMMARY ==========");
@@ -6217,6 +6226,122 @@ public class JarStackerTestRunner {
 		com.jar.jarstacker.stack.mob.MovementDiagnostics.enabled = false;
 
 		return results;
+	}
+
+	public static void executeSunlightDiagnosticTrace(ServerLevel level, Vec3 pos) {
+		JarStackerMod.LOGGER.info("========== STARTING SUNLIGHT DIAGNOSTIC TRACE ==========");
+		SUN_TRACE_ENABLED = true;
+		long originalTime = getDayTime(level);
+		setDayTime(level, 6000L); // Daytime (noon)
+		//? if >=26.1 {
+		/*level.resetWeatherCycle();
+		*///?} else {
+		level.setWeatherParameters(60000, 0, false, false);
+		//?}
+
+		Vec3 posDiag = pos.add(30, 0, 30);
+		net.minecraft.core.BlockPos penCenter = new net.minecraft.core.BlockPos((int) posDiag.x, (int) posDiag.y, (int) posDiag.z);
+		buildPen(level, penCenter, 4);
+		AABB cleanArea = new AABB(posDiag.x - 6, posDiag.y - 2, posDiag.z - 6, posDiag.x + 6, posDiag.y + 6, posDiag.z + 6);
+		cleanPen(level, cleanArea);
+
+		// PART 1: Control Vanilla Singleton Zombie (count = 1)
+		JarStackerMod.LOGGER.info("--- [SUN_TRACE] PART 1: VANILLA SINGLETON BASELINE ---");
+		Zombie singleton = createEntity(EntityType.ZOMBIE, level);
+		singleton.setPos(posDiag.x, posDiag.y, posDiag.z);
+		((StackableEntity) singleton).jarstacker$setStackCount(1);
+		level.addFreshEntity(singleton);
+
+		JarStackerMod.LOGGER.info("[BASELINE_VANILLA] UUID={}, dayTime={}, canSeeSky={}, isRaining={}, headItem={}, fireImmune={}",
+			singleton.getUUID(), getDayTime(level), level.canSeeSky(singleton.blockPosition()), level.isRaining(),
+			singleton.getItemBySlot(EquipmentSlot.HEAD), singleton.fireImmune());
+
+		int singletonIgniteTick = -1;
+		int singletonFirstDamageTick = -1;
+		for (int t = 0; t < 60; t++) {
+			int fireBefore = singleton.getRemainingFireTicks();
+			float hpBefore = singleton.getHealth();
+			singleton.tick();
+			int fireAfter = singleton.getRemainingFireTicks();
+			float hpAfter = singleton.getHealth();
+			boolean onFire = singleton.isOnFire();
+
+			if (singletonIgniteTick == -1 && fireAfter > fireBefore) {
+				singletonIgniteTick = t;
+			}
+			if (singletonFirstDamageTick == -1 && hpAfter < hpBefore) {
+				singletonFirstDamageTick = t;
+			}
+
+			if (t < 40 || fireAfter > 0 || hpAfter < hpBefore) {
+				JarStackerMod.LOGGER.info("[BASELINE_VANILLA] tick={}: fireBefore={}, fireAfter={}, isOnFire={}, hp={}",
+					t, fireBefore, fireAfter, onFire, hpAfter);
+			}
+		}
+		JarStackerMod.LOGGER.info("[BASELINE_VANILLA_SUMMARY] firstIgnitionTick={}, firstDamageTick={}, finalHp={}, finalFireTicks={}",
+			singletonIgniteTick, singletonFirstDamageTick, singleton.getHealth(), singleton.getRemainingFireTicks());
+		singleton.discard();
+		cleanPen(level, cleanArea);
+
+		// PART 2: Stacked Zombie x5 (count = 5)
+		JarStackerMod.LOGGER.info("--- [SUN_TRACE] PART 2: STACKED ZOMBIE REPRODUCTION ---");
+		Zombie stacked = createEntity(EntityType.ZOMBIE, level);
+		stacked.setPos(posDiag.x, posDiag.y, posDiag.z);
+		((StackableEntity) stacked).jarstacker$setStackCount(5);
+		level.addFreshEntity(stacked);
+		StackableEntity stackable = (StackableEntity) stacked;
+		LogicalHealthState hState = LogicalHealthManager.getOrCreateState(stacked);
+		LogicalBurnState bState = LogicalStatusEffectManager.getOrCreateBurnState(stacked);
+
+		JarStackerMod.LOGGER.info("[REPRODUCTION_STACKED] UUID={}, stackCount={}, dayTime={}, canSeeSky={}",
+			stacked.getUUID(), stackable.jarstacker$getStackCount(), getDayTime(level),
+			level.canSeeSky(stacked.blockPosition()));
+
+		int stackedIgniteTick = -1;
+		int stackedFirstDamageTick = -1;
+		for (int t = 0; t < 60; t++) {
+			int fireBefore = stacked.getRemainingFireTicks();
+			float hpBefore = stacked.getHealth();
+			stacked.tick();
+			int fireAfter = stacked.getRemainingFireTicks();
+			float hpAfter = stacked.getHealth();
+			boolean onFire = stacked.isOnFire();
+			boolean sharedIgnition = stackable.jarstacker$isSharedIgnition();
+
+			if (stackedIgniteTick == -1 && fireAfter > 0) {
+				stackedIgniteTick = t;
+			}
+			if (stackedFirstDamageTick == -1 && hpAfter < hpBefore) {
+				stackedFirstDamageTick = t;
+			}
+
+			StringBuilder bStateStr = new StringBuilder("[");
+			for (int i = 0; i < bState.size(); i++) {
+				if (i > 0) bStateStr.append(",");
+				bStateStr.append(bState.get(i).getRemainingFireTicks());
+			}
+			bStateStr.append("]");
+
+			StringBuilder hStateStr = new StringBuilder("[");
+			for (int i = 0; i < hState.size(); i++) {
+				if (i > 0) hStateStr.append(",");
+				hStateStr.append(hState.get(i));
+			}
+			hStateStr.append("]");
+
+			if (t < 40 || fireAfter > 0 || hpAfter < hpBefore) {
+				JarStackerMod.LOGGER.info("[REPRODUCTION_STACKED] tick={}: fireBefore={}, fireAfter={}, isOnFire={}, sharedIgnition={}, hp={}, hState={}, bState={}",
+					t, fireBefore, fireAfter, onFire, sharedIgnition, hpAfter, hStateStr, bStateStr);
+			}
+		}
+		JarStackerMod.LOGGER.info("[REPRODUCTION_STACKED_SUMMARY] firstIgnitionTick={}, firstDamageTick={}, finalHp={}, finalFireTicks={}, stackCount={}",
+			stackedIgniteTick, stackedFirstDamageTick, stacked.getHealth(), stacked.getRemainingFireTicks(), stackable.jarstacker$getStackCount());
+		stacked.discard();
+		cleanPen(level, cleanArea);
+
+		setDayTime(level, originalTime);
+		SUN_TRACE_ENABLED = false;
+		JarStackerMod.LOGGER.info("========== SUNLIGHT DIAGNOSTIC TRACE COMPLETE ==========");
 	}
 
 	private static void runCombatTestsH1toH12(ServerLevel level, Vec3 pos, List<TestResult> results) {
@@ -9245,6 +9370,369 @@ Vec3 posH = pos.add(25, 0, 25);
 		} catch (Exception e) {
 			results.add(new TestResult("Test F7 - Burn Save / Reload", false, e.getMessage()));
 		}
+	}
+
+	private static void runSunlightBurnRegressionTests(ServerLevel level, Vec3 pos, List<TestResult> results) {
+		Vec3 posS = pos.add(30, 0, 30);
+		net.minecraft.core.BlockPos penCenterS = new net.minecraft.core.BlockPos((int) posS.x, (int) posS.y, (int) posS.z);
+		buildPen(level, penCenterS, 4);
+		for (int dx = -4; dx <= 4; dx++) {
+			for (int dz = -4; dz <= 4; dz++) {
+				for (int y = penCenterS.getY() + 2; y <= penCenterS.getY() + 30; y++) {
+					net.minecraft.core.BlockPos bp = new net.minecraft.core.BlockPos(penCenterS.getX() + dx, y, penCenterS.getZ() + dz);
+					if (!level.getBlockState(bp).isAir()) {
+						level.setBlockAndUpdate(bp, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+					}
+				}
+			}
+		}
+		AABB cleanAreaS = new AABB(posS.x - 6, posS.y - 2, posS.z - 6, posS.x + 6, posS.y + 6, posS.z + 6);
+
+		long origTime = getDayTime(level);
+
+		// SUN1 — Real Vanilla Sunlight Detection
+		try {
+			cleanPen(level, cleanAreaS);
+			setDayTime(level, 6000L);
+			//? if >=26.1 {
+			/*level.resetWeatherCycle();
+			*///?} else {
+			level.setWeatherParameters(60000, 0, false, false);
+			//?}
+
+			Zombie singleton = createEntity(EntityType.ZOMBIE, level);
+			singleton.setPos(posS.x, posS.y, posS.z);
+			((StackableEntity) singleton).jarstacker$setStackCount(1);
+			level.addFreshEntity(singleton);
+
+			for (int t = 0; t < 300; t++) {
+				singleton.tick();
+				if (singleton.getRemainingFireTicks() > 0) break;
+			}
+
+			boolean pass = singleton.getRemainingFireTicks() > 0 && singleton.isOnFire();
+			results.add(new TestResult("Test SUN1 - Real Vanilla Sunlight Detection", pass,
+				"Ignited=" + pass + ", FireTicks=" + singleton.getRemainingFireTicks()));
+			cleanPen(level, cleanAreaS);
+		} catch (Exception e) {
+			results.add(new TestResult("Test SUN1 - Real Vanilla Sunlight Detection", false, e.getMessage()));
+		}
+
+		// SUN2 — Logical Propagation
+		try {
+			cleanPen(level, cleanAreaS);
+			setDayTime(level, 6000L);
+			//? if >=26.1 {
+			/*level.resetWeatherCycle();
+			*///?} else {
+			level.setWeatherParameters(60000, 0, false, false);
+			//?}
+
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
+			stacked.setPos(posS.x, posS.y, posS.z);
+			((StackableEntity) stacked).jarstacker$setStackCount(5);
+			level.addFreshEntity(stacked);
+			StackableEntity stackable = (StackableEntity) stacked;
+			LogicalBurnState bState = LogicalStatusEffectManager.getOrCreateBurnState(stacked);
+
+			for (int t = 0; t < 300; t++) {
+				stacked.tick();
+				if (bState.get(0) != null && bState.get(0).isBurning()) break;
+			}
+
+			boolean allBurning = bState.size() == 5;
+			for (int i = 0; i < bState.size(); i++) {
+				if (!bState.get(i).isBurning() || !bState.get(i).isSharedIgnition()) {
+					allBurning = false;
+					break;
+				}
+			}
+			boolean pass = allBurning && stackable.jarstacker$isSharedIgnition();
+			results.add(new TestResult("Test SUN2 - Logical Propagation", pass,
+				"AllBurning=" + allBurning + ", SharedIgnition=" + stackable.jarstacker$isSharedIgnition()));
+			cleanPen(level, cleanAreaS);
+		} catch (Exception e) {
+			results.add(new TestResult("Test SUN2 - Logical Propagation", false, e.getMessage()));
+		}
+
+		// SUN3 — Shared Logical Damage
+		try {
+			cleanPen(level, cleanAreaS);
+			setDayTime(level, 6000L);
+			//? if >=26.1 {
+			/*level.resetWeatherCycle();
+			*///?} else {
+			level.setWeatherParameters(60000, 0, false, false);
+			//?}
+
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
+			stacked.setPos(posS.x, posS.y, posS.z);
+			((StackableEntity) stacked).jarstacker$setStackCount(3);
+			level.addFreshEntity(stacked);
+			LogicalHealthState hState = LogicalHealthManager.getOrCreateState(stacked);
+
+			for (int t = 0; t < 300; t++) {
+				stacked.tick();
+				if (hState.get(0) < 20.0f) break;
+			}
+
+			boolean pass = hState.size() == 3
+				&& hState.get(0) < 20.0f
+				&& hState.get(1) < 20.0f
+				&& hState.get(2) < 20.0f
+				&& hState.get(0) == hState.get(1)
+				&& hState.get(1) == hState.get(2);
+			results.add(new TestResult("Test SUN3 - Shared Logical Damage", pass,
+				"Healths=[" + hState.get(0) + "," + hState.get(1) + "," + hState.get(2) + "]"));
+			cleanPen(level, cleanAreaS);
+		} catch (Exception e) {
+			results.add(new TestResult("Test SUN3 - Shared Logical Damage", false, e.getMessage()));
+		}
+
+		// SUN4 — Physical Projection Continuity
+		try {
+			cleanPen(level, cleanAreaS);
+			setDayTime(level, 6000L);
+			//? if >=26.1 {
+			/*level.resetWeatherCycle();
+			*///?} else {
+			level.setWeatherParameters(60000, 0, false, false);
+			//?}
+
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
+			stacked.setPos(posS.x, posS.y, posS.z);
+			((StackableEntity) stacked).jarstacker$setStackCount(4);
+			level.addFreshEntity(stacked);
+
+			for (int t = 0; t < 100; t++) {
+				stacked.tick();
+				if (stacked.getRemainingFireTicks() > 0) break;
+			}
+			if (stacked.getRemainingFireTicks() <= 0) {
+				stacked.igniteForTicks(160);
+			}
+
+			boolean continuousFire = true;
+			for (int t = 0; t < 20; t++) {
+				stacked.tick();
+				if (stacked.getRemainingFireTicks() <= 0 || !stacked.isOnFire()) {
+					continuousFire = false;
+					break;
+				}
+			}
+
+			results.add(new TestResult("Test SUN4 - Physical Projection Continuity", continuousFire,
+				"ContinuousFire=" + continuousFire));
+			cleanPen(level, cleanAreaS);
+		} catch (Exception e) {
+			results.add(new TestResult("Test SUN4 - Physical Projection Continuity", false, e.getMessage()));
+		}
+
+		// SUN5 — Flaming Projectile Isolation
+		try {
+			cleanPen(level, cleanAreaS);
+			setDayTime(level, 18000L); // Midnight
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
+			stacked.setPos(posS.x, posS.y, posS.z);
+			((StackableEntity) stacked).jarstacker$setStackCount(3);
+			level.addFreshEntity(stacked);
+			StackableEntity stackable = (StackableEntity) stacked;
+			LogicalBurnState bState = LogicalStatusEffectManager.getOrCreateBurnState(stacked);
+
+			com.jar.jarstacker.stack.mob.health.ProjectileImpactContext.beginImpact();
+			try {
+				stacked.igniteForTicks(100);
+			} finally {
+				com.jar.jarstacker.stack.mob.health.ProjectileImpactContext.endImpact();
+			}
+
+			boolean pass = bState.size() == 3
+				&& bState.get(0).getRemainingFireTicks() == 100
+				&& !bState.get(0).isSharedIgnition()
+				&& bState.get(1).getRemainingFireTicks() == 0
+				&& bState.get(2).getRemainingFireTicks() == 0
+				&& !stackable.jarstacker$isSharedIgnition();
+
+			results.add(new TestResult("Test SUN5 - Flaming Projectile Isolation", pass,
+				"#0=" + bState.get(0).getRemainingFireTicks() + " (shared=" + bState.get(0).isSharedIgnition() + "), #1=" + bState.get(1).getRemainingFireTicks() + ", #2=" + bState.get(2).getRemainingFireTicks()));
+			cleanPen(level, cleanAreaS);
+		} catch (Exception e) {
+			results.add(new TestResult("Test SUN5 - Flaming Projectile Isolation", false, e.getMessage()));
+		}
+
+		// SUN6 — Real Environmental Shared Ignition
+		try {
+			cleanPen(level, cleanAreaS);
+			setDayTime(level, 18000L);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
+			stacked.setPos(posS.x, posS.y, posS.z);
+			((StackableEntity) stacked).jarstacker$setStackCount(3);
+			level.addFreshEntity(stacked);
+			StackableEntity stackable = (StackableEntity) stacked;
+			LogicalBurnState bState = LogicalStatusEffectManager.getOrCreateBurnState(stacked);
+
+			// Direct environmental hazard: fire block
+			net.minecraft.core.BlockPos firePos = stacked.blockPosition();
+			level.setBlock(firePos, net.minecraft.world.level.block.Blocks.FIRE.defaultBlockState(), 3);
+			stacked.tick();
+			level.setBlock(firePos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+
+			boolean pass = bState.size() == 3
+				&& bState.get(0).isBurning()
+				&& bState.get(1).isBurning()
+				&& bState.get(2).isBurning()
+				&& bState.get(0).isSharedIgnition()
+				&& stackable.jarstacker$isSharedIgnition();
+
+			results.add(new TestResult("Test SUN6 - Real Environmental Shared Ignition", pass,
+				"AllBurning=" + (bState.get(0).isBurning() && bState.get(1).isBurning()) + ", Shared=" + stackable.jarstacker$isSharedIgnition()));
+			cleanPen(level, cleanAreaS);
+		} catch (Exception e) {
+			results.add(new TestResult("Test SUN6 - Real Environmental Shared Ignition", false, e.getMessage()));
+		}
+
+		// SUN7 — Extinguish When Entering Water
+		try {
+			cleanPen(level, cleanAreaS);
+			setDayTime(level, 18000L);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
+			stacked.setPos(posS.x, posS.y, posS.z);
+			((StackableEntity) stacked).jarstacker$setStackCount(3);
+			level.addFreshEntity(stacked);
+			StackableEntity stackable = (StackableEntity) stacked;
+			LogicalBurnState bState = LogicalStatusEffectManager.getOrCreateBurnState(stacked);
+
+			bState.igniteAll(100, true);
+			LogicalStatusEffectManager.projectActiveMember(stacked);
+			boolean burningBefore = bState.get(0).isBurning() && stacked.getRemainingFireTicks() > 0;
+
+			// Submerge in water and tick
+			net.minecraft.core.BlockPos zPos = stacked.blockPosition();
+			level.setBlock(zPos, net.minecraft.world.level.block.Blocks.WATER.defaultBlockState(), 3);
+			stacked.tick();
+
+			boolean pass = burningBefore
+				&& bState.get(0).getRemainingFireTicks() == 0
+				&& bState.get(1).getRemainingFireTicks() == 0
+				&& bState.get(2).getRemainingFireTicks() == 0
+				&& stacked.getRemainingFireTicks() <= 0
+				&& !stackable.jarstacker$isSharedIgnition();
+
+			results.add(new TestResult("Test SUN7 - Extinguish When Entering Water", pass,
+				"BurningBefore=" + burningBefore + ", BurningAfter=" + bState.get(0).isBurning() + ", FireTicks=" + stacked.getRemainingFireTicks()));
+			level.setBlock(zPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+			cleanPen(level, cleanAreaS);
+		} catch (Exception e) {
+			results.add(new TestResult("Test SUN7 - Extinguish When Entering Water", false, e.getMessage()));
+		}
+
+		// SUN8 — Record Alignment Across Burn Deaths
+		try {
+			cleanPen(level, cleanAreaS);
+			setDayTime(level, 18000L);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
+			stacked.setPos(posS.x, posS.y, posS.z);
+			((StackableEntity) stacked).jarstacker$setStackCount(3);
+			level.addFreshEntity(stacked);
+			StackableEntity stackable = (StackableEntity) stacked;
+			LogicalHealthState hState = LogicalHealthManager.getOrCreateState(stacked);
+			LogicalStatusEffectState sState = LogicalStatusEffectManager.getOrCreateStatusState(stacked);
+			LogicalBurnState bState = LogicalStatusEffectManager.getOrCreateBurnState(stacked);
+
+			// Member 0 has 20.0 HP, Member 1 and 2 have 1.0 HP
+			hState.set(0, 20.0f);
+			hState.set(1, 1.0f);
+			hState.set(2, 1.0f);
+			stacked.setHealth(20.0f);
+
+			bState.igniteAll(100, true);
+			stackable.jarstacker$setSharedIgnition(true);
+
+			// Apply shared on-fire damage: member 0 takes 1.0 damage (20->19), virtual members 1 and 2 die
+			LogicalHealthManager.onDamageApplied(stacked, level.damageSources().onFire(), 1.0f);
+
+			boolean pass = stackable.jarstacker$getStackCount() == 1
+				&& hState.size() == 1
+				&& bState.size() == 1
+				&& sState.size() == 1
+				&& hState.get(0) == 19.0f;
+
+			results.add(new TestResult("Test SUN8 - Record Alignment Across Burn Deaths", pass,
+				"Count=" + stackable.jarstacker$getStackCount() + ", HS=" + hState.size() + ", BS=" + bState.size() + ", SS=" + sState.size() + ", HP=" + hState.get(0)));
+			cleanPen(level, cleanAreaS);
+		} catch (Exception e) {
+			results.add(new TestResult("Test SUN8 - Record Alignment Across Burn Deaths", false, e.getMessage()));
+		}
+
+		// SUN9 — Helmet Protection Prevents Sunlight Ignition
+		try {
+			cleanPen(level, cleanAreaS);
+			setDayTime(level, 6000L);
+			//? if >=26.1 {
+			/*level.resetWeatherCycle();
+			*///?} else {
+			level.setWeatherParameters(60000, 0, false, false);
+			//?}
+
+			// Case 1: Singleton Zombie with Iron Helmet (damageable head equipment)
+			Zombie helmetZombie = createEntity(EntityType.ZOMBIE, level);
+			helmetZombie.setPos(posS.x - 1.0, posS.y, posS.z);
+			((StackableEntity) helmetZombie).jarstacker$setStackCount(1);
+			helmetZombie.setItemSlot(EquipmentSlot.HEAD, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_HELMET));
+			level.addFreshEntity(helmetZombie);
+
+			// Case 2: Stacked Zombie (count=3) with Carved Pumpkin (non-damageable head protection)
+			Zombie stackedPumpkin = createEntity(EntityType.ZOMBIE, level);
+			stackedPumpkin.setPos(posS.x + 1.0, posS.y, posS.z);
+			((StackableEntity) stackedPumpkin).jarstacker$setStackCount(3);
+			stackedPumpkin.setItemSlot(EquipmentSlot.HEAD, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.CARVED_PUMPKIN));
+			level.addFreshEntity(stackedPumpkin);
+			LogicalBurnState bState = LogicalStatusEffectManager.getOrCreateBurnState(stackedPumpkin);
+
+			for (int t = 0; t < 30; t++) {
+				helmetZombie.tick();
+				stackedPumpkin.tick();
+			}
+
+			boolean helmetPass = helmetZombie.getRemainingFireTicks() <= 0 && !helmetZombie.isOnFire();
+			boolean pumpkinPass = stackedPumpkin.getRemainingFireTicks() <= 0 && !stackedPumpkin.isOnFire() && !bState.hasAnyBurning();
+			boolean pass = helmetPass && pumpkinPass;
+			results.add(new TestResult("Test SUN9 - Helmet Protection Prevents Sunlight Ignition", pass,
+				"HelmetProtected=" + helmetPass + ", StackedPumpkinProtected=" + pumpkinPass));
+			cleanPen(level, cleanAreaS);
+		} catch (Exception e) {
+			results.add(new TestResult("Test SUN9 - Helmet Protection Prevents Sunlight Ignition", false, e.getMessage()));
+		}
+
+		// SUN10 — Fire Resistance Semantics in Shared Burn
+		try {
+			cleanPen(level, cleanAreaS);
+			setDayTime(level, 18000L);
+			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
+			stacked.setPos(posS.x, posS.y, posS.z);
+			((StackableEntity) stacked).jarstacker$setStackCount(2);
+			level.addFreshEntity(stacked);
+			StackableEntity stackable = (StackableEntity) stacked;
+			LogicalHealthState hState = LogicalHealthManager.getOrCreateState(stacked);
+			LogicalStatusEffectState sState = LogicalStatusEffectManager.getOrCreateStatusState(stacked);
+			LogicalBurnState bState = LogicalStatusEffectManager.getOrCreateBurnState(stacked);
+
+			// Member 0 has Fire Resistance, Member 1 does not
+			sState.get(0).addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE, 200, 0), stacked);
+			bState.igniteAll(100, true);
+			stackable.jarstacker$setSharedIgnition(true);
+
+			LogicalHealthManager.onDamageApplied(stacked, level.damageSources().onFire(), 1.0f);
+
+			boolean pass = hState.get(0) == 20.0f && hState.get(1) == 19.0f;
+			results.add(new TestResult("Test SUN10 - Fire Resistance Semantics in Shared Burn", pass,
+				"#0 HP=" + hState.get(0) + " (expected 20.0), #1 HP=" + hState.get(1) + " (expected 19.0)"));
+			cleanPen(level, cleanAreaS);
+		} catch (Exception e) {
+			results.add(new TestResult("Test SUN10 - Fire Resistance Semantics in Shared Burn", false, e.getMessage()));
+		}
+
+		setDayTime(level, origTime);
 	}
 
 	private static void runV060ProjectionTests(ServerLevel level, Vec3 pos, List<TestResult> results) {
