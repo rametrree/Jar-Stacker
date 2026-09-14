@@ -21,28 +21,17 @@ Jar Stacker is engineered around four core tenets:
 
 | Minecraft Version | Compile Target | Artifact Used | SHA-256 Checksum | Automated Tests | Client Boot | Compatibility Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **1.21.1** | `1.21.1` (Dedicated) | `jarstacker-0.7.0+mc1.21.1.jar` | `9B0A34C8CB9D54B3B13FD93A32CCF8AA5EF4D290DF63C829EF9BE3E9BEA9AA25` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Independent Binary) |
-| **1.21.2** | `1.21.2` (Dedicated) | `jarstacker-0.7.0+mc1.21.2.jar` | `9F2D9CCB7FD6B24A76B6C023E2FF40F290DCABA288FC0B91AFB79F4A2A60D246` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
-| **1.21.3** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.2.jar` (Exact Binary) | `9F2D9CCB7FD6B24A76B6C023E2FF40F290DCABA288FC0B91AFB79F4A2A60D246` | **348 / 348 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.2–1.21.3) |
-| **1.21.4** | `1.21.4` (Dedicated) | `jarstacker-0.7.0+mc1.21.4.jar` | `5E5955F026331C5A2B891CF8978742608BDDC7ED7BA9050073E5C906C99AE238` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Source-Compatible with 1.21.2) |
-| **1.21.5** | `1.21.5` (Dedicated) | `jarstacker-0.7.0+mc1.21.5.jar` | `481BC9832B1582B47D2DAC935105D352244EDE0A0817394B7F7F4A495067CBFB` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Entity Potion & Accessor Changes) |
-| **1.21.6** | `1.21.6` (Dedicated) | `jarstacker-0.7.0+mc1.21.6.jar` | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
-| **1.21.7** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
-| **1.21.8** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.6–1.21.8) |
-| **1.21.9** | `1.21.9` (Dedicated) | `jarstacker-0.7.0+mc1.21.9.jar` | `7E68BB6D2D451F38E990614AB73F8FCEC881FFA4915F38090B6F00FA702E0952` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Compatibility Band Anchor) |
-| **1.21.10** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.9.jar` (Exact Binary) | `7E68BB6D2D451F38E990614AB73F8FCEC881FFA4915F38090B6F00FA702E0952` | **348 / 348 PASS** | Title Screen Reached (YES) | Verified Binary Band (1.21.9–1.21.10) |
-| **1.21.11** | `1.21.11` (Dedicated) | `jarstacker-0.7.0+mc1.21.11.jar` | `17AB8A871A38D4CA3C2604022BD83D9D6566AAEE12FBEE730AB6844529B81221` | **348 / 348 PASS** | Title Screen Reached (YES) | Direct Target (Sweeping Attack, Entity Package & Permissions Overhaul) |
-| **1.21.1** | `1.21.1` (Dedicated) | `jarstacker-0.7.0+mc1.21.1.jar` | `9B0A34C8CB9D54B3B13FD93A32CCF8AA5EF4D290DF63C829EF9BE3E9BEA9AA25` | **348 / 348 PASS** | Title screen reached (0 fatal errors) | Direct Target (Independent Binary) |
-| **1.21.2** | `1.21.2` (Dedicated) | `jarstacker-0.7.0+mc1.21.2.jar` | `9F2D9CCB7FD6B24A76B6C023E2FF40F290DCABA288FC0B91AFB79F4A2A60D246` | **348 / 348 PASS** | Title screen reached (0 fatal errors) | Direct Target (Compatibility Band Anchor) |
-| **1.21.3** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.2.jar` (Exact Binary) | `9F2D9CCB7FD6B24A76B6C023E2FF40F290DCABA288FC0B91AFB79F4A2A60D246` | **348 / 348 PASS** | Title screen reached (0 fatal errors) | Verified Binary Band (1.21.2–1.21.3) |
-| **1.21.4** | `1.21.4` (Dedicated) | `jarstacker-0.7.0+mc1.21.4.jar` | `5E5955F026331C5A2B891CF8978742608BDDC7ED7BA9050073E5C906C99AE238` | **348 / 348 PASS** | Title screen reached (0 fatal errors) | Direct Target (Source-Compatible with 1.21.2) |
-| **1.21.5** | `1.21.5` (Dedicated) | `jarstacker-0.7.0+mc1.21.5.jar` | `481BC9832B1582B47D2DAC935105D352244EDE0A0817394B7F7F4A495067CBFB` | **348 / 348 PASS** | Title screen reached (0 fatal errors) | Direct Target (Entity Potion & Accessor Changes) |
-| **1.21.6** | `1.21.6` (Dedicated) | `jarstacker-0.7.0+mc1.21.6.jar` | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title screen reached (0 fatal errors) | Direct Target (Compatibility Band Anchor) |
-| **1.21.7** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title screen reached (0 fatal errors) | Verified Binary Band (1.21.6–1.21.8) |
-| **1.21.8** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title screen reached (0 fatal errors) | Verified Binary Band (1.21.6–1.21.8) |
-| **1.21.9** | `1.21.9` (Dedicated) | `jarstacker-0.7.0+mc1.21.9.jar` | `7E68BB6D2D451F38E990614AB73F8FCEC881FFA4915F38090B6F00FA702E0952` | **348 / 348 PASS** | Title screen reached (0 fatal errors) | Direct Target (Compatibility Band Anchor) |
-| **1.21.10** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.9.jar` (Exact Binary) | `7E68BB6D2D451F38E990614AB73F8FCEC881FFA4915F38090B6F00FA702E0952` | **348 / 348 PASS** | Title screen reached (0 fatal errors) | Verified Binary Band (1.21.9–1.21.10) |
-| **1.21.11** | `1.21.11` (Dedicated) | `jarstacker-0.7.0+mc1.21.11.jar` | `17AB8A871A38D4CA3C2604022BD83D9D6566AAEE12FBEE730AB6844529B81221` | **348 / 348 PASS** | Title screen reached (0 fatal errors) | Direct Target (Sweeping Attack, Entity Package & Permissions Overhaul) |
+| **1.21.1** | `1.21.1` (Dedicated) | `jarstacker-0.7.0+mc1.21.1.jar` | `9B0A34C8CB9D54B3B13FD93A32CCF8AA5EF4D290DF63C829EF9BE3E9BEA9AA25` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Independent Binary) |
+| **1.21.2** | `1.21.2` (Dedicated) | `jarstacker-0.7.0+mc1.21.2.jar` | `9F2D9CCB7FD6B24A76B6C023E2FF40F290DCABA288FC0B91AFB79F4A2A60D246` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Compatibility Band Anchor) |
+| **1.21.3** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.2.jar` (Exact Binary) | `9F2D9CCB7FD6B24A76B6C023E2FF40F290DCABA288FC0B91AFB79F4A2A60D246` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (1.21.2–1.21.3) |
+| **1.21.4** | `1.21.4` (Dedicated) | `jarstacker-0.7.0+mc1.21.4.jar` | `5E5955F026331C5A2B891CF8978742608BDDC7ED7BA9050073E5C906C99AE238` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Source-Compatible with 1.21.2) |
+| **1.21.5** | `1.21.5` (Dedicated) | `jarstacker-0.7.0+mc1.21.5.jar` | `481BC9832B1582B47D2DAC935105D352244EDE0A0817394B7F7F4A495067CBFB` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Entity Potion & Accessor Changes) |
+| **1.21.6** | `1.21.6` (Dedicated) | `jarstacker-0.7.0+mc1.21.6.jar` | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Compatibility Band Anchor) |
+| **1.21.7** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (1.21.6–1.21.8) |
+| **1.21.8** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.6.jar` (Exact Binary) | `136C2131C50A8C76E7819C5D5CEB27B6A42FAA739167A59A60A6A570A7CFDDA5` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (1.21.6–1.21.8) |
+| **1.21.9** | `1.21.9` (Dedicated) | `jarstacker-0.7.0+mc1.21.9.jar` | `7E68BB6D2D451F38E990614AB73F8FCEC881FFA4915F38090B6F00FA702E0952` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Compatibility Band Anchor) |
+| **1.21.10** | None (Runtime Harness) | `jarstacker-0.7.0+mc1.21.9.jar` (Exact Binary) | `7E68BB6D2D451F38E990614AB73F8FCEC881FFA4915F38090B6F00FA702E0952` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Verified Binary Band (1.21.9–1.21.10) |
+| **1.21.11** | `1.21.11` (Dedicated) | `jarstacker-0.7.0+mc1.21.11.jar` | `17AB8A871A38D4CA3C2604022BD83D9D6566AAEE12FBEE730AB6844529B81221` | **348 / 348 PASS** | Title screen reached (no fatal Mixin/linkage/entrypoint errors) | Direct Target (Sweeping Attack, Entity Package & Permissions Overhaul) |
 
 *Note: For all supported versions and compatibility bands, client verification confirmed the title screen reached with no fatal Mixin/linkage/entrypoint errors.*
 
@@ -66,19 +55,16 @@ Minecraft 1.21.3 is a minor maintenance release that preserves 100% binary compa
 - **Runtime Verification**: The exact 1.21.2 binary was executed in an isolated Minecraft 1.21.3 environment.
 - **Fabric Metadata**: Declared dependency `"minecraft": ">=1.21.2 <=1.21.3"`.
 - **Server Result**: Server booted cleanly, Mixins applied without error, and **348 / 348 automated tests passed**.
-- **Client Result**: Client booted cleanly, reaching the title screen with 0 errors or warnings.
 - **Client Result**: Title screen reached with no fatal Mixin/linkage/entrypoint errors.
 - **Declared Band**: `VERIFIED BINARY BAND: Minecraft 1.21.2–1.21.3`.
 
 ### 1.21.4 Status: Dedicated Compile Target
-Minecraft 1.21.4 shares 100% source code compatibility with 1.21.2. Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.4.jar`) passing all 348 tests and booting cleanly to the title screen. Per project requirements, 1.21.4 remains a dedicated compile target and is not claimed as part of the 1.21.2 binary band.
 Minecraft 1.21.4 shares 100% source code compatibility with 1.21.2. Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.4.jar`) passing all 348 tests, with title screen reached with no fatal Mixin/linkage/entrypoint errors. Per project requirements, 1.21.4 remains a dedicated compile target and is not claimed as part of the 1.21.2 binary band.
 
 ### 1.21.5 Status: Dedicated Compile Target
 Minecraft 1.21.5 introduced entity hierarchy and accessor refactors:
 - `MushroomCow.setVariant` made private (resolved via `MushroomCowAccessor` `@Invoker("setVariant")`).
 - Split potion projectile hierarchy into `ThrownSplashPotion` vs `ThrownLingeringPotion`.
-- Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.5.jar`) passing all 348 tests and booting cleanly to the title screen.
 - Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.5.jar`) passing all 348 tests, with title screen reached with no fatal Mixin/linkage/entrypoint errors.
 
 ### 1.21.5 vs 1.21.6: Verified Binary Boundary (Incompatible)
@@ -101,8 +87,6 @@ Minecraft 1.21.6 introduced major Vanilla serialization overhaul:
 - `ProjectileUtil.getEntityHitResult` parameter shifted from `(Level, Entity, ...)` to `(Entity, Vec3, Vec3, AABB, Predicate, double)`.
 - `ThrownSplashPotion.onHitAsPotion` takes `HitResult` as 3rd parameter.
 - The compiled 1.21.6 binary (`jarstacker-0.7.0+mc1.21.6.jar`) declares `"minecraft": ">=1.21.6 <=1.21.8"`.
-- **Runtime Verification on 1.21.7**: Exact 1.21.6 binary executed in isolated 1.21.7 environment: **348 / 348 tests PASS**, client title screen reached.
-- **Runtime Verification on 1.21.8**: Exact 1.21.6 binary executed in isolated 1.21.8 environment: **348 / 348 tests PASS**, client title screen reached.
 - **Runtime Verification on 1.21.7**: Exact 1.21.6 binary executed in isolated 1.21.7 environment: **348 / 348 tests PASS**, title screen reached with no fatal Mixin/linkage/entrypoint errors.
 - **Runtime Verification on 1.21.8**: Exact 1.21.6 binary executed in isolated 1.21.8 environment: **348 / 348 tests PASS**, title screen reached with no fatal Mixin/linkage/entrypoint errors.
 - **Declared Band**: `VERIFIED BINARY BAND: Minecraft 1.21.6–1.21.8`.
@@ -116,7 +100,6 @@ Minecraft 1.21.9 introduced internal refmap, Yarn, and Mojang mapping divergence
   - Mod Menu `16.0.1`
 - Stonecutter compiles a dedicated binary (`jarstacker-0.7.0+mc1.21.9.jar`) declaring `"minecraft": ">=1.21.9 <=1.21.10"`.
 - Automated in-game test suite: **348 / 348 PASS**.
-- Client boot verification: Title screen reached cleanly with 0 errors.
 - Client boot verification: Title screen reached with no fatal Mixin/linkage/entrypoint errors.
 
 ### 1.21.9 vs 1.21.10: Verified Same-Binary Compatibility Band (1.21.9–1.21.10)
@@ -128,19 +111,17 @@ Minecraft 1.21.10 is a minor maintenance release that maintains 100% binary comp
   - Mod Menu `16.0.1`
 - **Runtime Verification**: The exact 1.21.9 binary was executed in an isolated Minecraft 1.21.10 runtime environment (`runtime-test-1.21.10`).
 - **Server Result**: Server booted cleanly, Mixins applied without error, and **348 / 348 automated tests passed**.
-- **Client Result**: Client booted cleanly, reaching the title screen with 0 errors or warnings.
 - **Client Result**: Title screen reached with no fatal Mixin/linkage/entrypoint errors.
 - **Declared Band**: `VERIFIED BINARY BAND: Minecraft 1.21.9–1.21.10`.
 
 ### 1.21.10 vs 1.21.11: Verified Binary Boundary (Incompatible)
 Minecraft 1.21.11 introduced major structural breaking changes across multiple Mojang Vanilla subsystems:
-1. **Player Sweeping Attack Split**: `Player.attack()` no longer performs sweep attacks inline. Mojang extracted sweep combat into a private method `doSweepAttack(Entity, DamageSource, float, float)`. The 1.21.9 bytecode attempting to inject into `Player.attack()` for sweep handling fails at mixin application time, requiring a dedicated `@Inject` on `doSweepAttack` for `>=1.21.11`.
 - **Dependencies** (from `versions/1.21.11/gradle.properties`):
   - Minecraft `1.21.11`
   - Fabric API `0.141.6+1.21.11`
   - YACL `3.8.1+1.21.11-fabric`
   - Mod Menu `17.0.0`
-1. **Player Sweeping Attack Split**: In `<=1.21.10`, sweep attack logic was executed inline within `Player.attack(Entity)`. In `>=1.21.11`, Mojang extracted sweep combat into a private method `doSweepAttack(Entity, DamageSource, float, float)`. The 1.21.9 bytecode attempting to inject into `Player.attack()` for sweep handling fails at mixin application time, requiring dedicated injection on `Player.attack(...)` for `<=1.21.10` and `doSweepAttack(...)` for `>=1.21.11`.
+1. **Player Sweeping Attack Split**: In `<=1.21.10`, sweep handling was executed inline within `Player.attack(...)`. In `>=1.21.11`, Mojang extracted sweep combat into a private method `doSweepAttack(Entity, DamageSource, float, float)`. The 1.21.9 bytecode attempting to inject into `Player.attack(...)` for sweep handling fails at mixin application time, requiring dedicated handling on `Player.attack(...)` for `<=1.21.10` and dedicated `doSweepAttack(...)` handling for `>=1.21.11`.
 2. **Entity Class Hierarchy Reorganization**: Mojang subdivided and moved major entity classes into domain-specific subpackages:
    - `Horse`, `Llama`, `AbstractHorse` -> `net.minecraft.world.entity.animal.equine.*`
    - `Cat` -> `net.minecraft.world.entity.animal.feline.Cat`, `feline.CatVariant`
