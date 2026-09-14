@@ -136,6 +136,30 @@ public class JarStackerTestRunner {
 		ModConfig config = new ModConfig();
 		config.validate();
 		ModConfig.setInstance(config);
+		String fixtureMode = System.getProperty("jarstacker.save_fixture");
+		if (fixtureMode == null) {
+			fixtureMode = System.getenv("JARSTACKER_SAVE_FIXTURE");
+		}
+		if (fixtureMode == null) {
+			java.io.File modeFile = new java.io.File("save_fixture_mode.txt");
+			if (!modeFile.exists()) {
+				modeFile = new java.io.File("run/save_fixture_mode.txt");
+			}
+			if (modeFile.exists()) {
+				try {
+					fixtureMode = java.nio.file.Files.readString(modeFile.toPath()).trim();
+				} catch (Exception ignored) {}
+			}
+		}
+
+		if ("prepare".equalsIgnoreCase(fixtureMode)) {
+			executeSaveUpgradePrepare(level);
+			return results;
+		} else if ("verify".equalsIgnoreCase(fixtureMode)) {
+			executeSaveUpgradeVerify(level);
+			return results;
+		}
+
 		JarStackerMod.LOGGER.info("========== STARTING JAR STACKER TEST SUITE ==========");
 		com.jar.jarstacker.stack.mob.MovementDiagnostics.enabled = true;
 
@@ -11871,5 +11895,232 @@ Vec3 posH = pos.add(25, 0, 25);
 		*///?} else {
 		return level.getDayTime();
 		//?}
+	}
+
+	public static void executeSaveUpgradePrepare(ServerLevel level) {
+		JarStackerMod.LOGGER.info("========== EXECUTING SAVE-UPGRADE FIXTURE: PREPARE MODE ==========");
+		net.minecraft.core.BlockPos spawnPos = com.jar.jarstacker.adapter.EntityAdapter.getSharedSpawnPos(level);
+		net.minecraft.core.BlockPos basePos = spawnPos.offset(100, 5, 100);
+		int chunkX = basePos.getX() >> 4;
+		int chunkZ = basePos.getZ() >> 4;
+		for (int dx = -2; dx <= 2; dx++) {
+			for (int dz = -2; dz <= 2; dz++) {
+				level.setChunkForced(chunkX + dx, chunkZ + dz, true);
+				level.getChunk(chunkX + dx, chunkZ + dz);
+			}
+		}
+
+		AABB fixtureArea = new AABB(basePos.getX() - 30, basePos.getY() - 10, basePos.getZ() - 30,
+			basePos.getX() + 30, basePos.getY() + 20, basePos.getZ() + 30);
+		for (Entity e : level.getEntitiesOfClass(Entity.class, fixtureArea)) {
+			if (!(e instanceof ServerPlayer)) e.discard();
+		}
+
+		// 1. Stacked mob with known type, exact logicalCount, exact state-record count, non-default per-member health, status effects
+		Zombie zombie = createEntity(EntityType.ZOMBIE, level);
+		zombie.setPos(basePos.getX() + 0.5, basePos.getY() + 1.0, basePos.getZ() + 0.5);
+		((StackableEntity) zombie).jarstacker$setStackCount(4);
+		zombie.setCustomName(Component.literal("jarstacker_fixture_mob"));
+
+		LogicalHealthState hState = new LogicalHealthState(java.util.List.of(15.0f, 12.0f, 18.0f, 10.0f));
+		((StackableEntity) zombie).jarstacker$setLogicalHealthState(hState);
+		zombie.setHealth(15.0f);
+
+		LogicalStatusEffectState sState = LogicalStatusEffectManager.getOrCreateStatusState(zombie);
+		sState.get(0).addEffect(new MobEffectInstance(MobEffects.INFESTED, 150, 0), zombie);
+		sState.get(1).addEffect(new MobEffectInstance(MobEffects.OOZING, 250, 1), zombie);
+		sState.get(2).addEffect(new MobEffectInstance(MobEffects.WEAVING, 350, 0), zombie);
+		sState.get(3).addEffect(new MobEffectInstance(MobEffects.WIND_CHARGED, 450, 2), zombie);
+
+		level.addFreshEntity(zombie);
+
+		// 2. Vanilla variant mob stack (Brown Mooshroom, count 3)
+		MushroomCow mooshroom = createEntity(EntityType.MOOSHROOM, level);
+		mooshroom.setPos(basePos.getX() + 5.5, basePos.getY() + 1.0, basePos.getZ() + 0.5);
+		((StackableEntity) mooshroom).jarstacker$setStackCount(3);
+		EntityAdapter.setMooshroomVariant(mooshroom, true);
+		mooshroom.setCustomName(Component.literal("jarstacker_fixture_variant"));
+		level.addFreshEntity(mooshroom);
+
+		// 3. Stacked item pile (Cobblestone, logical count 128)
+		ItemEntity item = new ItemEntity(level, basePos.getX() + 10.5, basePos.getY() + 1.0, basePos.getZ() + 0.5,
+			new ItemStack(Items.COBBLESTONE, 64));
+		((StackableEntity) item).jarstacker$setStackCount(128);
+		item.setPickUpDelay(32767);
+		item.setCustomName(Component.literal("jarstacker_fixture_item"));
+		level.addFreshEntity(item);
+
+		// Log machine-readable BEFORE values
+		JarStackerMod.LOGGER.info("=== [SAVE_UPGRADE_FIXTURE BEFORE DATA START] ===");
+		JarStackerMod.LOGGER.info("FIXTURE_MOB_UUID={}", zombie.getUUID());
+		JarStackerMod.LOGGER.info("FIXTURE_MOB_TYPE={}", zombie.getType().toString());
+		JarStackerMod.LOGGER.info("FIXTURE_MOB_LOGICAL_COUNT={}", ((StackableEntity) zombie).jarstacker$getStackCount());
+		JarStackerMod.LOGGER.info("FIXTURE_MOB_STATE_RECORD_COUNT={}", hState.size());
+		for (int i = 0; i < hState.size(); i++) {
+			JarStackerMod.LOGGER.info("FIXTURE_MOB_HEALTH_{}={}", i, hState.get(i));
+		}
+		JarStackerMod.LOGGER.info("FIXTURE_MOB_EFFECT_0=INFESTED,duration=150,amp=0");
+		JarStackerMod.LOGGER.info("FIXTURE_MOB_EFFECT_1=OOZING,duration=250,amp=1");
+		JarStackerMod.LOGGER.info("FIXTURE_MOB_EFFECT_2=WEAVING,duration=350,amp=0");
+		JarStackerMod.LOGGER.info("FIXTURE_MOB_EFFECT_3=WIND_CHARGED,duration=450,amp=2");
+
+		JarStackerMod.LOGGER.info("FIXTURE_VARIANT_UUID={}", mooshroom.getUUID());
+		JarStackerMod.LOGGER.info("FIXTURE_VARIANT_TYPE={}", mooshroom.getVariant().getSerializedName().toUpperCase());
+		JarStackerMod.LOGGER.info("FIXTURE_VARIANT_LOGICAL_COUNT={}", ((StackableEntity) mooshroom).jarstacker$getStackCount());
+
+		JarStackerMod.LOGGER.info("FIXTURE_ITEM_UUID={}", item.getUUID());
+		JarStackerMod.LOGGER.info("FIXTURE_ITEM_ITEM={}", item.getItem().getItem());
+		JarStackerMod.LOGGER.info("FIXTURE_ITEM_LOGICAL_COUNT={}", ((StackableEntity) item).jarstacker$getStackCount());
+		JarStackerMod.LOGGER.info("=== [SAVE_UPGRADE_FIXTURE BEFORE DATA END] ===");
+
+		try {
+			level.save(null, true, false);
+		} catch (Exception e) {
+			JarStackerMod.LOGGER.error("Failed to flush save", e);
+		}
+		JarStackerMod.LOGGER.info("========== SAVE-UPGRADE FIXTURE: PREPARE COMPLETE ==========");
+	}
+
+	public static void executeSaveUpgradeVerify(ServerLevel level) {
+		JarStackerMod.LOGGER.info("========== EXECUTING SAVE-UPGRADE FIXTURE: VERIFY MODE ==========");
+		net.minecraft.core.BlockPos spawnPos = com.jar.jarstacker.adapter.EntityAdapter.getSharedSpawnPos(level);
+		net.minecraft.core.BlockPos basePos = spawnPos.offset(100, 5, 100);
+		int chunkX = basePos.getX() >> 4;
+		int chunkZ = basePos.getZ() >> 4;
+		for (int dx = -2; dx <= 2; dx++) {
+			for (int dz = -2; dz <= 2; dz++) {
+				level.setChunkForced(chunkX + dx, chunkZ + dz, true);
+				level.getChunk(chunkX + dx, chunkZ + dz);
+			}
+		}
+
+		AABB fixtureArea = new AABB(basePos.getX() - 30, basePos.getY() - 10, basePos.getZ() - 30,
+			basePos.getX() + 30, basePos.getY() + 20, basePos.getZ() + 30);
+		List<Entity> entities = level.getEntitiesOfClass(Entity.class, fixtureArea);
+
+		Zombie zombie = null;
+		MushroomCow mooshroom = null;
+		ItemEntity item = null;
+
+		for (Entity e : entities) {
+			if (e instanceof Zombie z && Math.abs(z.getX() - (basePos.getX() + 0.5)) < 2.0) {
+				zombie = z;
+			}
+			if (e instanceof MushroomCow m && Math.abs(m.getX() - (basePos.getX() + 5.5)) < 2.0) {
+				mooshroom = m;
+			}
+			if (e instanceof ItemEntity ie && Math.abs(ie.getX() - (basePos.getX() + 10.5)) < 2.0) {
+				item = ie;
+			}
+		}
+
+		JarStackerMod.LOGGER.info("=== [SAVE_UPGRADE_FIXTURE AFTER DATA START] ===");
+		boolean allPass = true;
+
+		// Verify Mob
+		if (zombie == null) {
+			JarStackerMod.LOGGER.error("ASSERTION FAILED: Fixture Zombie not found!");
+			allPass = false;
+		} else {
+			int mobLogical = ((StackableEntity) zombie).jarstacker$getStackCount();
+			LogicalHealthState hState = ((StackableEntity) zombie).jarstacker$getLogicalHealthState();
+			int hSize = (hState != null) ? hState.size() : 0;
+			LogicalStatusEffectState sState = ((StackableEntity) zombie).jarstacker$getLogicalStatusEffectState();
+
+			JarStackerMod.LOGGER.info("OBSERVED_MOB_UUID={}", zombie.getUUID());
+			JarStackerMod.LOGGER.info("OBSERVED_MOB_TYPE={}", zombie.getType().toString());
+			JarStackerMod.LOGGER.info("OBSERVED_MOB_LOGICAL_COUNT={}", mobLogical);
+			JarStackerMod.LOGGER.info("OBSERVED_MOB_STATE_RECORD_COUNT={}", hSize);
+			if (hState != null) {
+				for (int i = 0; i < hState.size(); i++) {
+					JarStackerMod.LOGGER.info("OBSERVED_MOB_HEALTH_{}={}", i, hState.get(i));
+				}
+			}
+
+			if (mobLogical != 4) {
+				JarStackerMod.LOGGER.error("ASSERTION FAILED: mobLogical == 4 expected, got {}", mobLogical);
+				allPass = false;
+			}
+			if (hSize != 4) {
+				JarStackerMod.LOGGER.error("ASSERTION FAILED: hSize == 4 expected, got {}", hSize);
+				allPass = false;
+			}
+			if (mobLogical != hSize) {
+				JarStackerMod.LOGGER.error("ASSERTION FAILED: logicalCount == logicalStateRecordCount invariant violated!");
+				allPass = false;
+			}
+			if (hState != null && hState.size() == 4) {
+				if (Math.abs(hState.get(0) - 15.0f) > 0.01f ||
+					Math.abs(hState.get(1) - 12.0f) > 0.01f ||
+					Math.abs(hState.get(2) - 18.0f) > 0.01f ||
+					Math.abs(hState.get(3) - 10.0f) > 0.01f) {
+					JarStackerMod.LOGGER.error("ASSERTION FAILED: Health state mismatch!");
+					allPass = false;
+				}
+			}
+
+			if (sState == null || sState.size() != 4 ||
+				!sState.get(0).hasEffect(MobEffects.INFESTED) ||
+				!sState.get(1).hasEffect(MobEffects.OOZING) ||
+				!sState.get(2).hasEffect(MobEffects.WEAVING) ||
+				!sState.get(3).hasEffect(MobEffects.WIND_CHARGED)) {
+				JarStackerMod.LOGGER.error("ASSERTION FAILED: Status effect state mismatch!");
+				allPass = false;
+			} else {
+				JarStackerMod.LOGGER.info("OBSERVED_MOB_EFFECT_0=INFESTED,duration={},amp={}",
+					sState.get(0).getEffect(MobEffects.INFESTED).getDuration(), sState.get(0).getEffect(MobEffects.INFESTED).getAmplifier());
+				JarStackerMod.LOGGER.info("OBSERVED_MOB_EFFECT_1=OOZING,duration={},amp={}",
+					sState.get(1).getEffect(MobEffects.OOZING).getDuration(), sState.get(1).getEffect(MobEffects.OOZING).getAmplifier());
+				JarStackerMod.LOGGER.info("OBSERVED_MOB_EFFECT_2=WEAVING,duration={},amp={}",
+					sState.get(2).getEffect(MobEffects.WEAVING).getDuration(), sState.get(2).getEffect(MobEffects.WEAVING).getAmplifier());
+				JarStackerMod.LOGGER.info("OBSERVED_MOB_EFFECT_3=WIND_CHARGED,duration={},amp={}",
+					sState.get(3).getEffect(MobEffects.WIND_CHARGED).getDuration(), sState.get(3).getEffect(MobEffects.WIND_CHARGED).getAmplifier());
+			}
+		}
+
+		// Verify Variant
+		if (mooshroom == null) {
+			JarStackerMod.LOGGER.error("ASSERTION FAILED: Fixture Mooshroom not found!");
+			allPass = false;
+		} else {
+			int varLogical = ((StackableEntity) mooshroom).jarstacker$getStackCount();
+			String varType = mooshroom.getVariant().getSerializedName().toUpperCase();
+			JarStackerMod.LOGGER.info("OBSERVED_VARIANT_UUID={}", mooshroom.getUUID());
+			JarStackerMod.LOGGER.info("OBSERVED_VARIANT_TYPE={}", varType);
+			JarStackerMod.LOGGER.info("OBSERVED_VARIANT_LOGICAL_COUNT={}", varLogical);
+
+			if (varLogical != 3) {
+				JarStackerMod.LOGGER.error("ASSERTION FAILED: varLogical == 3 expected, got {}", varLogical);
+				allPass = false;
+			}
+			if (!"BROWN".equalsIgnoreCase(varType)) {
+				JarStackerMod.LOGGER.error("ASSERTION FAILED: Variant BROWN expected, got {}", varType);
+				allPass = false;
+			}
+		}
+
+		// Verify Item
+		if (item == null) {
+			JarStackerMod.LOGGER.error("ASSERTION FAILED: Fixture Item not found!");
+			allPass = false;
+		} else {
+			int itemLogical = ((StackableEntity) item).jarstacker$getStackCount();
+			JarStackerMod.LOGGER.info("OBSERVED_ITEM_UUID={}", item.getUUID());
+			JarStackerMod.LOGGER.info("OBSERVED_ITEM_ITEM={}", item.getItem().getItem());
+			JarStackerMod.LOGGER.info("OBSERVED_ITEM_LOGICAL_COUNT={}", itemLogical);
+
+			if (itemLogical != 128) {
+				JarStackerMod.LOGGER.error("ASSERTION FAILED: itemLogical == 128 expected, got {}", itemLogical);
+				allPass = false;
+			}
+		}
+
+		JarStackerMod.LOGGER.info("=== [SAVE_UPGRADE_FIXTURE AFTER DATA END] ===");
+		if (allPass) {
+			JarStackerMod.LOGGER.info("=== [SAVE_UPGRADE_FIXTURE RESULT: PASS] ===");
+		} else {
+			JarStackerMod.LOGGER.error("=== [SAVE_UPGRADE_FIXTURE RESULT: FAIL] ===");
+		}
+		JarStackerMod.LOGGER.info("========== SAVE-UPGRADE FIXTURE: VERIFY COMPLETE ==========");
 	}
 }
