@@ -1,0 +1,50 @@
+plugins {
+	id 'fabric-loom' version '1.17.20'
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		name = 'Fabric'
+		url = 'https://maven.fabricmc.net/'
+	}
+	maven {
+		name = 'IsXander Maven'
+		url = 'https://maven.isxander.dev/releases'
+	}
+	maven {
+		name = 'TerraformersMC'
+		url = 'https://maven.terraformersmc.com/releases'
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:1.21.10"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:0.19.3"
+	modLocalRuntime "net.fabricmc.fabric-api:fabric-api:0.138.4+1.21.10"
+	modLocalRuntime "dev.isxander:yet-another-config-lib:3.8.1+1.21.10-fabric"
+	modLocalRuntime "com.terraformersmc:modmenu:16.0.1"
+	def jarFile = file("${rootProject.projectDir}/versions/1.21.9/build/libs/jarstacker-0.7.0+mc1.21.9.jar")
+	if (jarFile.exists()) {
+		modLocalRuntime files(jarFile)
+	}
+}
+
+loom {
+	runs {
+		server {
+			runDir = rootProject.file("run").path
+		}
+		client {
+			runDir = rootProject.file("run").path
+		}
+	}
+}
+
+tasks.matching { it.name.startsWith("run") }.configureEach {
+	if (project.hasProperty("runTests") || System.getProperty("jarstacker.test") != null) {
+		systemProperty "jarstacker.test", "true"
+	}
+}
+
