@@ -9416,15 +9416,13 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			Zombie singleton = createEntity(EntityType.ZOMBIE, level);
 			singleton.setPos(posS.x, posS.y, posS.z);
+			singleton.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.item.ItemStack.EMPTY);
 			((StackableEntity) singleton).jarstacker$setStackCount(1);
 			level.addFreshEntity(singleton);
 
 			for (int t = 0; t < 300; t++) {
 				singleton.tick();
 				if (singleton.getRemainingFireTicks() > 0) break;
-			}
-			if (singleton.getRemainingFireTicks() <= 0) {
-				singleton.igniteForTicks(160);
 			}
 
 			boolean pass = singleton.getRemainingFireTicks() > 0 && singleton.isOnFire();
@@ -9447,6 +9445,7 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posS.x, posS.y, posS.z);
+			stacked.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.item.ItemStack.EMPTY);
 			((StackableEntity) stacked).jarstacker$setStackCount(5);
 			level.addFreshEntity(stacked);
 			StackableEntity stackable = (StackableEntity) stacked;
@@ -9455,9 +9454,6 @@ Vec3 posH = pos.add(25, 0, 25);
 			for (int t = 0; t < 300; t++) {
 				stacked.tick();
 				if (bState.get(0) != null && bState.get(0).isBurning()) break;
-			}
-			if (bState.get(0) == null || !bState.get(0).isBurning()) {
-				stacked.igniteForTicks(160);
 			}
 
 			boolean allBurning = bState.size() == 5;
@@ -9487,6 +9483,7 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posS.x, posS.y, posS.z);
+			stacked.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.item.ItemStack.EMPTY);
 			((StackableEntity) stacked).jarstacker$setStackCount(3);
 			level.addFreshEntity(stacked);
 			LogicalHealthState hState = LogicalHealthManager.getOrCreateState(stacked);
@@ -9494,9 +9491,6 @@ Vec3 posH = pos.add(25, 0, 25);
 			for (int t = 0; t < 300; t++) {
 				stacked.tick();
 				if (hState.get(0) < 20.0f) break;
-			}
-			if (hState.get(0) >= 20.0f) {
-				LogicalHealthManager.onDamageApplied(stacked, level.damageSources().onFire(), 1.0f);
 			}
 
 			boolean pass = hState.size() == 3
@@ -9524,23 +9518,23 @@ Vec3 posH = pos.add(25, 0, 25);
 
 			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posS.x, posS.y, posS.z);
+			stacked.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.item.ItemStack.EMPTY);
 			((StackableEntity) stacked).jarstacker$setStackCount(4);
 			level.addFreshEntity(stacked);
 
-			for (int t = 0; t < 100; t++) {
+			for (int t = 0; t < 300; t++) {
 				stacked.tick();
 				if (stacked.getRemainingFireTicks() > 0) break;
 			}
-			if (stacked.getRemainingFireTicks() <= 0) {
-				stacked.igniteForTicks(160);
-			}
 
-			boolean continuousFire = true;
-			for (int t = 0; t < 20; t++) {
-				stacked.tick();
-				if (stacked.getRemainingFireTicks() <= 0 || !stacked.isOnFire()) {
-					continuousFire = false;
-					break;
+			boolean continuousFire = stacked.getRemainingFireTicks() > 0 && stacked.isOnFire();
+			if (continuousFire) {
+				for (int t = 0; t < 20; t++) {
+					stacked.tick();
+					if (stacked.getRemainingFireTicks() <= 0 || !stacked.isOnFire()) {
+						continuousFire = false;
+						break;
+					}
 				}
 			}
 
@@ -9607,16 +9601,11 @@ Vec3 posH = pos.add(25, 0, 25);
 			StackableEntity stackable = (StackableEntity) stacked;
 			LogicalBurnState bState = LogicalStatusEffectManager.getOrCreateBurnState(stacked);
 
-			// Direct environmental hazard: fire block
-			net.minecraft.core.BlockPos firePos = stacked.blockPosition();
-			level.setBlock(firePos, net.minecraft.world.level.block.Blocks.FIRE.defaultBlockState(), 3);
-			stacked.setDeltaMovement(0.01, 0.0, 0.01);
-			stacked.move(net.minecraft.world.entity.MoverType.SELF, stacked.getDeltaMovement());
+			// Real environmental hazard: lava block at feet
+			net.minecraft.core.BlockPos hazardPos = stacked.blockPosition();
+			level.setBlock(hazardPos, net.minecraft.world.level.block.Blocks.LAVA.defaultBlockState(), 3);
 			stacked.tick();
-			if (!bState.get(0).isBurning()) {
-				stacked.igniteForTicks(160);
-			}
-			level.setBlock(firePos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+			level.setBlock(hazardPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
 
 			boolean pass = bState.size() == 3
 				&& bState.get(0).isBurning()
