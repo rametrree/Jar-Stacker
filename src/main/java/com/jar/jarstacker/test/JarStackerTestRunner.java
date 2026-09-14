@@ -11900,7 +11900,7 @@ Vec3 posH = pos.add(25, 0, 25);
 	public static void executeSaveUpgradePrepare(ServerLevel level) {
 		JarStackerMod.LOGGER.info("========== EXECUTING SAVE-UPGRADE FIXTURE: PREPARE MODE ==========");
 		net.minecraft.core.BlockPos spawnPos = com.jar.jarstacker.adapter.EntityAdapter.getSharedSpawnPos(level);
-		net.minecraft.core.BlockPos basePos = spawnPos.offset(100, 5, 100);
+		net.minecraft.core.BlockPos basePos = spawnPos.offset(30, 0, 30);
 		int chunkX = basePos.getX() >> 4;
 		int chunkZ = basePos.getZ() >> 4;
 		for (int dx = -2; dx <= 2; dx++) {
@@ -11910,17 +11910,29 @@ Vec3 posH = pos.add(25, 0, 25);
 			}
 		}
 
-		AABB fixtureArea = new AABB(basePos.getX() - 30, basePos.getY() - 10, basePos.getZ() - 30,
-			basePos.getX() + 30, basePos.getY() + 20, basePos.getZ() + 30);
+		for (int dx = -2; dx <= 16; dx++) {
+			for (int dz = -3; dz <= 3; dz++) {
+				level.setBlock(basePos.offset(dx, -1, dz), net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState(), 3);
+				for (int dy = 0; dy <= 2; dy++) {
+					level.setBlock(basePos.offset(dx, dy, dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+				}
+				level.setBlock(basePos.offset(dx, 3, dz), net.minecraft.world.level.block.Blocks.TINTED_GLASS.defaultBlockState(), 3);
+			}
+		}
+
+		AABB fixtureArea = new AABB(basePos.getX() - 5, basePos.getY() - 5, basePos.getZ() - 5,
+			basePos.getX() + 20, basePos.getY() + 10, basePos.getZ() + 10);
 		for (Entity e : level.getEntitiesOfClass(Entity.class, fixtureArea)) {
 			if (!(e instanceof ServerPlayer)) e.discard();
 		}
 
 		// 1. Stacked mob with known type, exact logicalCount, exact state-record count, non-default per-member health, status effects
 		Zombie zombie = createEntity(EntityType.ZOMBIE, level);
-		zombie.setPos(basePos.getX() + 0.5, basePos.getY() + 1.0, basePos.getZ() + 0.5);
+		zombie.setPos(basePos.getX() + 0.5, basePos.getY(), basePos.getZ() + 0.5);
 		((StackableEntity) zombie).jarstacker$setStackCount(4);
 		zombie.setCustomName(Component.literal("jarstacker_fixture_mob"));
+		zombie.setPersistenceRequired();
+		zombie.setNoAi(true);
 
 		LogicalHealthState hState = new LogicalHealthState(java.util.List.of(15.0f, 12.0f, 18.0f, 10.0f));
 		((StackableEntity) zombie).jarstacker$setLogicalHealthState(hState);
@@ -11936,14 +11948,16 @@ Vec3 posH = pos.add(25, 0, 25);
 
 		// 2. Vanilla variant mob stack (Brown Mooshroom, count 3)
 		MushroomCow mooshroom = createEntity(EntityType.MOOSHROOM, level);
-		mooshroom.setPos(basePos.getX() + 5.5, basePos.getY() + 1.0, basePos.getZ() + 0.5);
+		mooshroom.setPos(basePos.getX() + 5.5, basePos.getY(), basePos.getZ() + 0.5);
 		((StackableEntity) mooshroom).jarstacker$setStackCount(3);
 		EntityAdapter.setMooshroomVariant(mooshroom, true);
 		mooshroom.setCustomName(Component.literal("jarstacker_fixture_variant"));
+		mooshroom.setPersistenceRequired();
+		mooshroom.setNoAi(true);
 		level.addFreshEntity(mooshroom);
 
 		// 3. Stacked item pile (Cobblestone, logical count 128)
-		ItemEntity item = new ItemEntity(level, basePos.getX() + 10.5, basePos.getY() + 1.0, basePos.getZ() + 0.5,
+		ItemEntity item = new ItemEntity(level, basePos.getX() + 10.5, basePos.getY(), basePos.getZ() + 0.5,
 			new ItemStack(Items.COBBLESTONE, 64));
 		((StackableEntity) item).jarstacker$setStackCount(128);
 		item.setPickUpDelay(32767);
@@ -12018,12 +12032,18 @@ Vec3 posH = pos.add(25, 0, 25);
 				zombieUuid = UUID.fromString(p.getProperty("zombieUuid"));
 				mooshroomUuid = UUID.fromString(p.getProperty("mooshroomUuid"));
 				itemUuid = UUID.fromString(p.getProperty("itemUuid"));
+				JarStackerMod.LOGGER.info("DEBUG_VERIFY loaded coords from {}: basePos={}, zUuid={}, mUuid={}, iUuid={}",
+					propFile.getAbsolutePath(), basePos, zombieUuid, mooshroomUuid, itemUuid);
+			} else {
+				JarStackerMod.LOGGER.warn("DEBUG_VERIFY propFile NOT found at save_fixture_coords.properties or run/save_fixture_coords.properties");
 			}
-		} catch (Exception ignored) {}
+		} catch (Exception ex) {
+			JarStackerMod.LOGGER.error("DEBUG_VERIFY failed to read propFile", ex);
+		}
 
 		if (basePos == null) {
 			net.minecraft.core.BlockPos spawnPos = com.jar.jarstacker.adapter.EntityAdapter.getSharedSpawnPos(level);
-			basePos = spawnPos.offset(100, 5, 100);
+			basePos = spawnPos.offset(30, 0, 30);
 		}
 
 		int chunkX = basePos.getX() >> 4;
@@ -12035,35 +12055,55 @@ Vec3 posH = pos.add(25, 0, 25);
 			}
 		}
 
-		AABB fixtureArea = new AABB(basePos.getX() - 30, basePos.getY() - 10, basePos.getZ() - 30,
-			basePos.getX() + 30, basePos.getY() + 20, basePos.getZ() + 30);
+		for (int i = 0; i < 30; i++) {
+			level.getChunkSource().tick(() -> true, true);
+			while (level.getChunkSource().pollTask()) {}
+			try {
+				java.lang.reflect.Method poll = net.minecraft.util.thread.BlockableEventLoop.class.getDeclaredMethod("pollTask");
+				poll.setAccessible(true);
+				while ((boolean) poll.invoke(level.getServer())) {}
+			} catch (Exception ignored) {
+				try {
+					java.lang.reflect.Method poll = level.getServer().getClass().getMethod("pollTask");
+					while ((boolean) poll.invoke(level.getServer())) {}
+				} catch (Exception ignored2) {}
+			}
+		}
+
+		AABB fixtureArea = new AABB(basePos.getX() - 5, basePos.getY() - 5, basePos.getZ() - 5,
+			basePos.getX() + 20, basePos.getY() + 10, basePos.getZ() + 10);
 		List<Entity> entities = level.getEntitiesOfClass(Entity.class, fixtureArea);
+		JarStackerMod.LOGGER.info("DEBUG_VERIFY entities in fixtureArea count={}", entities.size());
+		for (Entity e : entities) {
+			JarStackerMod.LOGGER.info("DEBUG_VERIFY fixtureArea entity: uuid={}, type={}, pos={}", e.getUUID(), e.getType(), e.position());
+		}
 
 		Zombie zombie = null;
 		MushroomCow mooshroom = null;
 		ItemEntity item = null;
 
 		for (Entity e : entities) {
-			if (e instanceof Zombie z && (z.getUUID().equals(zombieUuid) || Math.abs(z.getX() - (basePos.getX() + 0.5)) < 2.0)) {
+			if (e instanceof Zombie z && (zombieUuid != null && z.getUUID().equals(zombieUuid) || Math.abs(z.getX() - (basePos.getX() + 0.5)) < 3.0 || "jarstacker_fixture_mob".equals(z.getCustomName() != null ? z.getCustomName().getString() : ""))) {
 				zombie = z;
 			}
-			if (e instanceof MushroomCow m && (m.getUUID().equals(mooshroomUuid) || Math.abs(m.getX() - (basePos.getX() + 5.5)) < 2.0)) {
+			if (e instanceof MushroomCow m && (mooshroomUuid != null && m.getUUID().equals(mooshroomUuid) || Math.abs(m.getX() - (basePos.getX() + 5.5)) < 3.0 || "jarstacker_fixture_variant".equals(m.getCustomName() != null ? m.getCustomName().getString() : ""))) {
 				mooshroom = m;
 			}
-			if (e instanceof ItemEntity ie && (ie.getUUID().equals(itemUuid) || Math.abs(ie.getX() - (basePos.getX() + 10.5)) < 2.0)) {
+			if (e instanceof ItemEntity ie && (itemUuid != null && ie.getUUID().equals(itemUuid) || Math.abs(ie.getX() - (basePos.getX() + 10.5)) < 3.0 || "jarstacker_fixture_item".equals(ie.getCustomName() != null ? ie.getCustomName().getString() : ""))) {
 				item = ie;
 			}
 		}
 
 		if (zombie == null || mooshroom == null || item == null) {
 			for (Entity e : level.getAllEntities()) {
-				if (zombie == null && e instanceof Zombie z && (z.getUUID().equals(zombieUuid) || "jarstacker_fixture_mob".equals(z.getCustomName() != null ? z.getCustomName().getString() : ""))) {
+				JarStackerMod.LOGGER.info("DEBUG_VERIFY allEntities entity: uuid={}, type={}, pos={}", e.getUUID(), e.getType(), e.position());
+				if (zombie == null && e instanceof Zombie z && ((zombieUuid != null && z.getUUID().equals(zombieUuid)) || "jarstacker_fixture_mob".equals(z.getCustomName() != null ? z.getCustomName().getString() : ""))) {
 					zombie = z;
 				}
-				if (mooshroom == null && e instanceof MushroomCow m && (m.getUUID().equals(mooshroomUuid) || "jarstacker_fixture_variant".equals(m.getCustomName() != null ? m.getCustomName().getString() : ""))) {
+				if (mooshroom == null && e instanceof MushroomCow m && ((mooshroomUuid != null && m.getUUID().equals(mooshroomUuid)) || "jarstacker_fixture_variant".equals(m.getCustomName() != null ? m.getCustomName().getString() : ""))) {
 					mooshroom = m;
 				}
-				if (item == null && e instanceof ItemEntity ie && (ie.getUUID().equals(itemUuid) || "jarstacker_fixture_item".equals(ie.getCustomName() != null ? ie.getCustomName().getString() : ""))) {
+				if (item == null && e instanceof ItemEntity ie && ((itemUuid != null && ie.getUUID().equals(itemUuid)) || "jarstacker_fixture_item".equals(ie.getCustomName() != null ? ie.getCustomName().getString() : ""))) {
 					item = ie;
 				}
 			}
