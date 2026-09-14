@@ -6235,11 +6235,7 @@ public class JarStackerTestRunner {
 		SUN_TRACE_ENABLED = true;
 		long originalTime = getDayTime(level);
 		setDayTime(level, 6000L); // Daytime (noon)
-		//? if >=26.1 {
-		/*level.resetWeatherCycle();
-		*///?} else {
-		level.setWeatherParameters(60000, 0, false, false);
-		//?}
+		setClearWeather(level);
 
 		Vec3 posDiag = pos.add(30, 0, 30);
 		net.minecraft.core.BlockPos penCenter = new net.minecraft.core.BlockPos((int) posDiag.x, (int) posDiag.y, (int) posDiag.z);
@@ -9408,11 +9404,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		try {
 			cleanPen(level, cleanAreaS);
 			setDayTime(level, 6000L);
-			//? if >=26.1 {
-			/*level.resetWeatherCycle();
-			*///?} else {
-			level.setWeatherParameters(60000, 0, false, false);
-			//?}
+			setClearWeather(level);
 
 			Zombie singleton = createEntity(EntityType.ZOMBIE, level);
 			singleton.setPos(posS.x, posS.y, posS.z);
@@ -9437,11 +9429,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		try {
 			cleanPen(level, cleanAreaS);
 			setDayTime(level, 6000L);
-			//? if >=26.1 {
-			/*level.resetWeatherCycle();
-			*///?} else {
-			level.setWeatherParameters(60000, 0, false, false);
-			//?}
+			setClearWeather(level);
 
 			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posS.x, posS.y, posS.z);
@@ -9475,11 +9463,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		try {
 			cleanPen(level, cleanAreaS);
 			setDayTime(level, 6000L);
-			//? if >=26.1 {
-			/*level.resetWeatherCycle();
-			*///?} else {
-			level.setWeatherParameters(60000, 0, false, false);
-			//?}
+			setClearWeather(level);
 
 			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posS.x, posS.y, posS.z);
@@ -9510,14 +9494,15 @@ Vec3 posH = pos.add(25, 0, 25);
 		try {
 			cleanPen(level, cleanAreaS);
 			setDayTime(level, 6000L);
-			//? if >=26.1 {
-			/*level.resetWeatherCycle();
-			*///?} else {
-			level.setWeatherParameters(60000, 0, false, false);
-			//?}
+			setClearWeather(level);
 
 			Zombie stacked = createEntity(EntityType.ZOMBIE, level);
 			stacked.setPos(posS.x, posS.y, posS.z);
+			//? if >=26.1 {
+			/*stacked.setOldPosAndRot();
+			*///?} else {
+			stacked.setOldPosAndRot();
+			//?}
 			stacked.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.item.ItemStack.EMPTY);
 			((StackableEntity) stacked).jarstacker$setStackCount(4);
 			level.addFreshEntity(stacked);
@@ -9701,11 +9686,7 @@ Vec3 posH = pos.add(25, 0, 25);
 		try {
 			cleanPen(level, cleanAreaS);
 			setDayTime(level, 6000L);
-			//? if >=26.1 {
-			/*level.resetWeatherCycle();
-			*///?} else {
-			level.setWeatherParameters(60000, 0, false, false);
-			//?}
+			setClearWeather(level);
 
 			// Case 1: Singleton Zombie with Iron Helmet (damageable head equipment)
 			Zombie helmetZombie = createEntity(EntityType.ZOMBIE, level);
@@ -12472,6 +12453,16 @@ Vec3 posH = pos.add(25, 0, 25);
 		});
 		*///?} else {
 		level.setDayTime(time);
+		//?}
+	}
+
+	private static void setClearWeather(ServerLevel level) {
+		//? if >=26.1 {
+		/*level.getServer().setWeatherParameters(60000, 0, false, false);
+		level.setRainLevel(0.0f);
+		level.setThunderLevel(0.0f);
+		*///?} else {
+		level.setWeatherParameters(60000, 0, false, false);
 		//?}
 	}
 
