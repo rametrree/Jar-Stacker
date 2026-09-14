@@ -12055,6 +12055,38 @@ Vec3 posH = pos.add(25, 0, 25);
 			}
 		}
 
+		try {
+			java.lang.reflect.Field emField = null;
+			for (java.lang.reflect.Field f : level.getClass().getDeclaredFields()) {
+				if ("entityManager".equals(f.getName())) {
+					f.setAccessible(true);
+					emField = f;
+					break;
+				}
+			}
+			if (emField != null) {
+				Object em = emField.get(level);
+				Class<?> visClass = Class.forName("net.minecraft.world.level.entity.Visibility");
+				Object tickingVis = null;
+				for (Object c : visClass.getEnumConstants()) {
+					if ("TICKING".equals(c.toString())) tickingVis = c;
+				}
+				java.lang.reflect.Method updateStatus = em.getClass().getDeclaredMethod("updateChunkStatus", net.minecraft.world.level.ChunkPos.class, visClass);
+				updateStatus.setAccessible(true);
+				for (int dx = -2; dx <= 2; dx++) {
+					for (int dz = -2; dz <= 2; dz++) {
+						updateStatus.invoke(em, new net.minecraft.world.level.ChunkPos(chunkX + dx, chunkZ + dz), tickingVis);
+					}
+				}
+				java.lang.reflect.Method processLoads = em.getClass().getDeclaredMethod("processPendingLoads");
+				processLoads.setAccessible(true);
+				processLoads.invoke(em);
+				JarStackerMod.LOGGER.info("DEBUG_VERIFY invoked updateChunkStatus(TICKING) and processPendingLoads");
+			}
+		} catch (Exception ex) {
+			JarStackerMod.LOGGER.warn("DEBUG_VERIFY entity manager load invocation failed", ex);
+		}
+
 		for (int i = 0; i < 30; i++) {
 			level.getChunkSource().tick(() -> true, true);
 			while (level.getChunkSource().pollTask()) {}
@@ -12092,6 +12124,22 @@ Vec3 posH = pos.add(25, 0, 25);
 			if (e instanceof ItemEntity ie && (itemUuid != null && ie.getUUID().equals(itemUuid) || Math.abs(ie.getX() - (basePos.getX() + 10.5)) < 3.0 || "jarstacker_fixture_item".equals(ie.getCustomName() != null ? ie.getCustomName().getString() : ""))) {
 				item = ie;
 			}
+		}
+
+		if (zombie == null && zombieUuid != null) {
+			Entity e = level.getEntity(zombieUuid);
+			JarStackerMod.LOGGER.info("DEBUG_VERIFY level.getEntity(zombieUuid) returned: {}", e);
+			if (e instanceof Zombie z) zombie = z;
+		}
+		if (mooshroom == null && mooshroomUuid != null) {
+			Entity e = level.getEntity(mooshroomUuid);
+			JarStackerMod.LOGGER.info("DEBUG_VERIFY level.getEntity(mooshroomUuid) returned: {}", e);
+			if (e instanceof MushroomCow m) mooshroom = m;
+		}
+		if (item == null && itemUuid != null) {
+			Entity e = level.getEntity(itemUuid);
+			JarStackerMod.LOGGER.info("DEBUG_VERIFY level.getEntity(itemUuid) returned: {}", e);
+			if (e instanceof ItemEntity ie) item = ie;
 		}
 
 		if (zombie == null || mooshroom == null || item == null) {
