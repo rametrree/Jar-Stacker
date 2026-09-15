@@ -1,18 +1,23 @@
 <div align="center">
 
 # Jar Stacker (v0.6.0)
+# Jar Stacker (v0.7.0)
 
 <img src="image/logo.png" alt="Jar Stacker Logo" width="160"/>
 
 [![Minecraft 1.21.1](https://img.shields.io/badge/Minecraft-1.21.1-brightgreen.svg)](https://minecraft.net/)
+[![Minecraft 1.21.1–26.2](https://img.shields.io/badge/Minecraft-1.21.1%E2%80%9326.2-brightgreen.svg)](https://minecraft.net/)
 [![Fabric](https://img.shields.io/badge/Fabric-Loader_%3E%3D0.19.3-blue.svg)](https://fabricmc.net/)
 [![Java 21](https://img.shields.io/badge/Java-21-orange.svg)](https://adoptium.net/)
 [![Tests Passing](https://img.shields.io/badge/Tests-343%20%2F%20343%20Passing-success.svg)](#automated-test-suite)
 [![Version](https://img.shields.io/badge/Version-0.6.0-blueviolet.svg)](https://github.com/rametrree/Jar-Stacker)
+[![Java 21 / 25](https://img.shields.io/badge/Java-21%20%2F%2025-orange.svg)](https://adoptium.net/)
+[![Tests Passing](https://img.shields.io/badge/Tests-5%2C400%20%2F%205%2C400%20Passing-success.svg)](#automated-test-suite)
+[![Version](https://img.shields.io/badge/Version-0.7.0-blueviolet.svg)](https://github.com/rametrree/Jar-Stacker)
 
 </div>
 
-**Jar Stacker** is an advanced, high-performance entity stacking and logical virtualization mod for **Minecraft Java Edition 1.21.1 (Fabric)**.
+**Jar Stacker** is an advanced, high-performance entity stacking and logical virtualization mod for **Minecraft Java Edition 1.21.1 through 26.2 (Fabric)**.
 
 Designed to maximize server and single-player tick rates (TPS) under heavy loads, Jar Stacker combines nearby compatible dropped items and living mobs into single representative entities. Unlike simplistic stacking mods that delete entities or flatten state, Jar Stacker operates on a **strict logical virtualization architecture**—preserving individual mob health, status effects, fire timers, equipment invariants, drop attribution, and smooth, seamless item physics with zero item loss.
 
@@ -20,14 +25,15 @@ Designed to maximize server and single-player tick rates (TPS) under heavy loads
 
 ## Key Features at a Glance
 
-- **Latest Entity Wins Item Architecture (v0.6.0)**: Dropped items consolidate into the newest item with natural Vanilla physics, preserving exact position and velocity with zero survivor teleportation or visual pop.
+- **Broad Multi-Version Compatibility (v0.7.0)**: Full native support for **Minecraft 1.21.1 through 26.2** across 15 tested runtimes and 9 dedicated compatibility bands.
+- **Latest Entity Wins Item Architecture**: Dropped items consolidate into the newest item with natural Vanilla physics, preserving exact position and velocity with zero survivor teleportation or visual pop.
 - **Adaptive 2/10 Scan Cadence**: High-frequency scans (every 2 ticks) for active/newly dropped items ensure rapid consolidation during mining, with an ultra-lightweight 10-tick baseline for settled items.
-- **Per-Logical-Entity Status Effects & Persistent Burn (v0.6.0)**: All 39 Vanilla 1.21.1 status effects, fire tick timers, and event-driven death triggers are tracked independently per logical mob member.
-- **Complete Vanilla Combat & MC-3304 Parity (v0.5.2)**: Decoupled damage attribution, Looting level evaluation, sweeping edge mechanics, and projectile kill credit matching native Minecraft 1.21.1.
+- **Per-Logical-Entity Status Effects & Persistent Burn**: All 39 (1.21.x) and 40 (26.x) Vanilla status effects, fire tick timers, daylight burn, and event-driven death triggers are tracked independently per logical mob member.
+- **Complete Vanilla Combat & MC-3304 Parity**: Decoupled damage attribution, Looting level evaluation, sweeping edge mechanics, and projectile kill credit matching native Minecraft.
 - **Dynamic Equipment Extraction**: Mobs picking up damageable weapons or armor dynamically extract as singletons to protect equipment durability.
 - **Lifecycle-Aware Breeding & Growth**: Independent baby growth progression, single-increment sheep wool regrowth, and transactional interaction splitting.
 - **In-Game Configuration GUI**: Rich, searchable configuration screen powered by YetAnotherConfigLib (YACL v3) and Mod Menu.
-- **100% Verified**: 343 automated regression tests passing on every build.
+- **100% Verified**: 360 automated regression tests passing across 15 runtimes (**5,400 / 5,400 tests passing**).
 
 ---
 
@@ -189,62 +195,79 @@ All commands are registered under `/jarstacker`:
 
 ## Automated Test Suite
 
-Jar Stacker features an extensive internal integration test suite executed directly inside a dedicated server environment:
+Jar Stacker features an extensive internal integration test suite executed directly inside dedicated server environments across all supported Minecraft versions:
 
 ```powershell
-.\gradlew.bat runServer -PrunTests
+.\gradlew.bat :1.21.1:runServer -PrunTests
 ```
 
-**Result: 343 / 343 Tests Passing (100%)**
+**Result: 360 / 360 Tests Passing per runtime (5,400 / 5,400 tests passing across 15 runtimes, 100%)**
 
 - **IM1–IM29 (Item Stacking Invariants)**: Latest entity wins, zero survivor displacement, motion preservation, adaptive 2/10 scan latency, rapid mining sequences, real `level.destroyBlock` block drops, and count conservation.
 - **VA1–VA10 (Vanilla Effect Parity)**: Event-driven callbacks (`INFESTED`, `OOZING`, `WEAVING`, `WIND_CHARGED`), multi-death exact counts, and splash/lingering potion integration.
 - **PS1–PS6 (Passive Effect Parity)**: Movement and survival parity for Levitation, Water Breathing, Slow Falling, Jump Boost, and Health Boost.
 - **UA1–UA6 (Unsupported Area Fallback)**: Bounded singleton fallback, cooldown reapplication, and state rollback safety.
+- **SUN1–SUN12 (Daylight & Environmental Burn Parity)**: Real daylight sunlight burn detection, persistent burn propagation, and targeted ignition isolation.
 - **GE1–GE6, RI1–RI6, FB1–FB4**: Generic effect execution and fallback validation.
 - **S1–S23, F1–F7, P1–P6**: Status effect tracking, fire countdown persistence, and representative attribute projection.
 - **VC1–VC15, CE1–CE9**: Combat attribution integrity, dynamic equipment extraction, and MC-3304 parity.
 - **CM1–CM3, D1–D12, H1–H25**: Logical health, damage scoping, and death batching.
 - **C1–C7, TR1–TR16, M1–M12, L1–L18**: Transformations, baby growth, and chunk save/load idempotency.
+- **VR1–VR5 (Variant Compatibility & Safety)**: Compile-time typed variant matching and fail-safe rejection of unknown modded variants.
 
 ---
 
 ## Requirements & Installation
 
-- **Minecraft**: `1.21.1`
-- **Java**: `21`
-- **Fabric Loader**: `>=0.19.3`
-- **Fabric API**: `>=0.116.15+1.21.1`
-- **Optional (Recommended)**:
+- **Platform**: Fabric Loader (`>=0.19.3`)
+- **Fabric API**: Required on all versions
+- **Java**:
+  - **Java 21** for Minecraft `1.21.1` through `1.21.11`
+  - **Java 25** for Minecraft `26.1` and `26.2`
+- **Optional Dependencies (Recommended)**:
   - [YetAnotherConfigLib (YACL v3)](https://github.com/isXander/YetAnotherConfigLib): For the in-game configuration GUI.
-  - [Mod Menu](https://modrinth.com/mod/modmenu): To access configuration from the mods menu.
+  - [Mod Menu](https://modrinth.com/mod/modmenu): To access the configuration screen from the Mods menu.
 
-### Installation
-1. Ensure **Fabric Loader** and **Fabric API** are installed.
-2. Download `jarstacker-0.6.0.jar` and place it in your `.minecraft/mods` folder.
-3. (Optional) Add YACL and Mod Menu for in-game configuration.
+### Supported Minecraft Versions & Compatibility Bands
+
+> [!IMPORTANT]
+> **Install ONLY ONE Jar Stacker JAR matching your Minecraft version.** Do not place multiple Jar Stacker JARs in your mods folder.
+
+| Minecraft Version | Required Mod Artifact | Java | Status |
+| :--- | :--- | :---: | :--- |
+| **1.21.1** | `jarstacker-0.7.0+mc1.21.1.jar` | Java 21 | Direct Target |
+| **1.21.2 – 1.21.3** | `jarstacker-0.7.0+mc1.21.2.jar` | Java 21 | Compatibility Band |
+| **1.21.4** | `jarstacker-0.7.0+mc1.21.4.jar` | Java 21 | Direct Target |
+| **1.21.5** | `jarstacker-0.7.0+mc1.21.5.jar` | Java 21 | Direct Target |
+| **1.21.6 – 1.21.8** | `jarstacker-0.7.0+mc1.21.6.jar` | Java 21 | Compatibility Band |
+| **1.21.9 – 1.21.10** | `jarstacker-0.7.0+mc1.21.9.jar` | Java 21 | Compatibility Band |
+| **1.21.11** | `jarstacker-0.7.0+mc1.21.11.jar` | Java 21 | Direct Target |
+| **26.1 – 26.1.2** | `jarstacker-0.7.0+mc26.1.jar` | Java 25 | Compatibility Band |
+| **26.2** | `jarstacker-0.7.0+mc26.2.jar` | Java 25 | Direct Target |
+
+### Installation Steps
+1. Ensure **Fabric Loader** and **Fabric API** are installed for your Minecraft version.
+2. Download the **single** Jar Stacker JAR matching your Minecraft version from the table above.
+3. Place the downloaded `.jar` into your Minecraft instance's `.minecraft/mods` folder.
+4. *(Optional)* Add YACL v3 and Mod Menu for the in-game configuration GUI.
 
 ---
 
 ## Building from Source
 
-To compile the mod JAR from source:
+Jar Stacker uses [Stonecutter](https://github.com/kikugie/stonecutter) for multi-version source preprocessing:
 
 ```powershell
-# Clean build cache
-.\gradlew.bat clean
+# Build all 9 production JARs
+.\gradlew.bat :1.21.1:build :1.21.2:build :1.21.4:build :1.21.5:build :1.21.6:build :1.21.9:build :1.21.11:build :26.1:build :26.2:build
 
-# Compile and run test suite
-.\gradlew.bat compileJava
-.\gradlew.bat runServer -PrunTests
-
-# Build production JAR
-.\gradlew.bat build
+# Run in-game automated test suite for a specific version (e.g. 26.2)
+.\gradlew.bat :26.2:runServer -PrunTests
 ```
 
-The compiled mod JAR will be located at:
+The compiled distributable JARs will be located at:
 ```text
-build/libs/jarstacker-0.6.0.jar
+versions/<target>/build/libs/jarstacker-0.7.0+mc<target>.jar
 ```
 
 ---

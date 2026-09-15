@@ -40,6 +40,10 @@ replay_*.log
 *.hprof
 *.jfr
 
+# release staging
+release/
+
 # docs
 docs/*
 !docs/MULTIVERSION.md
+!docs/RELEASE_NOTES_*.md
