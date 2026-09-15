@@ -1,16 +1,11 @@
 <div align="center">
 
-# Jar Stacker (v0.6.0)
 # Jar Stacker (v0.7.0)
 
 <img src="image/logo.png" alt="Jar Stacker Logo" width="160"/>
 
-[![Minecraft 1.21.1](https://img.shields.io/badge/Minecraft-1.21.1-brightgreen.svg)](https://minecraft.net/)
 [![Minecraft 1.21.1–26.2](https://img.shields.io/badge/Minecraft-1.21.1%E2%80%9326.2-brightgreen.svg)](https://minecraft.net/)
 [![Fabric](https://img.shields.io/badge/Fabric-Loader_%3E%3D0.19.3-blue.svg)](https://fabricmc.net/)
-[![Java 21](https://img.shields.io/badge/Java-21-orange.svg)](https://adoptium.net/)
-[![Tests Passing](https://img.shields.io/badge/Tests-343%20%2F%20343%20Passing-success.svg)](#automated-test-suite)
-[![Version](https://img.shields.io/badge/Version-0.6.0-blueviolet.svg)](https://github.com/rametrree/Jar-Stacker)
 [![Java 21 / 25](https://img.shields.io/badge/Java-21%20%2F%2025-orange.svg)](https://adoptium.net/)
 [![Tests Passing](https://img.shields.io/badge/Tests-5%2C400%20%2F%205%2C400%20Passing-success.svg)](#automated-test-suite)
 [![Version](https://img.shields.io/badge/Version-0.7.0-blueviolet.svg)](https://github.com/rametrree/Jar-Stacker)
@@ -78,7 +73,7 @@ When compatible items are detected within the configured radius, the newest `Ite
 
 ### Combat Attribution & MC-3304 Parity (v0.5.2)
 - **Decoupled Combat Context (`CombatDeathContext`)**: Independently evaluates killer identity, damage source, player kill attribution, and enchantment levels.
-- **MC-3304 Parity**: Bows, crossbows, tridents, and player-ignited TNT evaluate the player's held weapon at the moment of impact/death matching native 1.21.1 behavior.
+- **MC-3304 Parity**: Bows, crossbows, tridents, and player-ignited TNT evaluate the player's held weapon at the moment of impact/death matching native Minecraft behavior.
 - **Sweeping & Melee**: Direct hits award full weapon Looting to the primary target; sweeping attacks propagate sweep-specific damage to secondary members.
 - **Environmental Deaths**: Lava, fire, drowning, suffocation, and fall deaths never award illicit player kill credit or Looting bonuses.
 
@@ -186,7 +181,7 @@ All commands are registered under `/jarstacker`:
 | `/jarstacker items <on\|off>` | OP (level 2) | Toggles item stacking on or off |
 | `/jarstacker mobs <on\|off>` | OP (level 2) | Toggles mob stacking on or off |
 | `/jarstacker debug` | OP (level 2) | Toggles detailed debug merge logging |
-| `/jarstacker test runAll` | OP (level 2) | Runs the comprehensive automated test suite (343 tests) |
+| `/jarstacker test runAll` | OP (level 2) | Runs the comprehensive automated test suite (360 tests) |
 | `/jarstacker test spawnItems <count>` | OP (level 2) | Spawns a batch of test items |
 | `/jarstacker test spawnZombies <count>` | OP (level 2) | Spawns a batch of test zombies |
 | `/jarstacker test runStack` | OP (level 2) | Triggers an immediate manual scan and stack |

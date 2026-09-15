@@ -44,7 +44,7 @@ Jar Stacker **v0.7.0** is our largest update yet, expanding entity stacking and 
 
 ### 1. Item Stacking UX ("Latest Entity Wins")
 - **Natural Motion Preservation**: Newly mined drops retain their natural position, trajectory, and momentum. The newest entity becomes the physical survivor, eliminating jarring anchor snaps back to old piles.
-- **Adaptive Cadence**: Items in motion or recently spawned (`age <= 40`) are evaluated every 2 ticks (~100 ms), delivering immediate merge responsiveness during rapid block breaking while maintaining sub-0.3 ms tick overhead on settled piles.
+- **Adaptive Cadence**: Items in motion or recently spawned (`age <= 40`) are evaluated every 2 ticks (~100 ms), delivering immediate merge responsiveness during rapid block breaking while maintaining minimal tick overhead on settled piles.
 - **Visual Smoothness**: Operates strictly through native entity state without fragile client-side render interpolation or lerp offsets.
 - **Clean Nametags**: Clean single-item display hides floating labels for unstacked items (`count == 1`), preserving pure Vanilla visuals.
 
@@ -97,8 +97,7 @@ Jar Stacker **v0.7.0** is our largest update yet, expanding entity stacking and 
 
 ## Upgrade Notes
 
-- **Existing Worlds & Configs**: Worlds and configurations created with Jar Stacker 0.6.0 on supported versions are fully compatible and will load seamlessly.
-- **Verified Cross-Version Save Upgrade (`26.1.2` $\to$ `26.2`)**: Worlds generated on Minecraft 26.1.2 containing multi-member stacks with varied health, status effects, and items were upgraded to Minecraft 26.2 and verified with 100% data fidelity.
+- **World & Save Compatibility**: Jar Stacker 0.7.0 preserves the established stack and configuration formats. As with any mod or Minecraft version upgrade, back up your world before updating. Cross-version world upgrade from Minecraft 26.1.2 to 26.2 was explicitly verified with Jar Stacker state preserved.
 - **Downgrade Notice**: World downgrades (e.g. 26.2 to 26.1 or 1.21.x) are not supported by Minecraft and are not supported by Jar Stacker. Always backup your worlds before performing major Minecraft version upgrades.
 
 ---

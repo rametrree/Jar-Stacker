@@ -2,7 +2,6 @@
 
 All notable changes to Jar Stacker will be documented in this file.
 
-## [0.7.0] - Unreleased
 ## [0.7.0] - 2026-09-15
 
 ### Added
